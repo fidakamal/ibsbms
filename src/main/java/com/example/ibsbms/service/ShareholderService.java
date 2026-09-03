@@ -17,7 +17,8 @@ public class ShareholderService {
         this.objectMapper = objectMapper;
     }
 
-    public String buildCreateProposalJson(ShareholderCreateRequest request) {
+    public String buildCreateProposalJson(
+            ShareholderCreateRequest request) {
 
         Map<String, Object> payload = new LinkedHashMap<>();
 
@@ -30,8 +31,7 @@ public class ShareholderService {
             return objectMapper.writeValueAsString(payload);
         } catch (JacksonException e) {
             throw new IllegalStateException(
-                    "Unable to create shareholder proposal JSON", e
-            );
+                    "Unable to create shareholder proposal JSON", e);
         }
     }
 }

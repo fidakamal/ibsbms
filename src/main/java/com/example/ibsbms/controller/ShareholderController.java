@@ -2,6 +2,7 @@ package com.example.ibsbms.controller;
 
 import com.example.ibsbms.dto.ShareholderCreateRequest;
 import com.example.ibsbms.service.ShareholderService;
+import com.example.ibsbms.service.ShareholderWorkflowService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -12,10 +13,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class ShareholderController {
 
-    private final ShareholderService shareholderService;
+    private final ShareholderWorkflowService shareholderWorkflowService;
 
-    public ShareholderController(ShareholderService shareholderService) {
-        this.shareholderService = shareholderService;
+    public ShareholderController(
+            ShareholderWorkflowService shareholderWorkflowService) {
+
+        this.shareholderWorkflowService = shareholderWorkflowService;
     }
 
     @GetMapping("/shareholders/create")
@@ -33,11 +36,26 @@ public class ShareholderController {
             return "shareholder/shareholder-create";
         }
 
-        String proposalJson =
-                shareholderService.buildCreateProposalJson(request);
+        /*
+         * Temporary maker identity.
+         *
+         * Later this will come from the authenticated session,
+         * never from the browser.
+         */
+        String makerId = "test.maker";
 
-        System.out.println("Shareholder Create Proposal:");
-        System.out.println(proposalJson);
+        /*
+         * Temporary IP.
+         *
+         * Later this will come from the HTTP request/gateway.
+         */
+        String makerIp = "127.0.0.1";
+
+        shareholderWorkflowService.submitCreateForApproval(
+                request,
+                makerId,
+                makerIp
+        );
 
         return "redirect:/shareholders";
     }

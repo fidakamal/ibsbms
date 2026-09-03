@@ -2,6 +2,7 @@ package com.example.ibsbms.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -28,8 +29,12 @@ public class BasicInfoDto {
     @Size(max = 80)
     private String representative;
 
+    @Min(0)
+    @Max(9)
     private Integer custType;
 
+    @Min(1)
+    @Max(9)
     private Integer citizenType;
 
     @NotBlank
@@ -45,7 +50,9 @@ public class BasicInfoDto {
 
     private LocalDate dob;
 
-    private Integer isEmployee;
+    @Min(0)
+    @Max(1)
+    private Integer isEmployee = 0;
 
     @Size(max = 17)
     private String nidNo;
@@ -54,9 +61,8 @@ public class BasicInfoDto {
     private String tinNo;
 
     @Max(999)
-    private Integer icbCode;
+    private Integer icbCode = 0;
 
-    // Getters and setters
 
     public String getFolioBo() {
         return folioBo;
