@@ -44,7 +44,7 @@
              SHAREHOLDER CREATE FORM
              ========================= -->
 
-        <form method="post" action="/shareholders/create">
+        <form method="post" action="/shareholders/create" th:object="${shareholder}">
 
             <!-- =========================
                  BASIC INFORMATION
