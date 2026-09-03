@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>IBSBMS - New Shareholder</title>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+
+    <link
+            th:href="@{/css/style.css}"
+            rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+
+<main class="main-content">
+
+    <div class="page-content">
+
+
+        <!-- Page Header -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h4 class="mb-1">
+                    New Shareholder
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Folio master information
+                </p>
+
+            </div>
+
+
+            <div class="d-flex gap-2">
+
+                <a href="/shareholders"
+                   class="btn btn-outline-secondary">
+
+                    Shareholder List
+
+                </a>
+
+                <a href="/approvals"
+                   class="btn btn-outline-primary">
+
+                    Pending Approvals
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Main Form -->
+
+        <form>
+
+
+            <!-- ================================
+                 Basic Information
+                 ================================ -->
+
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header section-header">
+
+                    Basic Information
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+
+                        <!-- Folio -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Folio/BO Number
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="16"
+                                    placeholder="Enter Folio/BO Number">
+
+                        </div>
+
+
+                        <!-- Name -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Shareholder Name
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="100"
+                                    placeholder="Enter shareholder name">
+
+                        </div>
+
+
+                        <!-- Citizen -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Citizen Type
+                            </label>
+
+                            <select class="form-select">
+
+                                <option value="1">
+                                    Local
+                                </option>
+
+                                <option value="2">
+                                    Foreign
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Residence -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Residence Type
+                                <span class="required">*</span>
+                            </label>
+
+                            <select class="form-select">
+
+                                <option value="">
+                                    Select Residence Type
+                                </option>
+
+                                <option value="Resident">
+                                    Resident
+                                </option>
+
+                                <option value="Non-Resident">
+                                    Non-Resident
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Phone -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Phone Number
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="11"
+                                    placeholder="Enter phone number">
+
+                        </div>
+
+
+                        <!-- Email -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Email
+                            </label>
+
+                            <input
+                                    type="email"
+                                    class="form-control"
+                                    maxlength="60"
+                                    placeholder="Enter email">
+
+                        </div>
+
+
+                        <!-- Customer Type -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Customer Type
+                            </label>
+
+                            <select class="form-select">
+
+                                <option value="">
+                                    Select Customer Type
+                                </option>
+
+                                <option value="1">
+                                    Individual
+                                </option>
+
+                                <option value="2">
+                                    Organization
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Representative -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Representative
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="80"
+                                    placeholder="Enter representative">
+
+                        </div>
+
+
+                        <!-- Employee -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Is Employee
+                            </label>
+
+                            <select class="form-select">
+
+                                <option value="0">
+                                    No
+                                </option>
+
+                                <option value="1">
+                                    Yes
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- NID -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                NID
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="17"
+                                    placeholder="Enter NID">
+
+                        </div>
+
+
+                        <!-- TIN -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                TIN
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="12"
+                                    placeholder="Enter TIN">
+
+                        </div>
+
+
+                        <!-- Registration Date -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Registration Date
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="date"
+                                    class="form-control"
+                                    readonly>
+
+                            <small class="text-muted">
+                                System-generated business date
+                            </small>
+
+                        </div>
+
+
+                        <!-- BO Code -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                BO Code
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="17"
+                                    placeholder="Enter BO Code">
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================
+                 Address
+                 ================================ -->
+
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header section-header">
+
+                    Address
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                ADD1
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="80"
+                                    placeholder="Enter address">
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                ADD2
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="80"
+                                    placeholder="Enter address">
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                COUNTRY NAME
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="60"
+                                    placeholder="Enter country">
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                ADD3
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="80">
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                ADD4
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="80">
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================
+                 Bank Information
+                 ================================ -->
+
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header section-header">
+
+                    Bank Information
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                BANK NAME
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="80"
+                                    placeholder="Enter bank name">
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                ACCOUNT NUMBER
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="17"
+                                    placeholder="Enter account number">
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                BRANCH NAME
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="80"
+                                    placeholder="Enter branch name">
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                ROUTING NUMBER
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    maxlength="20"
+                                    placeholder="Enter routing number">
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Buttons -->
+
+            <div class="d-flex justify-content-end gap-2 mb-4">
+
+                <a href="/shareholders"
+                   class="btn btn-outline-secondary">
+
+                    Cancel
+
+                </a>
+
+                <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                    Submit
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</main>
+
+</body>
+</html>

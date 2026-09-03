@@ -15,4 +15,9 @@ public class HomeController {
     public String shareholders() {
         return "shareholder/shareholder-list";
     }
+
+    @GetMapping("/shareholders/create")
+    public String createShareholder() {
+        return "shareholder/shareholder-create";
+    }
 }

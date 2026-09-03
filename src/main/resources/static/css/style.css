@@ -257,3 +257,111 @@ a {
 .page-content {
     padding: 30px;
 }
+
+
+
+/* ================================
+   Shareholder List
+   ================================ */
+
+.share-table-header {
+    background-color: #285a78;
+    color: #ffffff;
+}
+
+.share-table-header th {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 12px 10px;
+    white-space: nowrap;
+}
+
+.table {
+    font-size: 13px;
+}
+
+.table td {
+    padding: 11px 10px;
+    white-space: nowrap;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: #f0f0f0;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: #e8eeee;
+}
+
+.badge.bg-success {
+    background-color: #16a05d !important;
+    font-weight: 500;
+    padding: 5px 9px;
+}
+
+.btn-primary {
+    background-color: #174c4c;
+    border-color: #174c4c;
+}
+
+.btn-primary:hover {
+    background-color: #123d3d;
+    border-color: #123d3d;
+}
+
+
+
+
+/* ================================
+   Shareholder Form
+   ================================ */
+
+.section-header {
+    background-color: #285a78;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    padding: 12px 18px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #444444;
+
+    margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+    border-color: #d9dede;
+
+    border-radius: 4px;
+
+    font-size: 13px;
+
+    min-height: 38px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #7893a0;
+
+    box-shadow: 0 0 0 0.15rem rgba(40, 90, 120, 0.12);
+}
+
+.required {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 5px;
+}
+
+.card-body {
+    background-color: #ffffff;
+}
