@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<aside th:fragment="sidebar" class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+        <div class="logo-circle">
+            IB
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+
+        <a href="/" class="sidebar-link active">
+            <span class="sidebar-icon">▦</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/shareholders" class="sidebar-link">
+            <span class="sidebar-icon">♙</span>
+            <span>Shareholders</span>
+        </a>
+
+        <a href="/approvals" class="sidebar-link">
+            <span class="sidebar-icon">✓</span>
+            <span>Approvals</span>
+        </a>
+
+    </nav>
+
+</aside>
+
+</body>
+</html>

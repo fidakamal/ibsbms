@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<header th:fragment="header" class="top-header">
+
+    <!-- Left side -->
+    <div class="header-left">
+
+        <button class="menu-button" type="button">
+            ☰
+        </button>
+
+        <span class="header-title">
+            Dashboard
+        </span>
+
+    </div>
+
+    <!-- Right side -->
+    <div class="header-right">
+
+        <!-- Notification -->
+        <div class="notification">
+            <span class="notification-icon">♢</span>
+            <span class="notification-badge">3</span>
+        </div>
+
+        <!-- User -->
+        <div class="user-section">
+
+            <div class="user-icon">
+                👤
+            </div>
+
+            <span class="username">
+                test.maker
+            </span>
+
+        </div>
+
+        <!-- Logout -->
+        <button class="logout-button">
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+</body>
+</html>

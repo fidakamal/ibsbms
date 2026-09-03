@@ -10,4 +10,9 @@ public class HomeController {
     public String home() {
         return "dashboard";
     }
+
+    @GetMapping("/shareholders")
+    public String shareholders() {
+        return "shareholder/shareholder-list";
+    }
 }
