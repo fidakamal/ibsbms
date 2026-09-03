@@ -1,6 +1,7 @@
 package com.example.ibsbms.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -52,7 +53,7 @@ public class BasicInfoDto {
     @Size(max = 12)
     private String tinNo;
 
-    @Size(max = 3)
+    @Max(999)
     private Integer icbCode;
 
     // Getters and setters
