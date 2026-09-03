@@ -1,7 +1,9 @@
 package com.example.ibsbms.entity;
 
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,22 +14,13 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "T_APPROVAL_REQUEST")
 public class ApprovalRequest {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "approvalRequestSeq"
-    )
-    @SequenceGenerator(
-            name = "approvalRequestSeq",
-            sequenceName = "SEQ_APPROVAL_REQUEST",
-            allocationSize = 1
-    )
     @Column(name = "REQUEST_ID", nullable = false)
     private Long requestId;
 
@@ -73,18 +66,18 @@ public class ApprovalRequest {
     @Column(name = "APPROVER_IP", length = 50)
     private String approverIp;
 
-    @Column(name = "CREATED_AT", nullable = false)
+    @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    @Column(name = "UPDATED_AT", nullable = false)
+    @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
     @Column(name = "DECIDED_AT")
     private LocalDateTime decidedAt;
 
-    @Column(name = "VERSION_NO", nullable = false)
-    private Integer versionNo = 0;
+    @Column(name = "VERSION_NO", precision = 10)
+    private Integer versionNo;
 
-    @Column(name = "BUSINESS_DATE", nullable = false)
+    @Column(name = "BUSINESS_DATE")
     private LocalDate businessDate;
 }

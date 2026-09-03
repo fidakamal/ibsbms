@@ -3,7 +3,6 @@ package com.example.ibsbms.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +13,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "T_SHAREHOLDER_CHANGE_REQUEST")
 public class ShareholderChangeRequest {
@@ -30,12 +29,10 @@ public class ShareholderChangeRequest {
     @Column(name = "OPERATION_CODE", length = 50, nullable = false)
     private String operationCode;
 
-    @Lob
-    @Column(name = "OLD_VALUE")
+    @Column(name = "OLD_VALUE", columnDefinition = "CLOB")
     private String oldValue;
 
-    @Lob
-    @Column(name = "NEW_VALUE", nullable = false)
+    @Column(name = "NEW_VALUE", columnDefinition = "CLOB", nullable = false)
     private String newValue;
 
     @Column(name = "CREATED_BY", length = 60, nullable = false)
@@ -44,12 +41,12 @@ public class ShareholderChangeRequest {
     @Column(name = "CREATED_IP", length = 45)
     private String createdIp;
 
-    @Column(name = "CREATED_AT", nullable = false)
+    @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    @Column(name = "UPDATED_AT", nullable = false)
+    @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
-    @Column(name = "VERSION_NO", nullable = false)
-    private Integer versionNo = 0;
+    @Column(name = "VERSION_NO", precision = 10)
+    private Integer versionNo;
 }

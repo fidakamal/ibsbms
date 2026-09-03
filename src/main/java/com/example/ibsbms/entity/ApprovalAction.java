@@ -1,7 +1,9 @@
 package com.example.ibsbms.entity;
 
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,22 +13,13 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "T_APPROVAL_ACTION")
 public class ApprovalAction {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "approvalActionSeq"
-    )
-    @SequenceGenerator(
-            name = "approvalActionSeq",
-            sequenceName = "SEQ_APPROVAL_ACTION",
-            allocationSize = 1
-    )
     @Column(name = "ACTION_ID", nullable = false)
     private Long actionId;
 
@@ -48,6 +41,6 @@ public class ApprovalAction {
     @Column(name = "REMARKS", length = 500)
     private String remarks;
 
-    @Column(name = "ACTION_AT", nullable = false)
+    @Column(name = "ACTION_AT")
     private LocalDateTime actionAt;
 }
