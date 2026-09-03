@@ -30,10 +30,12 @@ a {
 
     width: 220px;
 
+    height: 100vh;
+
     background-color: #ffffff;
     border-right: 1px solid #d9dede;
 
-    z-index: 1000;
+    z-index: 1100;
 }
 
 .sidebar-logo {
@@ -113,10 +115,16 @@ a {
     position: fixed;
 
     top: 0;
+
     left: 220px;
+
     right: 0;
 
-    height: 65px;
+    height: 70px;
+
+    z-index: 1000;
+
+
 
     background-color: #ffffff;
 
@@ -127,8 +135,6 @@ a {
     justify-content: space-between;
 
     padding: 0 25px;
-
-    z-index: 900;
 }
 
 .header-left {
@@ -242,20 +248,28 @@ a {
 }
 
 
+
+
 /* ================================
    Main Content
    ================================ */
 
+.main-wrapper {
+    margin-left: 0;
+}
+
 .main-content {
     margin-left: 220px;
 
-    padding-top: 65px;
+    padding: 100px 40px 30px;
 
     min-height: 100vh;
+
+    background-color: #F5F7F7;
 }
 
 .page-content {
-    padding: 30px;
+    padding: 0;
 }
 
 
@@ -364,4 +378,13 @@ a {
 
 .card-body {
     background-color: #ffffff;
+}
+
+.form-section {
+    margin-top: 32px;
+    margin-bottom: 24px;
+}
+
+.form-section-body {
+    padding: 24px 28px;
 }
