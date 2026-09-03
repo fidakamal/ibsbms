@@ -131,9 +131,19 @@
 
                         <div>
 
-                            <span class="badge bg-warning text-dark">
-                                PENDING_CHECKER
-                            </span>
+                            <span
+                                    class="badge"
+                                    th:classappend="
+            ${status == 'APPROVED'} ? ' bg-success' :
+            (${status == 'REJECTED'} ? ' bg-danger' :
+            (${status == 'RETURNED_FOR_MODIFICATION'} ? ' bg-warning text-dark' :
+            ' bg-warning text-dark'))
+        "
+                                    th:text="${status}">
+
+    PENDING_CHECKER
+
+</span>
 
                         </div>
 
@@ -508,6 +518,34 @@
                 </h5>
 
 
+                <!-- Success message -->
+
+                <div
+                        th:if="${param.success}"
+                        class="alert alert-success">
+
+            <span th:text="${param.success}">
+                Request processed successfully.
+            </span>
+
+                </div>
+
+
+                <!-- Error message -->
+
+                <div
+                        th:if="${param.error}"
+                        class="alert alert-danger">
+
+            <span th:text="${param.error}">
+                Unable to process request.
+            </span>
+
+                </div>
+
+
+                <!-- Remarks -->
+
                 <div class="mb-3">
 
                     <label class="form-label">
@@ -515,6 +553,8 @@
                     </label>
 
                     <textarea
+                            id="remarks"
+                            name="remarks"
                             class="form-control"
                             rows="4"
                             placeholder="Remarks are required for Return or Reject."></textarea>
@@ -525,31 +565,83 @@
                 <div class="d-flex justify-content-end gap-2">
 
 
-                    <button
-                            type="button"
-                            class="btn btn-outline-danger">
+                    <!-- Reject -->
 
-                        Reject
+                    <form
+                            th:action="@{/approvals/{id}/reject(id=${requestId})}"
+                            method="post">
 
-                    </button>
+                        <input
+                                type="hidden"
+                                name="remarks"
+                                id="rejectRemarks">
+
+                        <button
+                                type="submit"
+                                class="btn btn-outline-danger"
+                                onclick="
+                            document.getElementById('rejectRemarks').value =
+                            document.getElementById('remarks').value;
+                        ">
+
+                            Reject
+
+                        </button>
+
+                    </form>
 
 
-                    <button
-                            type="button"
-                            class="btn btn-outline-warning">
+                    <!-- Return -->
 
-                        Return for Modification
+                    <form
+                            th:action="@{/approvals/{id}/return(id=${requestId})}"
+                            method="post">
 
-                    </button>
+                        <input
+                                type="hidden"
+                                name="remarks"
+                                id="returnRemarks">
+
+                        <button
+                                type="submit"
+                                class="btn btn-outline-warning"
+                                onclick="
+                            document.getElementById('returnRemarks').value =
+                            document.getElementById('remarks').value;
+                        ">
+
+                            Return for Modification
+
+                        </button>
+
+                    </form>
 
 
-                    <button
-                            type="button"
-                            class="btn btn-success">
+                    <!-- Approve -->
 
-                        Approve
+                    <form
+                            th:action="@{/approvals/{id}/approve(id=${requestId})}"
+                            method="post">
 
-                    </button>
+                        <input
+                                type="hidden"
+                                name="remarks"
+                                id="approveRemarks">
+
+                        <button
+                                type="submit"
+                                class="btn btn-success"
+                                onclick="
+                            document.getElementById('approveRemarks').value =
+                            document.getElementById('remarks').value;
+                        ">
+
+                            Approve
+
+                        </button>
+
+                    </form>
+
 
                 </div>
 
