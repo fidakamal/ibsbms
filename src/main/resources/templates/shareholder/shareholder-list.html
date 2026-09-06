@@ -20,6 +20,69 @@
             th:href="@{/css/style.css}"
             rel="stylesheet">
 
+    <style>
+
+        /* Shareholder table layout */
+
+        .shareholder-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .shareholder-table th,
+        .shareholder-table td {
+            vertical-align: middle;
+        }
+
+        /* Column widths */
+
+        .folio-column {
+            width: 9%;
+            white-space: nowrap;
+        }
+
+        .name-column {
+            width: 15%;
+        }
+
+        .address-column {
+            width: 27%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-wrap: break-word;
+        }
+
+        .email-column {
+            width: 14%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-wrap: break-word;
+        }
+
+        .phone-column {
+            width: 10%;
+            white-space: nowrap;
+        }
+
+        .shares-column {
+            width: 8%;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .balance-column {
+            width: 10%;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .status-column {
+            width: 7%;
+            white-space: nowrap;
+        }
+
+    </style>
+
 </head>
 
 <body>
@@ -36,9 +99,11 @@
     <div class="page-content">
 
         <!-- Page heading -->
+
         <div class="d-flex justify-content-between align-items-center mb-4">
 
             <div>
+
                 <h4 class="mb-1">
                     Share Accounts
                 </h4>
@@ -46,7 +111,9 @@
                 <p class="text-muted mb-0">
                     Manage shareholder accounts
                 </p>
+
             </div>
+
 
             <a href="/shareholders/create"
                class="btn btn-primary">
@@ -59,6 +126,7 @@
 
 
         <!-- Main card -->
+
         <div class="card border-0 shadow-sm">
 
             <div class="card-body">
@@ -68,7 +136,9 @@
 
                 <div class="row g-3 mb-4">
 
+
                     <!-- Pending Approval -->
+
                     <div class="col-md-3">
 
                         <a href="/approvals"
@@ -82,6 +152,7 @@
 
 
                     <!-- Folio Search -->
+
                     <div class="col-md-5">
 
                         <form method="get"
@@ -98,6 +169,7 @@
                                         th:value="${folioBo}">
 
                             </div>
+
 
                             <div class="col-md-5">
 
@@ -117,6 +189,7 @@
 
 
                     <!-- Edit -->
+
                     <div class="col-md-2">
 
                         <button
@@ -131,6 +204,7 @@
 
 
                     <!-- Page Size -->
+
                     <div class="col-md-2">
 
                         <select class="form-select">
@@ -147,90 +221,183 @@
                 </div>
 
 
-                <!-- Table -->
+                <!-- Shareholder Table -->
 
                 <div class="table-responsive">
 
-                    <table class="table table-striped table-hover align-middle">
+                    <table class="table table-striped table-hover align-middle shareholder-table">
+
+
+                        <!-- Table Header -->
 
                         <thead class="share-table-header">
 
                         <tr>
 
-                            <th>FOLIO BO</th>
+                            <th class="folio-column">
+                                FOLIO BO
+                            </th>
 
-                            <th>CUSTOMER NAME</th>
+                            <th class="name-column">
+                                CUSTOMER NAME
+                            </th>
 
-                            <th>ADDRESS</th>
+                            <th class="address-column">
+                                ADDRESS
+                            </th>
 
-                            <th>EMAIL</th>
+                            <th class="email-column">
+                                EMAIL
+                            </th>
 
-                            <th>PHONE</th>
+                            <th class="phone-column">
+                                PHONE
+                            </th>
 
-                            <th>SHARES</th>
+                            <th class="shares-column">
+                                SHARES
+                            </th>
 
-                            <th>BALANCE</th>
+                            <th class="balance-column">
+                                BALANCE
+                            </th>
 
-                            <th>STATUS</th>
+                            <th class="status-column">
+                                STATUS
+                            </th>
 
                         </tr>
 
                         </thead>
 
 
+                        <!-- Table Body -->
+
                         <tbody>
 
-                        <!-- Real shareholder records from Oracle -->
+
+                        <!-- Shareholder rows -->
 
                         <tr th:each="shareholder : ${shareholders}">
 
+
                             <!-- Folio BO -->
-                            <td th:text="${shareholder.folioBo}">
+
+                            <td class="folio-column"
+                                th:text="${shareholder.folioBo}">
+
                                 100001
+
                             </td>
 
 
                             <!-- Customer Name -->
-                            <td th:text="${shareholder.custName}">
+
+                            <td class="name-column"
+                                th:text="${shareholder.custName}">
+
                                 Abdul Karim
+
                             </td>
 
 
                             <!-- Address -->
-                            <!-- Address is stored in T_ADDRESS_SHARE.
-                                 We will connect it later. -->
 
-                            <td>
-                                -
+                            <td class="address-column">
+
+                                <span
+                                        th:if="${shareholder.add1 != null}"
+                                        th:text="${shareholder.add1}">
+                                    Dhaka
+                                </span>
+
+
+                                <span
+                                        th:if="${shareholder.add2 != null
+                                               and !#strings.isEmpty(shareholder.add2)}"
+                                        th:text="', ' + ${shareholder.add2}">
+                                </span>
+
+
+                                <span
+                                        th:if="${shareholder.add3 != null
+                                               and !#strings.isEmpty(shareholder.add3)}"
+                                        th:text="', ' + ${shareholder.add3}">
+                                </span>
+
+
+                                <span
+                                        th:if="${shareholder.add4 != null
+                                               and !#strings.isEmpty(shareholder.add4)}"
+                                        th:text="', ' + ${shareholder.add4}">
+                                </span>
+
+
+                                <span
+                                        th:if="${shareholder.countryName != null
+                                               and !#strings.isEmpty(shareholder.countryName)}"
+                                        th:text="', ' + ${shareholder.countryName}">
+                                </span>
+
+
+                                <!-- No address -->
+
+                                <span
+                                        th:if="${shareholder.add1 == null
+                                               and (shareholder.countryName == null
+                                               or #strings.isEmpty(shareholder.countryName))}">
+
+                                    -
+
+                                </span>
+
                             </td>
 
 
                             <!-- Email -->
-                            <td th:text="${shareholder.email}">
+
+                            <td class="email-column"
+                                th:text="${shareholder.email}">
+
                                 abdul@example.com
+
                             </td>
 
 
                             <!-- Phone -->
-                            <td th:text="${shareholder.phone}">
+
+                            <td class="phone-column"
+                                th:text="${shareholder.phone}">
+
                                 01712345678
+
                             </td>
 
 
                             <!-- Shares -->
-                            <td th:text="${shareholder.shares}">
+
+                            <td class="shares-column"
+                                th:text="${shareholder.shares}">
+
                                 500
+
                             </td>
 
 
                             <!-- Balance -->
-                            <td th:text="${shareholder.balance}">
+
+                            <td class="balance-column"
+                                th:text="${shareholder.balance}">
+
                                 50,000
+
                             </td>
 
 
                             <!-- Status -->
-                            <td>
+
+                            <td class="status-column">
+
 
                                 <span
                                         th:if="${shareholder.isValid == 1}"
@@ -240,6 +407,7 @@
 
                                 </span>
 
+
                                 <span
                                         th:unless="${shareholder.isValid == 1}"
                                         class="badge bg-secondary">
@@ -248,12 +416,13 @@
 
                                 </span>
 
+
                             </td>
 
                         </tr>
 
 
-                        <!-- Show message when no records are found -->
+                        <!-- No results -->
 
                         <tr th:if="${#lists.isEmpty(shareholders)}">
 
@@ -265,6 +434,7 @@
                             </td>
 
                         </tr>
+
 
                         </tbody>
 
@@ -284,12 +454,15 @@
                            th:if="${not #lists.isEmpty(shareholders)}">
 
                         Showing
+
                         <span th:text="${#lists.size(shareholders)}">
                             10
                         </span>
+
                         entries
 
                     </small>
+
 
                     <small class="text-muted"
                            th:if="${#lists.isEmpty(shareholders)}">
@@ -301,11 +474,10 @@
 
                     <!-- Pagination -->
 
-                    <!-- Real pagination will be added later. -->
-
                     <nav>
 
                         <ul class="pagination pagination-sm mb-0">
+
 
                             <li class="page-item disabled">
 
@@ -315,6 +487,7 @@
 
                             </li>
 
+
                             <li class="page-item active">
 
                                 <a class="page-link">
@@ -322,6 +495,7 @@
                                 </a>
 
                             </li>
+
 
                             <li class="page-item disabled">
 
@@ -331,11 +505,13 @@
 
                             </li>
 
+
                         </ul>
 
                     </nav>
 
                 </div>
+
 
             </div>
 
@@ -345,7 +521,7 @@
 
 </main>
 
+
 </body>
 
 </html>
-

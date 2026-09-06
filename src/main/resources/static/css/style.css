@@ -388,3 +388,61 @@ a {
 .form-section-body {
     padding: 24px 28px;
 }
+
+
+
+/* Shareholder list table */
+
+.shareholder-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.shareholder-table th,
+.shareholder-table td {
+    vertical-align: middle;
+}
+
+.shareholder-table .folio-column {
+    width: 9%;
+    white-space: nowrap;
+}
+
+.shareholder-table .name-column {
+    width: 15%;
+}
+
+.shareholder-table .address-column {
+    width: 27%;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.shareholder-table .email-column {
+    width: 14%;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.shareholder-table .phone-column {
+    width: 10%;
+    white-space: nowrap;
+}
+
+.shareholder-table .shares-column {
+    width: 8%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.shareholder-table .balance-column {
+    width: 10%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.shareholder-table .status-column {
+    width: 7%;
+    white-space: nowrap;
+}

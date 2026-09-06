@@ -1,6 +1,6 @@
 package com.example.ibsbms.controller;
 
-import com.example.ibsbms.entity.Shareholder;
+import com.example.ibsbms.repository.ShareholderListProjection;
 import com.example.ibsbms.repository.ShareholderRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,19 +28,18 @@ public class HomeController {
             @RequestParam(required = false) String folioBo,
             Model model) {
 
-        List<Shareholder> shareholders;
+        String searchFolio = folioBo;
 
-        if (folioBo != null && !folioBo.trim().isEmpty()) {
+        if (searchFolio != null) {
+            searchFolio = searchFolio.trim();
 
-            shareholders = shareholderRepository
-                    .findByFolioBo(folioBo.trim())
-                    .map(List::of)
-                    .orElse(List.of());
-
-        } else {
-
-            shareholders = shareholderRepository.findAll();
+            if (searchFolio.isEmpty()) {
+                searchFolio = null;
+            }
         }
+
+        List<ShareholderListProjection> shareholders =
+                shareholderRepository.findShareholderList(searchFolio);
 
         model.addAttribute("shareholders", shareholders);
         model.addAttribute("folioBo", folioBo);
