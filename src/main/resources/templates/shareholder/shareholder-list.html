@@ -68,6 +68,7 @@
 
                 <div class="row g-3 mb-4">
 
+                    <!-- Pending Approval -->
                     <div class="col-md-3">
 
                         <a href="/approvals"
@@ -80,19 +81,46 @@
                     </div>
 
 
-                    <div class="col-md-3">
+                    <!-- Folio Search -->
+                    <div class="col-md-5">
 
-                        <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Folio No">
+                        <form method="get"
+                              action="/shareholders"
+                              class="row g-3">
+
+                            <div class="col-md-7">
+
+                                <input
+                                        type="text"
+                                        name="folioBo"
+                                        class="form-control"
+                                        placeholder="Enter Folio No"
+                                        th:value="${folioBo}">
+
+                            </div>
+
+                            <div class="col-md-5">
+
+                                <button
+                                        type="submit"
+                                        class="btn btn-primary w-100">
+
+                                    Search
+
+                                </button>
+
+                            </div>
+
+                        </form>
 
                     </div>
 
 
+                    <!-- Edit -->
                     <div class="col-md-2">
 
                         <button
+                                type="button"
                                 class="btn btn-outline-primary w-100">
 
                             Edit
@@ -102,18 +130,7 @@
                     </div>
 
 
-                    <div class="col-md-2">
-
-                        <button
-                                class="btn btn-primary w-100">
-
-                            Search
-
-                        </button>
-
-                    </div>
-
-
+                    <!-- Page Size -->
                     <div class="col-md-2">
 
                         <select class="form-select">
@@ -161,54 +178,89 @@
                         </thead>
 
 
-
-
-
                         <tbody>
+
+                        <!-- Real shareholder records from Oracle -->
 
                         <tr th:each="shareholder : ${shareholders}">
 
+                            <!-- Folio BO -->
                             <td th:text="${shareholder.folioBo}">
                                 100001
                             </td>
 
+
+                            <!-- Customer Name -->
                             <td th:text="${shareholder.custName}">
                                 Abdul Karim
                             </td>
+
+
+                            <!-- Address -->
+                            <!-- Address is stored in T_ADDRESS_SHARE.
+                                 We will connect it later. -->
 
                             <td>
                                 -
                             </td>
 
+
+                            <!-- Email -->
                             <td th:text="${shareholder.email}">
                                 abdul@example.com
                             </td>
 
+
+                            <!-- Phone -->
                             <td th:text="${shareholder.phone}">
                                 01712345678
                             </td>
 
+
+                            <!-- Shares -->
                             <td th:text="${shareholder.shares}">
                                 500
                             </td>
 
+
+                            <!-- Balance -->
                             <td th:text="${shareholder.balance}">
                                 50,000
                             </td>
 
+
+                            <!-- Status -->
                             <td>
 
-        <span
-                th:if="${shareholder.isValid == 1}"
-                class="badge bg-success">
-            Valid
-        </span>
+                                <span
+                                        th:if="${shareholder.isValid == 1}"
+                                        class="badge bg-success">
+
+                                    Valid
+
+                                </span>
 
                                 <span
                                         th:unless="${shareholder.isValid == 1}"
                                         class="badge bg-secondary">
-            Invalid
-        </span>
+
+                                    Invalid
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- Show message when no records are found -->
+
+                        <tr th:if="${#lists.isEmpty(shareholders)}">
+
+                            <td colspan="8"
+                                class="text-center text-muted py-4">
+
+                                No shareholder found.
 
                             </td>
 
@@ -225,12 +277,31 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
 
-                    <small class="text-muted">
 
-                        Showing 1-10 of 1470 entries
+                    <!-- Result count -->
+
+                    <small class="text-muted"
+                           th:if="${not #lists.isEmpty(shareholders)}">
+
+                        Showing
+                        <span th:text="${#lists.size(shareholders)}">
+                            10
+                        </span>
+                        entries
 
                     </small>
 
+                    <small class="text-muted"
+                           th:if="${#lists.isEmpty(shareholders)}">
+
+                        Showing 0 entries
+
+                    </small>
+
+
+                    <!-- Pagination -->
+
+                    <!-- Real pagination will be added later. -->
 
                     <nav>
 
@@ -252,23 +323,7 @@
 
                             </li>
 
-                            <li class="page-item">
-
-                                <a class="page-link">
-                                    2
-                                </a>
-
-                            </li>
-
-                            <li class="page-item">
-
-                                <a class="page-link">
-                                    3
-                                </a>
-
-                            </li>
-
-                            <li class="page-item">
+                            <li class="page-item disabled">
 
                                 <a class="page-link">
                                     Next
@@ -291,4 +346,6 @@
 </main>
 
 </body>
+
 </html>
+
