@@ -161,115 +161,58 @@
                         </thead>
 
 
+
+
+
                         <tbody>
 
-                        <!-- Mock row 1 -->
+                        <tr th:each="shareholder : ${shareholders}">
 
-                        <tr>
+                            <td th:text="${shareholder.folioBo}">
+                                100001
+                            </td>
 
-                            <td>100001</td>
-
-                            <td>Abdul Karim</td>
-
-                            <td>Dhaka, Bangladesh</td>
-
-                            <td>abdul@example.com</td>
-
-                            <td>01712345678</td>
-
-                            <td>500</td>
-
-                            <td>50,000</td>
+                            <td th:text="${shareholder.custName}">
+                                Abdul Karim
+                            </td>
 
                             <td>
-                                <span class="badge bg-success">
-                                    Valid
-                                </span>
+                                -
+                            </td>
+
+                            <td th:text="${shareholder.email}">
+                                abdul@example.com
+                            </td>
+
+                            <td th:text="${shareholder.phone}">
+                                01712345678
+                            </td>
+
+                            <td th:text="${shareholder.shares}">
+                                500
+                            </td>
+
+                            <td th:text="${shareholder.balance}">
+                                50,000
+                            </td>
+
+                            <td>
+
+        <span
+                th:if="${shareholder.isValid == 1}"
+                class="badge bg-success">
+            Valid
+        </span>
+
+                                <span
+                                        th:unless="${shareholder.isValid == 1}"
+                                        class="badge bg-secondary">
+            Invalid
+        </span>
+
                             </td>
 
                         </tr>
-
-
-                        <!-- Mock row 2 -->
-
-                        <tr>
-
-                            <td>100002</td>
-
-                            <td>Fatema Rahman</td>
-
-                            <td>Gulshan, Dhaka</td>
-
-                            <td>fatema@example.com</td>
-
-                            <td>01812345678</td>
-
-                            <td>750</td>
-
-                            <td>75,000</td>
-
-                            <td>
-                                <span class="badge bg-success">
-                                    Valid
-                                </span>
-                            </td>
-
-                        </tr>
-
-
-                        <!-- Mock row 3 -->
-
-                        <tr>
-
-                            <td>100003</td>
-
-                            <td>Mohammad Hasan</td>
-
-                            <td>Banani, Dhaka</td>
-
-                            <td>hasan@example.com</td>
-
-                            <td>01912345678</td>
-
-                            <td>1,000</td>
-
-                            <td>100,000</td>
-
-                            <td>
-                                <span class="badge bg-success">
-                                    Valid
-                                </span>
-                            </td>
-
-                        </tr>
-
-
-                        <!-- Mock row 4 -->
-
-                        <tr>
-
-                            <td>100004</td>
-
-                            <td>Nusrat Jahan</td>
-
-                            <td>Dhanmondi, Dhaka</td>
-
-                            <td>nusrat@example.com</td>
-
-                            <td>01612345678</td>
-
-                            <td>300</td>
-
-                            <td>30,000</td>
-
-                            <td>
-                                <span class="badge bg-success">
-                                    Valid
-                                </span>
-                            </td>
-
-                        </tr>
-
 
                         </tbody>
 
