@@ -2,12 +2,23 @@ package com.example.ibsbms.service;
 
 import com.example.ibsbms.entity.ApprovalAction;
 import com.example.ibsbms.entity.ApprovalRequest;
+import com.example.ibsbms.entity.BusinessAudit;
+import com.example.ibsbms.entity.ShareAddress;
+import com.example.ibsbms.entity.ShareBankInfo;
+import com.example.ibsbms.entity.Shareholder;
 import com.example.ibsbms.entity.ShareholderChangeRequest;
 import com.example.ibsbms.repository.ApprovalActionRepository;
 import com.example.ibsbms.repository.ApprovalRequestRepository;
+import com.example.ibsbms.repository.BusinessAuditRepository;
+import com.example.ibsbms.repository.ShareAddressRepository;
+import com.example.ibsbms.repository.ShareBankInfoRepository;
 import com.example.ibsbms.repository.ShareholderChangeRequestRepository;
+import com.example.ibsbms.repository.ShareholderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,28 +42,40 @@ public class ApprovalWorkflowService {
     private final ApprovalRequestRepository approvalRequestRepository;
     private final ApprovalActionRepository approvalActionRepository;
     private final ShareholderChangeRequestRepository changeRequestRepository;
+    private final ShareholderRepository shareholderRepository;
+    private final ShareAddressRepository shareAddressRepository;
+    private final ShareBankInfoRepository shareBankInfoRepository;
+    private final BusinessAuditRepository businessAuditRepository;
     private final WorkflowIdService workflowIdService;
+    private final ObjectMapper objectMapper;
 
     public ApprovalWorkflowService(
             ApprovalRequestRepository approvalRequestRepository,
             ApprovalActionRepository approvalActionRepository,
             ShareholderChangeRequestRepository changeRequestRepository,
-            WorkflowIdService workflowIdService) {
+            ShareholderRepository shareholderRepository,
+            ShareAddressRepository shareAddressRepository,
+            ShareBankInfoRepository shareBankInfoRepository,
+            BusinessAuditRepository businessAuditRepository,
+            WorkflowIdService workflowIdService,
+            ObjectMapper objectMapper) {
 
         this.approvalRequestRepository = approvalRequestRepository;
         this.approvalActionRepository = approvalActionRepository;
         this.changeRequestRepository = changeRequestRepository;
+        this.shareholderRepository = shareholderRepository;
+        this.shareAddressRepository = shareAddressRepository;
+        this.shareBankInfoRepository = shareBankInfoRepository;
+        this.businessAuditRepository = businessAuditRepository;
         this.workflowIdService = workflowIdService;
+        this.objectMapper = objectMapper;
     }
 
     public List<ApprovalRequest> getPendingCheckerRequests() {
-
-        return approvalRequestRepository
-                .findPendingCheckerRequests();
+        return approvalRequestRepository.findPendingCheckerRequests();
     }
 
     public ApprovalRequest getApprovalRequest(Long requestId) {
-
         return approvalRequestRepository
                 .findByRequestId(requestId)
                 .orElseThrow(() ->
@@ -73,9 +96,7 @@ public class ApprovalWorkflowService {
                         ));
     }
 
-    public List<ApprovalAction> getApprovalHistory(
-            Long requestId) {
-
+    public List<ApprovalAction> getApprovalHistory(Long requestId) {
         return approvalActionRepository
                 .findByRequestIdOrderByActionAtAsc(requestId);
     }
@@ -95,44 +116,279 @@ public class ApprovalWorkflowService {
                 checkerId
         );
 
-        /*
-         * Maker and Checker must be different.
-         */
         if (approvalRequest.getMakerId().equals(checkerId)) {
-
             throw new IllegalStateException(
                     "Maker cannot approve their own request."
             );
         }
 
-        /*
-         * Verify that this request belongs to the
-         * current Bangladesh business date.
-         */
         validateBusinessDate(approvalRequest);
+
+        ShareholderChangeRequest changeRequest =
+                getChangeRequest(approvalRequest);
+
+        if (!"SHAREHOLDER_CREATE".equals(
+                changeRequest.getOperationCode())) {
+
+            throw new IllegalStateException(
+                    "Only SHAREHOLDER_CREATE approval is implemented currently."
+            );
+        }
+
+        JsonNode proposal;
+
+        try {
+            proposal =
+                    objectMapper.readTree(
+                            changeRequest.getNewValue()
+                    );
+        } catch (JacksonException e) {
+            throw new IllegalStateException(
+                    "Unable to read shareholder proposal JSON.",
+                    e
+            );
+        }
+
+        JsonNode basicInfo =
+                proposal.path("basicInfo");
+
+        JsonNode address =
+                proposal.path("address");
+
+        JsonNode bankInfo =
+                proposal.path("bankInfo");
+
+        String folioBo =
+                basicInfo.path("folioBo").asText("");
+
+        if (folioBo.isBlank()) {
+            throw new IllegalStateException(
+                    "Folio BO is missing from the proposal."
+            );
+        }
+
+        /*
+         * Generate OIDs using the confirmed MAX + 1 rule.
+         */
+        String accountOid =
+                workflowIdService.generateNextAccountShareOid();
+
+        String addressOid =
+                workflowIdService.generateNextAddressShareOid();
+
+        /*
+         * Create final shareholder record.
+         */
+        Shareholder shareholder =
+                new Shareholder();
+
+        shareholder.setOid(accountOid);
+        shareholder.setFolioBo(folioBo);
+
+        shareholder.setCustName(
+                basicInfo.path("custName").asText(null)
+        );
+
+        shareholder.setFatherName(
+                basicInfo.path("fatherName").asText(null)
+        );
+
+        shareholder.setMotherName(
+                basicInfo.path("motherName").asText(null)
+        );
+
+        shareholder.setSpouseName(
+                basicInfo.path("spouseName").asText(null)
+        );
+
+        shareholder.setRepresentative(
+                basicInfo.path("representative").asText(null)
+        );
+
+        shareholder.setCustType(
+                nullableInteger(basicInfo, "custType")
+        );
+
+        shareholder.setCitizenType(
+                nullableInteger(basicInfo, "citizenType")
+        );
+
+        shareholder.setResidentType(
+                basicInfo.path("residentType").asText(null)
+        );
+
+        shareholder.setPhone(
+                basicInfo.path("phone").asText(null)
+        );
+
+        shareholder.setEmail(
+                basicInfo.path("email").asText(null)
+        );
+
+        shareholder.setDob(
+                nullableDate(basicInfo, "dob")
+        );
+
+        /*
+         * Registration date is controlled by the server,
+         * not the browser.
+         */
+        shareholder.setRegistrationDate(
+                LocalDate.now(ZoneId.of("Asia/Dhaka"))
+        );
+
+        shareholder.setIsValid(1);
+
+        shareholder.setIsEmployee(
+                nullableIntegerOrDefault(
+                        basicInfo,
+                        "isEmployee",
+                        0
+                )
+        );
+
+        shareholder.setNidNo(
+                basicInfo.path("nidNo").asText(null)
+        );
+
+        shareholder.setTinNo(
+                basicInfo.path("tinNo").asText(null)
+        );
+
+        shareholder.setIcbCode(
+                nullableIntegerOrDefault(
+                        basicInfo,
+                        "icbCode",
+                        0
+                )
+        );
+
+        /*
+         * Create starts with no lien.
+         */
+        shareholder.setIsLien(0);
+
+        /*
+         * These values must never come from maker JSON.
+         */
+        shareholder.setShares(0L);
+        shareholder.setSuspense(0L);
+        shareholder.setBonus(0L);
+        shareholder.setBalance(0L);
+
+        shareholder.setMakerId(
+                approvalRequest.getMakerId()
+        );
+
+        shareholder.setCheckerId(
+                checkerId
+        );
+
+        /*
+         * Confirmed approved shareholder status.
+         */
+        shareholder.setStatus(1);
+
+        shareholder.setOldBo(null);
+
+        shareholderRepository.save(shareholder);
+
+        /*
+         * Create final address record.
+         */
+        ShareAddress shareAddress =
+                new ShareAddress();
+
+        shareAddress.setOid(addressOid);
+        shareAddress.setFolioBo(folioBo);
+
+        shareAddress.setAdd1(
+                address.path("add1").asText(null)
+        );
+
+        shareAddress.setAdd2(
+                address.path("add2").asText(null)
+        );
+
+        shareAddress.setAdd3(
+                address.path("add3").asText(null)
+        );
+
+        shareAddress.setAdd4(
+                address.path("add4").asText(null)
+        );
+
+        shareAddress.setCountryName(
+                address.path("countryName").asText(null)
+        );
+
+        shareAddressRepository.save(shareAddress);
+
+        /*
+         * Bank information is optional.
+         *
+         * We only insert a bank row if at least one bank
+         * field was supplied.
+         */
+        if (hasBankInformation(bankInfo)) {
+
+            String bankOid =
+                    workflowIdService
+                            .generateNextBankInfoShareOid();
+
+            ShareBankInfo shareBankInfo =
+                    new ShareBankInfo();
+
+            shareBankInfo.setOid(bankOid);
+            shareBankInfo.setFolioBo(folioBo);
+
+            shareBankInfo.setAccNo(
+                    bankInfo.path("accNo").asText(null)
+            );
+
+            shareBankInfo.setBankName(
+                    bankInfo.path("bankName").asText(null)
+            );
+
+            shareBankInfo.setBranchName(
+                    bankInfo.path("branchName").asText(null)
+            );
+
+            shareBankInfo.setRoutingNo(
+                    bankInfo.path("routingNo").asText(null)
+            );
+
+            shareBankInfoRepository.save(shareBankInfo);
+        }
 
         /*
          * Update approval request.
          */
+        LocalDateTime now =
+                LocalDateTime.now();
+
         approvalRequest.setStatus(APPROVED);
         approvalRequest.setCurrentStage(COMPLETED);
         approvalRequest.setCheckerId(checkerId);
         approvalRequest.setCheckerIp(checkerIp);
-        approvalRequest.setUpdatedAt(LocalDateTime.now());
-        approvalRequest.setDecidedAt(LocalDateTime.now());
+        approvalRequest.setUpdatedAt(now);
+        approvalRequest.setDecidedAt(now);
 
-        Integer version = approvalRequest.getVersionNo();
+        Integer approvalVersion =
+                approvalRequest.getVersionNo();
 
-        if (version == null) {
-            version = 0;
+        if (approvalVersion == null) {
+            approvalVersion = 0;
         }
 
-        approvalRequest.setVersionNo(version + 1);
+        approvalRequest.setVersionNo(
+                approvalVersion + 1
+        );
 
         approvalRequestRepository.save(approvalRequest);
 
         /*
-         * Record checker approval action.
+         * Append approval action.
          */
         saveAction(
                 requestId,
@@ -144,14 +400,45 @@ public class ApprovalWorkflowService {
         );
 
         /*
-         * IMPORTANT:
+         * Business audit.
          *
-         * We are deliberately NOT inserting into
-         * T_ACCOUNT_SHARE yet.
-         *
-         * That is the next step after we verify that
-         * the database-backed approval state works.
+         * For CREATE, the complete proposed snapshot is
+         * recorded as the new value.
          */
+        Long auditId =
+                workflowIdService.nextBusinessAuditId();
+
+        BusinessAudit audit =
+                new BusinessAudit();
+
+        audit.setAuditId(auditId);
+        audit.setEventTime(now);
+        audit.setModuleCode("SHAREHOLDER");
+        audit.setActionType("CREATE");
+        audit.setEntityType("SHAREHOLDER");
+        audit.setEntityId(folioBo);
+        audit.setBusinessRef(folioBo);
+
+        audit.setChangedFields("""
+            ["basicInfo","address","bankInfo"]
+            """);
+
+        audit.setOldValue(null);
+        audit.setNewValue(changeRequest.getNewValue());
+
+        audit.setActorId(checkerId);
+        audit.setClientIp(checkerIp);
+        audit.setClientPcName(null);
+        audit.setUserAgent(null);
+
+        audit.setApprovalRequestId(requestId);
+        audit.setCorrelationId(
+                changeRequest.getChangeId()
+        );
+
+        audit.setRemarks(remarks);
+
+        businessAuditRepository.save(audit);
     }
 
     @Transactional
@@ -162,7 +449,6 @@ public class ApprovalWorkflowService {
             String remarks) {
 
         if (remarks == null || remarks.trim().isEmpty()) {
-
             throw new IllegalArgumentException(
                     "Remarks are required when returning a request."
             );
@@ -187,7 +473,8 @@ public class ApprovalWorkflowService {
         approvalRequest.setCheckerIp(checkerIp);
         approvalRequest.setUpdatedAt(LocalDateTime.now());
 
-        Integer version = approvalRequest.getVersionNo();
+        Integer version =
+                approvalRequest.getVersionNo();
 
         if (version == null) {
             version = 0;
@@ -215,7 +502,6 @@ public class ApprovalWorkflowService {
             String remarks) {
 
         if (remarks == null || remarks.trim().isEmpty()) {
-
             throw new IllegalArgumentException(
                     "Remarks are required when rejecting a request."
             );
@@ -238,7 +524,8 @@ public class ApprovalWorkflowService {
         approvalRequest.setUpdatedAt(LocalDateTime.now());
         approvalRequest.setDecidedAt(LocalDateTime.now());
 
-        Integer version = approvalRequest.getVersionNo();
+        Integer version =
+                approvalRequest.getVersionNo();
 
         if (version == null) {
             version = 0;
@@ -330,4 +617,69 @@ public class ApprovalWorkflowService {
 
         approvalActionRepository.save(actionEntity);
     }
+
+    private Integer nullableInteger(
+            JsonNode node,
+            String field) {
+
+        JsonNode value = node.path(field);
+
+        if (value.isMissingNode() ||
+                value.isNull() ||
+                value.asText().isBlank()) {
+
+            return null;
+        }
+
+        return value.asInt();
+    }
+
+    private Integer nullableIntegerOrDefault(
+            JsonNode node,
+            String field,
+            int defaultValue) {
+
+        Integer value =
+                nullableInteger(node, field);
+
+        return value == null
+                ? defaultValue
+                : value;
+    }
+
+    private LocalDate nullableDate(
+            JsonNode node,
+            String field) {
+
+        JsonNode value = node.path(field);
+
+        if (value.isMissingNode() ||
+                value.isNull() ||
+                value.asText().isBlank()) {
+
+            return null;
+        }
+
+        return LocalDate.parse(value.asText());
+    }
+
+    private boolean hasBankInformation(
+            JsonNode bankInfo) {
+
+        return hasText(bankInfo, "accNo")
+                || hasText(bankInfo, "bankName")
+                || hasText(bankInfo, "branchName")
+                || hasText(bankInfo, "routingNo");
+    }
+
+    private boolean hasText(
+            JsonNode node,
+            String field) {
+
+        return !node.path(field)
+                .asText("")
+                .trim()
+                .isEmpty();
+    }
 }
+
