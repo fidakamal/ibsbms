@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ShareholderRepository
         extends JpaRepository<Shareholder, String> {
+    
+    Optional<Shareholder> findByFolioBoAndIsValid(String folioBo, Integer isValid);
 
     @Query(value = """
         SELECT

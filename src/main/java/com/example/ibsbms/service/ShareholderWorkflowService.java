@@ -13,6 +13,7 @@ import com.example.ibsbms.repository.ApprovalActionRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 @Service
 public class ShareholderWorkflowService {
@@ -180,6 +181,150 @@ public class ShareholderWorkflowService {
         System.out.println("Request ID     : " + requestId);
         System.out.println("Maker ID       : " + makerId);
         System.out.println("Operation      : SHAREHOLDER_CREATE");
+        System.out.println("Status         : PENDING_CHECKER");
+        System.out.println("Current Stage  : CHECKER");
+        System.out.println("Business Date  : " + businessDate);
+        System.out.println("======================================");
+    }
+
+
+    @Transactional
+    public void submitModifyForApproval(
+            String folioBo,
+            ShareholderCreateRequest edited,
+            String makerId,
+            String makerIp) {
+
+        /*
+         * Never trust the Folio/BO on a Modify from the browser - it is
+         * always the one already approved and currently being edited.
+         */
+        edited.getBasicInfo().setFolioBo(folioBo);
+
+        /*
+         * Block a second Modify (or an overlapping Create) from being
+         * opened on a Folio/BO that already has a change request sitting
+         * in PENDING_CHECKER or RETURNED_FOR_MODIFICATION.
+         */
+        boolean hasActiveRequest = !approvalRequestRepository
+                .findByBusinessRefAndStatusIn(
+                        folioBo,
+                        List.of("PENDING_CHECKER", "RETURNED_FOR_MODIFICATION")
+                )
+                .isEmpty();
+
+        if (hasActiveRequest) {
+            throw new IllegalStateException(
+                    "There is already a pending change request for Folio/BO " + folioBo);
+        }
+
+        /*
+         * OLD_VALUE is always re-read fresh from the approved master
+         * tables here on the server - never taken from a hidden form
+         * field - so a stale or tampered "before" snapshot can never be
+         * recorded.
+         */
+        ShareholderCreateRequest currentSnapshot =
+                shareholderService.snapshotOf(folioBo);
+
+        String oldValueJson =
+                shareholderService.buildCreateProposalJson(currentSnapshot);
+
+        String newValueJson =
+                shareholderService.buildCreateProposalJson(edited);
+
+        String changeId =
+                workflowIdService.generateChangeId();
+
+        /*
+         * Create T_SHAREHOLDER_CHANGE_REQUEST.
+         */
+        ShareholderChangeRequest changeRequest =
+                new ShareholderChangeRequest();
+
+        changeRequest.setChangeId(changeId);
+        changeRequest.setFolioBo(folioBo);
+        changeRequest.setOperationCode("SHAREHOLDER_UPDATE");
+        changeRequest.setOldValue(oldValueJson);
+        changeRequest.setNewValue(newValueJson);
+        changeRequest.setCreatedBy(makerId);
+        changeRequest.setCreatedIp(makerIp);
+        changeRequest.setCreatedAt(LocalDateTime.now());
+        changeRequest.setUpdatedAt(LocalDateTime.now());
+        changeRequest.setVersionNo(0);
+
+        changeRequestRepository.save(changeRequest);
+
+        /*
+         * Generate the Approval Request ID.
+         */
+        Long requestId =
+                workflowIdService.nextApprovalRequestId();
+
+        /*
+         * Current Bangladesh business date, assigned by the server.
+         */
+        LocalDate businessDate =
+                LocalDate.now(ZoneId.of("Asia/Dhaka"));
+
+        /*
+         * Create T_APPROVAL_REQUEST.
+         */
+        ApprovalRequest approvalRequest =
+                new ApprovalRequest();
+
+        approvalRequest.setRequestId(requestId);
+        approvalRequest.setOperationCode("SHAREHOLDER_UPDATE");
+        approvalRequest.setEntityType("SHAREHOLDER");
+        approvalRequest.setEntityId(folioBo);
+        approvalRequest.setSourceType("SHAREHOLDER_CHANGE");
+        approvalRequest.setSourceId(changeId);
+        approvalRequest.setBusinessRef(folioBo);
+        approvalRequest.setStatus("PENDING_CHECKER");
+        approvalRequest.setCurrentStage("CHECKER");
+        approvalRequest.setMakerId(makerId);
+        approvalRequest.setMakerIp(makerIp);
+        approvalRequest.setCheckerId(null);
+        approvalRequest.setCheckerIp(null);
+        approvalRequest.setApproverId(null);
+        approvalRequest.setApproverIp(null);
+        approvalRequest.setCreatedAt(LocalDateTime.now());
+        approvalRequest.setUpdatedAt(LocalDateTime.now());
+        approvalRequest.setDecidedAt(null);
+        approvalRequest.setVersionNo(0);
+        approvalRequest.setBusinessDate(businessDate);
+
+        approvalRequestRepository.save(approvalRequest);
+
+        /*
+         * Record the maker's submission in T_APPROVAL_ACTION.
+         */
+        Long actionId =
+                workflowIdService.nextApprovalActionId();
+
+        ApprovalAction approvalAction =
+                new ApprovalAction();
+
+        approvalAction.setActionId(actionId);
+        approvalAction.setRequestId(requestId);
+        approvalAction.setStage("MAKER");
+        approvalAction.setAction("SUBMITTED");
+        approvalAction.setActorId(makerId);
+        approvalAction.setActorIp(makerIp);
+        approvalAction.setRemarks(null);
+        approvalAction.setActionAt(LocalDateTime.now());
+
+        approvalActionRepository.save(approvalAction);
+
+
+        System.out.println("======================================");
+        System.out.println("MODIFY REQUEST SAVED");
+        System.out.println("======================================");
+        System.out.println("Change ID      : " + changeId);
+        System.out.println("Folio BO       : " + folioBo);
+        System.out.println("Request ID     : " + requestId);
+        System.out.println("Maker ID       : " + makerId);
+        System.out.println("Operation      : SHAREHOLDER_UPDATE");
         System.out.println("Status         : PENDING_CHECKER");
         System.out.println("Current Stage  : CHECKER");
         System.out.println("Business Date  : " + businessDate);
