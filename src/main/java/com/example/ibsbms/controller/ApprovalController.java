@@ -1,29 +1,43 @@
 package com.example.ibsbms.controller;
 
+import com.example.ibsbms.entity.ApprovalRequest;
+import com.example.ibsbms.entity.ApprovalAction;
+import com.example.ibsbms.entity.ShareholderChangeRequest;
+import com.example.ibsbms.service.ApprovalWorkflowService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Controller
 public class ApprovalController {
 
-    /*
-     * Temporary in-memory approval state.
-     *
-     * Later this will be replaced by:
-     * T_APPROVAL_REQUEST
-     * T_APPROVAL_ACTION
-     */
-    private final Map<Long, String> approvalStatuses = new HashMap<>();
+    private final ApprovalWorkflowService approvalWorkflowService;
+
+    public ApprovalController(
+            ApprovalWorkflowService approvalWorkflowService) {
+
+        this.approvalWorkflowService =
+                approvalWorkflowService;
+    }
 
     @GetMapping("/approvals")
     public String approvals(Model model) {
 
-        // Temporary mock data
-        model.addAttribute("pendingCount", 3);
+        List<ApprovalRequest> requests =
+                approvalWorkflowService
+                        .getPendingCheckerRequests();
+
+        model.addAttribute(
+                "approvalRequests",
+                requests
+        );
+
+        model.addAttribute(
+                "pendingCount",
+                requests.size()
+        );
 
         return "approval/approval-list";
     }
@@ -33,112 +47,128 @@ public class ApprovalController {
             @PathVariable Long requestId,
             Model model) {
 
-        String status = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
+        ApprovalRequest approvalRequest =
+                approvalWorkflowService
+                        .getApprovalRequest(requestId);
+
+        ShareholderChangeRequest changeRequest =
+                approvalWorkflowService
+                        .getChangeRequest(approvalRequest);
+
+        List<ApprovalAction> history =
+                approvalWorkflowService
+                        .getApprovalHistory(requestId);
+
+        model.addAttribute(
+                "approvalRequest",
+                approvalRequest
         );
 
-        model.addAttribute("requestId", requestId);
-        model.addAttribute("status", status);
+        model.addAttribute(
+                "changeRequest",
+                changeRequest
+        );
+
+        model.addAttribute(
+                "history",
+                history
+        );
 
         return "approval/approval-details";
     }
-
 
     @PostMapping("/approvals/{requestId}/approve")
     public String approve(
             @PathVariable Long requestId,
             @RequestParam(required = false) String remarks) {
 
-        String currentStatus = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
-        );
+        try {
 
-        if (!"PENDING_CHECKER".equals(currentStatus)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Request is no longer pending.";
+            /*
+             * Temporary checker identity.
+             *
+             * Later this will come from authentication.
+             */
+            String checkerId = "test.checker";
+            String checkerIp = "127.0.0.1";
+
+            approvalWorkflowService.approve(
+                    requestId,
+                    checkerId,
+                    checkerIp,
+                    remarks
+            );
+
+            return "redirect:/approvals/"
+                    + requestId
+                    + "?success=Request approved successfully.";
+
+        } catch (Exception e) {
+
+            return "redirect:/approvals/"
+                    + requestId
+                    + "?error="
+                    + e.getMessage();
         }
-
-        /*
-         * Temporary checker identity.
-         * Later this will come from authentication/session.
-         */
-        String makerId = "test.maker";
-        String checkerId = "test.checker";
-
-        // Maker and checker must be different.
-        if (makerId.equals(checkerId)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Maker cannot approve their own request.";
-        }
-
-        approvalStatuses.put(
-                requestId,
-                "APPROVED"
-        );
-
-        return "redirect:/approvals/" + requestId
-                + "?success=Request approved successfully.";
     }
-
 
     @PostMapping("/approvals/{requestId}/return")
     public String returnForModification(
             @PathVariable Long requestId,
             @RequestParam(required = false) String remarks) {
 
-        String currentStatus = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
-        );
+        try {
 
-        if (!"PENDING_CHECKER".equals(currentStatus)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Request is no longer pending.";
+            String checkerId = "test.checker";
+            String checkerIp = "127.0.0.1";
+
+            approvalWorkflowService.returnForModification(
+                    requestId,
+                    checkerId,
+                    checkerIp,
+                    remarks
+            );
+
+            return "redirect:/approvals/"
+                    + requestId
+                    + "?success=Request returned to maker for modification.";
+
+        } catch (Exception e) {
+
+            return "redirect:/approvals/"
+                    + requestId
+                    + "?error="
+                    + e.getMessage();
         }
-
-        if (remarks == null || remarks.trim().isEmpty()) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Remarks are required when returning a request.";
-        }
-
-        approvalStatuses.put(
-                requestId,
-                "RETURNED_FOR_MODIFICATION"
-        );
-
-        return "redirect:/approvals/" + requestId
-                + "?success=Request returned to maker for modification.";
     }
-
 
     @PostMapping("/approvals/{requestId}/reject")
     public String reject(
             @PathVariable Long requestId,
             @RequestParam(required = false) String remarks) {
 
-        String currentStatus = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
-        );
+        try {
 
-        if (!"PENDING_CHECKER".equals(currentStatus)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Request is no longer pending.";
+            String checkerId = "test.checker";
+            String checkerIp = "127.0.0.1";
+
+            approvalWorkflowService.reject(
+                    requestId,
+                    checkerId,
+                    checkerIp,
+                    remarks
+            );
+
+            return "redirect:/approvals/"
+                    + requestId
+                    + "?success=Request rejected successfully.";
+
+        } catch (Exception e) {
+
+            return "redirect:/approvals/"
+                    + requestId
+                    + "?error="
+                    + e.getMessage();
         }
-
-        if (remarks == null || remarks.trim().isEmpty()) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Remarks are required when rejecting a request.";
-        }
-
-        approvalStatuses.put(
-                requestId,
-                "REJECTED"
-        );
-
-        return "redirect:/approvals/" + requestId
-                + "?success=Request rejected successfully.";
     }
 }

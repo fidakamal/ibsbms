@@ -45,10 +45,8 @@
                 </h2>
 
                 <p class="text-muted mb-0">
-
                     Review the proposed shareholder information
                     before making a decision.
-
                 </p>
 
             </div>
@@ -61,6 +59,32 @@
                 ← Back to Approvals
 
             </a>
+
+        </div>
+
+
+        <!-- Success message -->
+
+        <div
+                th:if="${param.success}"
+                class="alert alert-success">
+
+            <span th:text="${param.success}">
+                Request processed successfully.
+            </span>
+
+        </div>
+
+
+        <!-- Error message -->
+
+        <div
+                th:if="${param.error}"
+                class="alert alert-danger">
+
+            <span th:text="${param.error}">
+                Unable to process request.
+            </span>
 
         </div>
 
@@ -79,19 +103,26 @@
                 <div class="row g-4">
 
 
+                    <!-- Request ID -->
+
                     <div class="col-md-3">
 
                         <label class="form-label text-muted">
                             Request ID
                         </label>
 
-                        <div class="fw-semibold"
-                             th:text="${requestId}">
-                            100001
+                        <div
+                                class="fw-semibold"
+                                th:text="${approvalRequest.requestId}">
+
+                            55
+
                         </div>
 
                     </div>
 
+
+                    <!-- Operation -->
 
                     <div class="col-md-3">
 
@@ -101,8 +132,16 @@
 
                         <div>
 
-                            <span class="badge bg-info text-dark">
-                                SHAREHOLDER_CREATE
+                            <span
+                                    class="badge bg-info text-dark"
+                                    th:text="${approvalRequest.operationCode == 'SHAREHOLDER_CREATE'
+                                              ? 'Create'
+                                              : approvalRequest.operationCode == 'SHAREHOLDER_UPDATE'
+                                              ? 'Modify'
+                                              : approvalRequest.operationCode}">
+
+                                Create
+
                             </span>
 
                         </div>
@@ -110,18 +149,26 @@
                     </div>
 
 
+                    <!-- Maker -->
+
                     <div class="col-md-3">
 
                         <label class="form-label text-muted">
                             Maker
                         </label>
 
-                        <div class="fw-semibold">
+                        <div
+                                class="fw-semibold"
+                                th:text="${approvalRequest.makerId}">
+
                             test.maker
+
                         </div>
 
                     </div>
 
+
+                    <!-- Status -->
 
                     <div class="col-md-3">
 
@@ -134,21 +181,24 @@
                             <span
                                     class="badge"
                                     th:classappend="
-            ${status == 'APPROVED'} ? ' bg-success' :
-            (${status == 'REJECTED'} ? ' bg-danger' :
-            (${status == 'RETURNED_FOR_MODIFICATION'} ? ' bg-warning text-dark' :
-            ' bg-warning text-dark'))
-        "
-                                    th:text="${status}">
+                                    ${approvalRequest.status == 'APPROVED'} ? ' bg-success' :
+                                    (${approvalRequest.status == 'REJECTED'} ? ' bg-danger' :
+                                    (${approvalRequest.status == 'RETURNED_FOR_MODIFICATION'} ? ' bg-warning text-dark' :
+                                    ' bg-warning text-dark'))"
+                                    th:text="${approvalRequest.status == 'PENDING_CHECKER'
+                                              ? 'Pending Checker'
+                                              : approvalRequest.status}">
 
-    PENDING_CHECKER
+                                Pending Checker
 
-</span>
+                            </span>
 
                         </div>
 
                     </div>
 
+
+                    <!-- Folio BO -->
 
                     <div class="col-md-3">
 
@@ -156,12 +206,18 @@
                             Folio BO
                         </label>
 
-                        <div class="fw-semibold">
-                            FOLIO-000001
+                        <div
+                                class="fw-semibold"
+                                th:text="${approvalRequest.businessRef}">
+
+                            24381
+
                         </div>
 
                     </div>
 
+
+                    <!-- Business Date -->
 
                     <div class="col-md-3">
 
@@ -169,8 +225,49 @@
                             Business Date
                         </label>
 
-                        <div>
-                            04-Sep-2026
+                        <div
+                                th:text="${#temporals.format(approvalRequest.businessDate, 'dd-MMM-yyyy')}">
+
+                            06-Sep-2026
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Current Stage -->
+
+                    <div class="col-md-3">
+
+                        <label class="form-label text-muted">
+                            Current Stage
+                        </label>
+
+                        <div
+                                class="fw-semibold"
+                                th:text="${approvalRequest.currentStage}">
+
+                            CHECKER
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Version -->
+
+                    <div class="col-md-3">
+
+                        <label class="form-label text-muted">
+                            Version
+                        </label>
+
+                        <div
+                                class="fw-semibold"
+                                th:text="${approvalRequest.versionNo}">
+
+                            0
+
                         </div>
 
                     </div>
@@ -196,19 +293,39 @@
                 <div class="row g-3">
 
 
-                    <div class="col-md-6">
+                    <!-- Folio -->
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Folio BO
+                        </label>
+
+                        <input
+                                id="folioBo"
+                                class="form-control"
+                                readonly>
+
+                    </div>
+
+
+                    <!-- Customer Name -->
+
+                    <div class="col-md-8">
 
                         <label class="form-label">
                             Customer Name
                         </label>
 
                         <input
+                                id="custName"
                                 class="form-control"
-                                value="Test Shareholder"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Father's Name -->
 
                     <div class="col-md-6">
 
@@ -217,12 +334,14 @@
                         </label>
 
                         <input
+                                id="fatherName"
                                 class="form-control"
-                                value="Test Father"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Mother's Name -->
 
                     <div class="col-md-6">
 
@@ -231,12 +350,14 @@
                         </label>
 
                         <input
+                                id="motherName"
                                 class="form-control"
-                                value="Test Mother"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Spouse -->
 
                     <div class="col-md-6">
 
@@ -245,12 +366,30 @@
                         </label>
 
                         <input
+                                id="spouseName"
                                 class="form-control"
-                                value=""
                                 readonly>
 
                     </div>
 
+
+                    <!-- Representative -->
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Representative
+                        </label>
+
+                        <input
+                                id="representative"
+                                class="form-control"
+                                readonly>
+
+                    </div>
+
+
+                    <!-- Customer Type -->
 
                     <div class="col-md-4">
 
@@ -259,12 +398,14 @@
                         </label>
 
                         <input
+                                id="custType"
                                 class="form-control"
-                                value="Individual"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Citizenship -->
 
                     <div class="col-md-4">
 
@@ -273,12 +414,14 @@
                         </label>
 
                         <input
+                                id="citizenType"
                                 class="form-control"
-                                value="Local"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Resident Type -->
 
                     <div class="col-md-4">
 
@@ -287,12 +430,14 @@
                         </label>
 
                         <input
+                                id="residentType"
                                 class="form-control"
-                                value="Resident"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Phone -->
 
                     <div class="col-md-4">
 
@@ -301,12 +446,14 @@
                         </label>
 
                         <input
+                                id="phone"
                                 class="form-control"
-                                value="01700000000"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Email -->
 
                     <div class="col-md-4">
 
@@ -315,12 +462,14 @@
                         </label>
 
                         <input
+                                id="email"
                                 class="form-control"
-                                value="test@example.com"
                                 readonly>
 
                     </div>
 
+
+                    <!-- DOB -->
 
                     <div class="col-md-4">
 
@@ -329,12 +478,30 @@
                         </label>
 
                         <input
+                                id="dob"
                                 class="form-control"
-                                value="01-Jan-1995"
                                 readonly>
 
                     </div>
 
+
+                    <!-- Employee -->
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Employee
+                        </label>
+
+                        <input
+                                id="isEmployee"
+                                class="form-control"
+                                readonly>
+
+                    </div>
+
+
+                    <!-- NID -->
 
                     <div class="col-md-4">
 
@@ -343,12 +510,14 @@
                         </label>
 
                         <input
+                                id="nidNo"
                                 class="form-control"
-                                value=""
                                 readonly>
 
                     </div>
 
+
+                    <!-- TIN -->
 
                     <div class="col-md-4">
 
@@ -357,8 +526,24 @@
                         </label>
 
                         <input
+                                id="tinNo"
                                 class="form-control"
-                                value=""
+                                readonly>
+
+                    </div>
+
+
+                    <!-- ICB Code -->
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            ICB Code
+                        </label>
+
+                        <input
+                                id="icbCode"
+                                class="form-control"
                                 readonly>
 
                     </div>
@@ -391,8 +576,8 @@
                         </label>
 
                         <input
+                                id="add1"
                                 class="form-control"
-                                value="Dhaka"
                                 readonly>
 
                     </div>
@@ -405,6 +590,35 @@
                         </label>
 
                         <input
+                                id="add2"
+                                class="form-control"
+                                readonly>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Address Line 3
+                        </label>
+
+                        <input
+                                id="add3"
+                                class="form-control"
+                                readonly>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Address Line 4
+                        </label>
+
+                        <input
+                                id="add4"
                                 class="form-control"
                                 readonly>
 
@@ -418,8 +632,8 @@
                         </label>
 
                         <input
+                                id="countryName"
                                 class="form-control"
-                                value="Bangladesh"
                                 readonly>
 
                     </div>
@@ -431,7 +645,7 @@
         </div>
 
 
-        <!-- Bank information -->
+        <!-- Bank Information -->
 
         <div class="form-section">
 
@@ -452,8 +666,8 @@
                         </label>
 
                         <input
+                                id="bankName"
                                 class="form-control"
-                                value=""
                                 readonly>
 
                     </div>
@@ -466,8 +680,8 @@
                         </label>
 
                         <input
+                                id="accNo"
                                 class="form-control"
-                                value=""
                                 readonly>
 
                     </div>
@@ -480,8 +694,8 @@
                         </label>
 
                         <input
+                                id="branchName"
                                 class="form-control"
-                                value=""
                                 readonly>
 
                     </div>
@@ -494,8 +708,8 @@
                         </label>
 
                         <input
+                                id="routingNo"
                                 class="form-control"
-                                value=""
                                 readonly>
 
                     </div>
@@ -507,9 +721,112 @@
         </div>
 
 
-        <!-- Checker decision -->
+        <!-- Approval History -->
 
         <div class="form-section">
+
+            <div class="form-section-body">
+
+                <h5 class="mb-4">
+                    Approval History
+                </h5>
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-hover align-middle">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Stage</th>
+
+                            <th>Action</th>
+
+                            <th>Actor</th>
+
+                            <th>Remarks</th>
+
+                            <th>Action Time</th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <tr th:each="action : ${history}">
+
+                            <td th:text="${action.stage}">
+                                MAKER
+                            </td>
+
+                            <td>
+
+                                <span
+                                        class="badge bg-secondary"
+                                        th:text="${action.action}">
+
+                                    SUBMITTED
+
+                                </span>
+
+                            </td>
+
+                            <td th:text="${action.actorId}">
+                                test.maker
+                            </td>
+
+                            <td
+                                    th:text="${action.remarks != null and !#strings.isEmpty(action.remarks)
+                                              ? action.remarks
+                                              : '-'}">
+
+                                -
+
+                            </td>
+
+                            <td
+                                    th:text="${#temporals.format(action.actionAt, 'dd-MMM-yyyy HH:mm:ss')}">
+
+                                06-Sep-2026 12:38:12
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(history)}">
+
+                            <td
+                                    colspan="5"
+                                    class="text-center text-muted py-3">
+
+                                No approval history found.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Checker Decision -->
+
+        <div
+                class="form-section"
+                th:if="${approvalRequest.status == 'PENDING_CHECKER'
+                        and approvalRequest.currentStage == 'CHECKER'}">
 
             <div class="form-section-body">
 
@@ -518,38 +835,16 @@
                 </h5>
 
 
-                <!-- Success message -->
-
-                <div
-                        th:if="${param.success}"
-                        class="alert alert-success">
-
-            <span th:text="${param.success}">
-                Request processed successfully.
-            </span>
-
-                </div>
-
-
-                <!-- Error message -->
-
-                <div
-                        th:if="${param.error}"
-                        class="alert alert-danger">
-
-            <span th:text="${param.error}">
-                Unable to process request.
-            </span>
-
-                </div>
-
-
                 <!-- Remarks -->
 
                 <div class="mb-3">
 
-                    <label class="form-label">
+                    <label
+                            for="remarks"
+                            class="form-label">
+
                         Remarks
+
                     </label>
 
                     <textarea
@@ -568,7 +863,7 @@
                     <!-- Reject -->
 
                     <form
-                            th:action="@{/approvals/{id}/reject(id=${requestId})}"
+                            th:action="@{/approvals/{id}/reject(id=${approvalRequest.requestId})}"
                             method="post">
 
                         <input
@@ -580,9 +875,9 @@
                                 type="submit"
                                 class="btn btn-outline-danger"
                                 onclick="
-                            document.getElementById('rejectRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
+                                    document.getElementById('rejectRemarks').value =
+                                    document.getElementById('remarks').value;
+                                ">
 
                             Reject
 
@@ -594,7 +889,7 @@
                     <!-- Return -->
 
                     <form
-                            th:action="@{/approvals/{id}/return(id=${requestId})}"
+                            th:action="@{/approvals/{id}/return(id=${approvalRequest.requestId})}"
                             method="post">
 
                         <input
@@ -606,9 +901,9 @@
                                 type="submit"
                                 class="btn btn-outline-warning"
                                 onclick="
-                            document.getElementById('returnRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
+                                    document.getElementById('returnRemarks').value =
+                                    document.getElementById('remarks').value;
+                                ">
 
                             Return for Modification
 
@@ -620,7 +915,7 @@
                     <!-- Approve -->
 
                     <form
-                            th:action="@{/approvals/{id}/approve(id=${requestId})}"
+                            th:action="@{/approvals/{id}/approve(id=${approvalRequest.requestId})}"
                             method="post">
 
                         <input
@@ -632,9 +927,9 @@
                                 type="submit"
                                 class="btn btn-success"
                                 onclick="
-                            document.getElementById('approveRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
+                                    document.getElementById('approveRemarks').value =
+                                    document.getElementById('remarks').value;
+                                ">
 
                             Approve
 
@@ -650,14 +945,141 @@
         </div>
 
 
+        <!-- Completed message -->
+
+        <div
+                class="form-section"
+                th:if="${approvalRequest.status != 'PENDING_CHECKER'}">
+
+            <div class="form-section-body">
+
+                <div class="alert alert-secondary mb-0">
+
+                    This request is no longer pending checker approval.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
     </div>
 
 </main>
+
+
+<!-- Proposal JSON -->
+
+<script th:inline="javascript">
+
+    const proposalJson =
+        /*[[${changeRequest.newValue}]]*/ '{}';
+
+    try {
+
+        const proposal = JSON.parse(proposalJson);
+
+        const basic = proposal.basicInfo || {};
+        const address = proposal.address || {};
+        const bank = proposal.bankInfo || {};
+
+
+        function setValue(id, value) {
+
+            const element = document.getElementById(id);
+
+            if (!element) {
+                return;
+            }
+
+            if (value === null || value === undefined) {
+                element.value = '';
+            } else {
+                element.value = value;
+            }
+        }
+
+
+        // Basic information
+
+        setValue('folioBo', basic.folioBo);
+
+        setValue('custName', basic.custName);
+
+        setValue('fatherName', basic.fatherName);
+
+        setValue('motherName', basic.motherName);
+
+        setValue('spouseName', basic.spouseName);
+
+        setValue('representative', basic.representative);
+
+        setValue('custType', basic.custType);
+
+        setValue('citizenType', basic.citizenType);
+
+        setValue('residentType', basic.residentType);
+
+        setValue('phone', basic.phone);
+
+        setValue('email', basic.email);
+
+        setValue('dob', basic.dob);
+
+        setValue(
+            'isEmployee',
+            basic.isEmployee === 1 ? 'Yes' : 'No'
+        );
+
+        setValue('nidNo', basic.nidNo);
+
+        setValue('tinNo', basic.tinNo);
+
+        setValue('icbCode', basic.icbCode);
+
+
+        // Address
+
+        setValue('add1', address.add1);
+
+        setValue('add2', address.add2);
+
+        setValue('add3', address.add3);
+
+        setValue('add4', address.add4);
+
+        setValue('countryName', address.countryName);
+
+
+        // Bank information
+
+        setValue('bankName', bank.bankName);
+
+        setValue('accNo', bank.accNo);
+
+        setValue('branchName', bank.branchName);
+
+        setValue('routingNo', bank.routingNo);
+
+
+    } catch (error) {
+
+        console.error(
+            'Unable to parse shareholder proposal JSON:',
+            error
+        );
+
+    }
+
+</script>
 
 
 <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
+
 </body>
 </html>
+
