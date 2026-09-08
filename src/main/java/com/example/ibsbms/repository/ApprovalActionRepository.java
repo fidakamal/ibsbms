@@ -8,5 +8,12 @@ import java.util.List;
 public interface ApprovalActionRepository
         extends JpaRepository<ApprovalAction, Long> {
 
-    List<ApprovalAction> findByRequestIdOrderByActionAtAsc(Long requestId);
+    List<ApprovalAction> findByRequestIdOrderByActionAtAsc(
+            Long requestId
+    );
+
+    List<ApprovalAction> findByRequestIdAndActionOrderByActionAtDesc(
+            Long requestId,
+            String action
+    );
 }

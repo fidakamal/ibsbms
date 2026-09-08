@@ -1,6 +1,7 @@
 package com.example.ibsbms.controller;
 
 import com.example.ibsbms.dto.ShareholderCreateRequest;
+import com.example.ibsbms.entity.ApprovalRequest;
 import com.example.ibsbms.service.ShareholderService;
 import com.example.ibsbms.service.ShareholderWorkflowService;
 import jakarta.validation.Valid;
@@ -150,4 +151,160 @@ public class ShareholderController {
 
         return "redirect:/shareholders?success=Modification submitted for approval.";
     }
+
+
+    @GetMapping("/shareholders/returned")
+    public String returnedRequests(Model model) {
+
+        String makerId = "test.maker";
+
+        var requests =
+                shareholderWorkflowService
+                        .getReturnedForModificationRequests(makerId);
+
+        java.util.Map<Long, String> returnRemarks =
+                new java.util.HashMap<>();
+
+        for (ApprovalRequest request : requests) {
+
+            returnRemarks.put(
+                    request.getRequestId(),
+                    shareholderWorkflowService
+                            .getLatestReturnRemarks(
+                                    request.getRequestId()
+                            )
+            );
+        }
+
+        model.addAttribute(
+                "returnedRequests",
+                requests
+        );
+
+        model.addAttribute(
+                "returnedCount",
+                requests.size()
+        );
+
+        model.addAttribute(
+                "returnRemarks",
+                returnRemarks
+        );
+
+        return "shareholder/returned-list";
+    }
+
+
+
+    @GetMapping("/shareholders/returned/{requestId}/edit")
+    public String editReturnedRequest(
+            @PathVariable Long requestId,
+            Model model) {
+
+        String makerId = "test.maker";
+
+        try {
+
+            ShareholderCreateRequest snapshot =
+                    shareholderWorkflowService
+                            .getReturnedRequestData(
+                                    requestId,
+                                    makerId
+                            );
+
+            model.addAttribute(
+                    "shareholder",
+                    snapshot
+            );
+
+            model.addAttribute(
+                    "formAction",
+                    "/shareholders/returned/"
+                            + requestId
+                            + "/resubmit"
+            );
+
+            model.addAttribute(
+                    "editMode",
+                    true
+            );
+
+            model.addAttribute(
+                    "returnedRequestId",
+                    requestId
+            );
+
+            return "shareholder/shareholder-create";
+
+        } catch (IllegalArgumentException |
+                 IllegalStateException e) {
+
+            return "redirect:/shareholders/returned?error="
+                    + e.getMessage();
+        }
+    }
+
+
+
+    @PostMapping("/shareholders/returned/{requestId}/resubmit")
+    public String resubmitReturned(
+            @PathVariable Long requestId,
+            @Valid @ModelAttribute("shareholder")
+            ShareholderCreateRequest request,
+            BindingResult bindingResult,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute(
+                    "formAction",
+                    "/shareholders/returned/"
+                            + requestId
+                            + "/resubmit"
+            );
+
+            model.addAttribute(
+                    "editMode",
+                    true
+            );
+
+            model.addAttribute(
+                    "returnedRequestId",
+                    requestId
+            );
+
+            return "shareholder/shareholder-create";
+        }
+
+        /*
+         * Temporary maker identity.
+         *
+         * Later this will come from authentication.
+         */
+        String makerId = "test.maker";
+        String makerIp = "127.0.0.1";
+
+        try {
+
+            shareholderWorkflowService.resubmitReturnedModify(
+                    requestId,
+                    request,
+                    makerId,
+                    makerIp
+            );
+
+        } catch (IllegalArgumentException |
+                 IllegalStateException e) {
+
+            return "redirect:/shareholders/returned?error="
+                    + e.getMessage();
+        }
+
+        return "redirect:/shareholders/returned?success="
+                + "Request resubmitted successfully.";
+    }
+
+
+
+
 }

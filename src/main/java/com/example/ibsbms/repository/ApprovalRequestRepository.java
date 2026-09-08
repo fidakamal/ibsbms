@@ -3,6 +3,7 @@ package com.example.ibsbms.repository;
 import com.example.ibsbms.entity.ApprovalRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +30,18 @@ public interface ApprovalRequestRepository
     List<ApprovalRequest> findPendingCheckerRequests();
 
     Optional<ApprovalRequest> findByRequestId(Long requestId);
+
+
+    @Query("""
+    SELECT a
+    FROM ApprovalRequest a
+    WHERE a.status = 'RETURNED_FOR_MODIFICATION'
+      AND a.currentStage = 'MAKER'
+      AND a.makerId = :makerId
+      AND a.operationCode IN ('SHAREHOLDER_CREATE', 'SHAREHOLDER_UPDATE')
+    ORDER BY a.updatedAt DESC
+""")
+    List<ApprovalRequest> findReturnedForModificationRequests(
+            @Param("makerId") String makerId
+    );
 }
