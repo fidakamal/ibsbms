@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
@@ -41,23 +42,104 @@
             <div>
                 <span class="badge bg-warning text-dark fs-6">
                     Pending:
-                    <span th:text="${pendingCount}">3</span>
+                    <span th:text="${pendingCount}">0</span>
                 </span>
             </div>
 
         </div>
 
 
-        <!-- Flash messages -->
-        <div th:if="${param.success}" class="alert alert-success">
-            <span th:text="${param.success}">Done.</span>
-        </div>
-        <div th:if="${param.error}" class="alert alert-danger">
-            <span th:text="${param.error}">Error.</span>
+        <!-- Search / filter section -->
+        <div class="form-section">
+
+            <div class="form-section-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Folio BO
+                        </label>
+
+                        <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Folio BO">
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Operation
+                        </label>
+
+                        <select class="form-select">
+
+                            <option value="">
+                                All
+                            </option>
+
+                            <option value="SHAREHOLDER_CREATE">
+                                Shareholder Create
+                            </option>
+
+                            <option value="SHAREHOLDER_UPDATE">
+                                Shareholder Modify
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        <select class="form-select">
+
+                            <option>
+                                Pending Checker
+                            </option>
+
+                            <option>
+                                Returned
+                            </option>
+
+                            <option>
+                                All
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button
+                                type="button"
+                                class="btn btn-primary w-100">
+
+                            Search
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
 
-        <!-- Approval table -->
+        <!-- Pending approval table -->
         <div class="form-section">
 
             <div class="form-section-body">
@@ -82,7 +164,9 @@
 
                             <th>Status</th>
 
-                            <th class="text-start">Action</th>
+                            <th class="text-end">
+                                Action
+                            </th>
 
                         </tr>
 
@@ -91,58 +175,86 @@
 
                         <tbody>
 
-                        <tr th:each="req : ${requests}">
+                        <!-- Real database approval requests -->
+                        <tr th:each="request : ${approvalRequests}">
 
-                            <td th:text="${req.requestId}">
-                                100001
+                            <td th:text="${request.requestId}">
+                                55
                             </td>
 
                             <td>
-                                <span class="badge bg-info text-dark"
-                                      th:text="${req.operationCode == 'SHAREHOLDER_CREATE'} ? 'Create' : 'Modify'">
+
+                                <span
+                                        class="badge bg-info text-dark"
+                                        th:text="${request.operationCode == 'SHAREHOLDER_CREATE'
+                                                  ? 'Create'
+                                                  : request.operationCode == 'SHAREHOLDER_UPDATE'
+                                                  ? 'Modify'
+                                                  : request.operationCode}">
+
                                     Create
+
                                 </span>
+
                             </td>
 
                             <td>
-                                <strong th:text="${req.businessRef}">FOLIO-000001</strong>
+
+                                <strong th:text="${request.businessRef}">
+                                    24381
+                                </strong>
+
                             </td>
 
-                            <td th:text="${req.makerId}">
+                            <td th:text="${request.makerId}">
                                 test.maker
                             </td>
 
-                            <td th:text="${req.businessDate}">
-                                04-Sep-2026
+                            <td
+                                    th:text="${#temporals.format(request.businessDate, 'dd-MMM-yyyy')}">
+
+                                06-Sep-2026
+
                             </td>
 
                             <td>
-                                <span class="badge"
-                                      th:classappend="
-                                          ${req.status == 'APPROVED'} ? ' bg-success' :
-                                          (${req.status == 'REJECTED'} ? ' bg-danger' :
-                                          (${req.status == 'RETURNED_FOR_MODIFICATION'} ? ' bg-warning text-dark' :
-                                          ' bg-warning text-dark'))
-                                      "
-                                      th:text="${req.status}">
-                                    PENDING_CHECKER
+
+                                <span
+                                        class="badge bg-warning text-dark"
+                                        th:text="${request.status == 'PENDING_CHECKER'
+                                                  ? 'Pending Checker'
+                                                  : request.status}">
+
+                                    Pending Checker
+
                                 </span>
+
                             </td>
 
-                            <td>
-                                <a th:href="@{/approvals/{id}(id=${req.requestId})}"
-                                   class="btn btn-sm btn-primary"
-                                   th:text="'Review'">
+                            <td class="text-end">
+
+                                <a
+                                        th:href="@{/approvals/{requestId}(requestId=${request.requestId})}"
+                                        class="btn btn-sm btn-primary">
+
+                                    Review
+
                                 </a>
+
                             </td>
 
                         </tr>
 
 
-                        <tr th:if="${#lists.isEmpty(requests)}">
+                        <!-- No pending requests -->
+                        <tr th:if="${#lists.isEmpty(approvalRequests)}">
 
-                            <td colspan="7" class="text-center text-muted py-4">
-                                No approval requests found.
+                            <td
+                                    colspan="7"
+                                    class="text-center text-muted py-4">
+
+                                No pending approval requests found.
+
                             </td>
 
                         </tr>
@@ -162,4 +274,6 @@
 </main>
 
 </body>
+
 </html>
+```

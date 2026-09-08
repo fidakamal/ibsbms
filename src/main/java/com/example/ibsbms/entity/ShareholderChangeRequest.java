@@ -1,9 +1,6 @@
 package com.example.ibsbms.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,9 +26,11 @@ public class ShareholderChangeRequest {
     @Column(name = "OPERATION_CODE", length = 50, nullable = false)
     private String operationCode;
 
+    @Lob
     @Column(name = "OLD_VALUE", columnDefinition = "CLOB")
     private String oldValue;
 
+    @Lob
     @Column(name = "NEW_VALUE", columnDefinition = "CLOB", nullable = false)
     private String newValue;
 

@@ -1,7 +1,10 @@
 package com.example.ibsbms.entity;
 
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,35 +14,26 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "T_BUSINESS_AUDIT")
 public class BusinessAudit {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "businessAuditSeq"
-    )
-    @SequenceGenerator(
-            name = "businessAuditSeq",
-            sequenceName = "SEQ_BUSINESS_AUDIT",
-            allocationSize = 1
-    )
     @Column(name = "AUDIT_ID", nullable = false)
     private Long auditId;
 
-    @Column(name = "EVENT_TIME", nullable = false)
+    @Column(name = "EVENT_TIME")
     private LocalDateTime eventTime;
 
-    @Column(name = "MODULE_CODE", length = 30, nullable = false)
+    @Column(name = "MODULE_CODE", length = 30)
     private String moduleCode;
 
-    @Column(name = "ACTION_TYPE", length = 50, nullable = false)
+    @Column(name = "ACTION_TYPE", length = 50)
     private String actionType;
 
-    @Column(name = "ENTITY_TYPE", length = 50, nullable = false)
+    @Column(name = "ENTITY_TYPE", length = 50)
     private String entityType;
 
     @Column(name = "ENTITY_ID", length = 100)
@@ -49,18 +43,18 @@ public class BusinessAudit {
     private String businessRef;
 
     @Lob
-    @Column(name = "CHANGED_FIELDS")
+    @Column(name = "CHANGED_FIELDS", columnDefinition = "CLOB")
     private String changedFields;
 
     @Lob
-    @Column(name = "OLD_VALUE")
+    @Column(name = "OLD_VALUE", columnDefinition = "CLOB")
     private String oldValue;
 
     @Lob
-    @Column(name = "NEW_VALUE")
+    @Column(name = "NEW_VALUE", columnDefinition = "CLOB")
     private String newValue;
 
-    @Column(name = "ACTOR_ID", length = 60, nullable = false)
+    @Column(name = "ACTOR_ID", length = 60)
     private String actorId;
 
     @Column(name = "CLIENT_IP", length = 45)
@@ -81,3 +75,4 @@ public class BusinessAudit {
     @Column(name = "REMARKS", length = 500)
     private String remarks;
 }
+
