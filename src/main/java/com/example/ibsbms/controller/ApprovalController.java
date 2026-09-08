@@ -1,29 +1,58 @@
 package com.example.ibsbms.controller;
 
+import com.example.ibsbms.dto.ShareholderCreateRequest;
+import com.example.ibsbms.entity.ApprovalAction;
+import com.example.ibsbms.entity.ApprovalRequest;
+import com.example.ibsbms.entity.ShareholderChangeRequest;
+import com.example.ibsbms.repository.ApprovalActionRepository;
+import com.example.ibsbms.repository.ApprovalRequestRepository;
+import com.example.ibsbms.repository.ShareholderChangeRequestRepository;
+import com.example.ibsbms.service.ShareholderService;
+import com.example.ibsbms.service.ShareholderWorkflowService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.List;
 
 @Controller
 public class ApprovalController {
 
-    /*
-     * Temporary in-memory approval state.
-     *
-     * Later this will be replaced by:
-     * T_APPROVAL_REQUEST
-     * T_APPROVAL_ACTION
-     */
-    private final Map<Long, String> approvalStatuses = new HashMap<>();
+    private final ApprovalRequestRepository approvalRequestRepository;
+    private final ApprovalActionRepository approvalActionRepository;
+    private final ShareholderChangeRequestRepository changeRequestRepository;
+    private final ShareholderWorkflowService shareholderWorkflowService;
+    private final ShareholderService shareholderService;
+
+    public ApprovalController(
+            ApprovalRequestRepository approvalRequestRepository,
+            ApprovalActionRepository approvalActionRepository,
+            ShareholderChangeRequestRepository changeRequestRepository,
+            ShareholderWorkflowService shareholderWorkflowService,
+            ShareholderService shareholderService) {
+
+        this.approvalRequestRepository = approvalRequestRepository;
+        this.approvalActionRepository = approvalActionRepository;
+        this.changeRequestRepository = changeRequestRepository;
+        this.shareholderWorkflowService = shareholderWorkflowService;
+        this.shareholderService = shareholderService;
+    }
 
     @GetMapping("/approvals")
     public String approvals(Model model) {
 
-        // Temporary mock data
-        model.addAttribute("pendingCount", 3);
+        List<ApprovalRequest> requests = approvalRequestRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(ApprovalRequest::getCreatedAt).reversed())
+                .toList();
+
+        long pendingCount = requests.stream()
+                .filter(r -> "PENDING_CHECKER".equals(r.getStatus()))
+                .count();
+
+        model.addAttribute("requests", requests);
+        model.addAttribute("pendingCount", pendingCount);
 
         return "approval/approval-list";
     }
@@ -33,13 +62,37 @@ public class ApprovalController {
             @PathVariable Long requestId,
             Model model) {
 
-        String status = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
-        );
+        ApprovalRequest approvalRequest = approvalRequestRepository
+                .findById(requestId)
+                .orElse(null);
+
+        if (approvalRequest == null) {
+            return "redirect:/approvals?error=Approval request not found: " + requestId;
+        }
+
+        List<ApprovalAction> history = approvalActionRepository
+                .findByRequestIdOrderByActionAtAsc(requestId);
+        ShareholderCreateRequest newData = new ShareholderCreateRequest();
+        ShareholderCreateRequest oldData = null;
+
+        ShareholderChangeRequest changeRequest = changeRequestRepository
+                .findById(approvalRequest.getSourceId())
+                .orElse(null);
+
+        if (changeRequest != null) {
+            newData = shareholderService.parseProposalJson(changeRequest.getNewValue());
+
+            if (changeRequest.getOldValue() != null) {
+                oldData = shareholderService.parseProposalJson(changeRequest.getOldValue());
+            }
+        }
 
         model.addAttribute("requestId", requestId);
-        model.addAttribute("status", status);
+        model.addAttribute("approvalRequest", approvalRequest);
+        model.addAttribute("status", approvalRequest.getStatus());
+        model.addAttribute("history", history);
+        model.addAttribute("newData", newData);
+        model.addAttribute("oldData", oldData);
 
         return "approval/approval-details";
     }
@@ -50,33 +103,18 @@ public class ApprovalController {
             @PathVariable Long requestId,
             @RequestParam(required = false) String remarks) {
 
-        String currentStatus = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
-        );
-
-        if (!"PENDING_CHECKER".equals(currentStatus)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Request is no longer pending.";
-        }
-
         /*
          * Temporary checker identity.
          * Later this will come from authentication/session.
          */
-        String makerId = "test.maker";
         String checkerId = "test.checker";
+        String checkerIp = "127.0.0.1";
 
-        // Maker and checker must be different.
-        if (makerId.equals(checkerId)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Maker cannot approve their own request.";
+        try {
+            shareholderWorkflowService.approve(requestId, checkerId, checkerIp, remarks);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return "redirect:/approvals/" + requestId + "?error=" + e.getMessage();
         }
-
-        approvalStatuses.put(
-                requestId,
-                "APPROVED"
-        );
 
         return "redirect:/approvals/" + requestId
                 + "?success=Request approved successfully.";
@@ -88,25 +126,14 @@ public class ApprovalController {
             @PathVariable Long requestId,
             @RequestParam(required = false) String remarks) {
 
-        String currentStatus = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
-        );
+        String checkerId = "test.checker";
+        String checkerIp = "127.0.0.1";
 
-        if (!"PENDING_CHECKER".equals(currentStatus)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Request is no longer pending.";
+        try {
+            shareholderWorkflowService.returnForModification(requestId, checkerId, checkerIp, remarks);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return "redirect:/approvals/" + requestId + "?error=" + e.getMessage();
         }
-
-        if (remarks == null || remarks.trim().isEmpty()) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Remarks are required when returning a request.";
-        }
-
-        approvalStatuses.put(
-                requestId,
-                "RETURNED_FOR_MODIFICATION"
-        );
 
         return "redirect:/approvals/" + requestId
                 + "?success=Request returned to maker for modification.";
@@ -118,25 +145,18 @@ public class ApprovalController {
             @PathVariable Long requestId,
             @RequestParam(required = false) String remarks) {
 
-        String currentStatus = approvalStatuses.getOrDefault(
-                requestId,
-                "PENDING_CHECKER"
-        );
+        /*
+         * Temporary checker identity.
+         * Later this will come from authentication/session.
+         */
+        String checkerId = "test.checker";
+        String checkerIp = "127.0.0.1";
 
-        if (!"PENDING_CHECKER".equals(currentStatus)) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Request is no longer pending.";
+        try {
+            shareholderWorkflowService.reject(requestId, checkerId, checkerIp, remarks);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return "redirect:/approvals/" + requestId + "?error=" + e.getMessage();
         }
-
-        if (remarks == null || remarks.trim().isEmpty()) {
-            return "redirect:/approvals/" + requestId
-                    + "?error=Remarks are required when rejecting a request.";
-        }
-
-        approvalStatuses.put(
-                requestId,
-                "REJECTED"
-        );
 
         return "redirect:/approvals/" + requestId
                 + "?success=Request rejected successfully.";

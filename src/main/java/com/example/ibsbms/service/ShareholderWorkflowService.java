@@ -44,20 +44,10 @@ public class ShareholderWorkflowService {
             String makerId,
             String makerIp) {
 
-        /*
-         * Never trust Folio BO supplied by the browser.
-         */
         request.getBasicInfo().setFolioBo(null);
 
-        /*
-         * Generate the next physical Folio.
-         */
         String folioBo = workflowIdService.generateNextFolioBo();
 
-        /*
-         * Make sure this Folio isn't already reserved
-         * by another shareholder Create request.
-         */
         boolean alreadyReserved =
                 changeRequestRepository.existsByFolioBoAndOperationCode(
                         folioBo,
@@ -70,26 +60,14 @@ public class ShareholderWorkflowService {
             );
         }
 
-        /*
-         * Put the server-generated Folio into the proposal.
-         */
         request.getBasicInfo().setFolioBo(folioBo);
 
-        /*
-         * Build the complete NEW_VALUE JSON.
-         */
         String proposalJson =
                 shareholderService.buildCreateProposalJson(request);
 
-        /*
-         * Generate the Change ID.
-         */
         String changeId =
                 workflowIdService.generateChangeId();
 
-        /*
-         * Create T_SHAREHOLDER_CHANGE_REQUEST.
-         */
         ShareholderChangeRequest changeRequest =
                 new ShareholderChangeRequest();
 
@@ -106,24 +84,12 @@ public class ShareholderWorkflowService {
 
         changeRequestRepository.save(changeRequest);
 
-        /*
-         * Generate the Approval Request ID.
-         */
         Long requestId =
                 workflowIdService.nextApprovalRequestId();
 
-        /*
-         * Current Bangladesh business date.
-         *
-         * The server determines this.
-         * It does not come from the browser.
-         */
         LocalDate businessDate =
                 LocalDate.now(ZoneId.of("Asia/Dhaka"));
 
-        /*
-         * Create T_APPROVAL_REQUEST.
-         */
         ApprovalRequest approvalRequest =
                 new ApprovalRequest();
 
@@ -150,10 +116,6 @@ public class ShareholderWorkflowService {
 
         approvalRequestRepository.save(approvalRequest);
 
-
-        /*
-         * Record the maker's submission in T_APPROVAL_ACTION.
-         */
         Long actionId =
                 workflowIdService.nextApprovalActionId();
 
@@ -171,8 +133,6 @@ public class ShareholderWorkflowService {
 
         approvalActionRepository.save(approvalAction);
 
-
-
         System.out.println("======================================");
         System.out.println("APPROVAL REQUEST SAVED");
         System.out.println("======================================");
@@ -187,7 +147,6 @@ public class ShareholderWorkflowService {
         System.out.println("======================================");
     }
 
-
     @Transactional
     public void submitModifyForApproval(
             String folioBo,
@@ -195,17 +154,8 @@ public class ShareholderWorkflowService {
             String makerId,
             String makerIp) {
 
-        /*
-         * Never trust the Folio/BO on a Modify from the browser - it is
-         * always the one already approved and currently being edited.
-         */
         edited.getBasicInfo().setFolioBo(folioBo);
 
-        /*
-         * Block a second Modify (or an overlapping Create) from being
-         * opened on a Folio/BO that already has a change request sitting
-         * in PENDING_CHECKER or RETURNED_FOR_MODIFICATION.
-         */
         boolean hasActiveRequest = !approvalRequestRepository
                 .findByBusinessRefAndStatusIn(
                         folioBo,
@@ -218,12 +168,6 @@ public class ShareholderWorkflowService {
                     "There is already a pending change request for Folio/BO " + folioBo);
         }
 
-        /*
-         * OLD_VALUE is always re-read fresh from the approved master
-         * tables here on the server - never taken from a hidden form
-         * field - so a stale or tampered "before" snapshot can never be
-         * recorded.
-         */
         ShareholderCreateRequest currentSnapshot =
                 shareholderService.snapshotOf(folioBo);
 
@@ -236,9 +180,6 @@ public class ShareholderWorkflowService {
         String changeId =
                 workflowIdService.generateChangeId();
 
-        /*
-         * Create T_SHAREHOLDER_CHANGE_REQUEST.
-         */
         ShareholderChangeRequest changeRequest =
                 new ShareholderChangeRequest();
 
@@ -255,21 +196,12 @@ public class ShareholderWorkflowService {
 
         changeRequestRepository.save(changeRequest);
 
-        /*
-         * Generate the Approval Request ID.
-         */
         Long requestId =
                 workflowIdService.nextApprovalRequestId();
 
-        /*
-         * Current Bangladesh business date, assigned by the server.
-         */
         LocalDate businessDate =
                 LocalDate.now(ZoneId.of("Asia/Dhaka"));
 
-        /*
-         * Create T_APPROVAL_REQUEST.
-         */
         ApprovalRequest approvalRequest =
                 new ApprovalRequest();
 
@@ -296,9 +228,6 @@ public class ShareholderWorkflowService {
 
         approvalRequestRepository.save(approvalRequest);
 
-        /*
-         * Record the maker's submission in T_APPROVAL_ACTION.
-         */
         Long actionId =
                 workflowIdService.nextApprovalActionId();
 
@@ -316,7 +245,6 @@ public class ShareholderWorkflowService {
 
         approvalActionRepository.save(approvalAction);
 
-
         System.out.println("======================================");
         System.out.println("MODIFY REQUEST SAVED");
         System.out.println("======================================");
@@ -329,5 +257,166 @@ public class ShareholderWorkflowService {
         System.out.println("Current Stage  : CHECKER");
         System.out.println("Business Date  : " + businessDate);
         System.out.println("======================================");
+    }
+
+    @Transactional
+    public void approve(
+            Long requestId,
+            String checkerId,
+            String checkerIp,
+            String remarks) {
+
+        ApprovalRequest approvalRequest = approvalRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Approval request not found: " + requestId));
+
+        if (!"PENDING_CHECKER".equals(approvalRequest.getStatus())) {
+            throw new IllegalStateException("Request is no longer pending.");
+        }
+
+        if (approvalRequest.getMakerId().equals(checkerId)) {
+            throw new IllegalStateException("Maker cannot approve their own request.");
+        }
+
+        ShareholderChangeRequest changeRequest = changeRequestRepository
+                .findById(approvalRequest.getSourceId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Change request not found for approval: "
+                                + approvalRequest.getSourceId()));
+
+        ShareholderCreateRequest approvedData =
+                shareholderService.parseProposalJson(changeRequest.getNewValue());
+
+        shareholderService.applyApproved(
+                approvalRequest.getBusinessRef(),
+                approvedData,
+                approvalRequest.getMakerId(),
+                checkerId
+        );
+
+        LocalDateTime now = LocalDateTime.now();
+
+        approvalRequest.setStatus("APPROVED");
+        approvalRequest.setCurrentStage("COMPLETED");
+        approvalRequest.setCheckerId(checkerId);
+        approvalRequest.setCheckerIp(checkerIp);
+        approvalRequest.setDecidedAt(now);
+        approvalRequest.setUpdatedAt(now);
+
+        approvalRequestRepository.save(approvalRequest);
+
+        Long actionId = workflowIdService.nextApprovalActionId();
+
+        ApprovalAction approvalAction = new ApprovalAction();
+        approvalAction.setActionId(actionId);
+        approvalAction.setRequestId(requestId);
+        approvalAction.setStage("CHECKER");
+        approvalAction.setAction("APPROVED");
+        approvalAction.setActorId(checkerId);
+        approvalAction.setActorIp(checkerIp);
+        approvalAction.setRemarks(remarks);
+        approvalAction.setActionAt(now);
+
+        approvalActionRepository.save(approvalAction);
+    }
+
+    @Transactional
+    public void returnForModification(
+            Long requestId,
+            String checkerId,
+            String checkerIp,
+            String remarks) {
+
+        if (remarks == null || remarks.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Remarks are required when returning a request.");
+        }
+
+        ApprovalRequest approvalRequest = approvalRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Approval request not found: " + requestId));
+
+        if (!"PENDING_CHECKER".equals(approvalRequest.getStatus())) {
+            throw new IllegalStateException("Request is no longer pending.");
+        }
+
+        if (approvalRequest.getMakerId().equals(checkerId)) {
+            throw new IllegalStateException("Maker cannot action their own request.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        approvalRequest.setStatus("RETURNED_FOR_MODIFICATION");
+        approvalRequest.setCurrentStage("MAKER");
+        approvalRequest.setUpdatedAt(now);
+
+        approvalRequestRepository.save(approvalRequest);
+
+        Long actionId = workflowIdService.nextApprovalActionId();
+
+        ApprovalAction approvalAction = new ApprovalAction();
+        approvalAction.setActionId(actionId);
+        approvalAction.setRequestId(requestId);
+        approvalAction.setStage("CHECKER");
+        approvalAction.setAction("RETURNED_FOR_MODIFICATION");
+        approvalAction.setActorId(checkerId);
+        approvalAction.setActorIp(checkerIp);
+        approvalAction.setRemarks(remarks);
+        approvalAction.setActionAt(now);
+
+        approvalActionRepository.save(approvalAction);
+    }
+
+    @Transactional
+    public void reject(
+            Long requestId,
+            String checkerId,
+            String checkerIp,
+            String remarks) {
+
+        if (remarks == null || remarks.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Remarks are required when rejecting a request.");
+        }
+
+        ApprovalRequest approvalRequest = approvalRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Approval request not found: " + requestId));
+
+        if (!"PENDING_CHECKER".equals(approvalRequest.getStatus())) {
+            throw new IllegalStateException("Request is no longer pending.");
+        }
+
+        if (approvalRequest.getMakerId().equals(checkerId)) {
+            throw new IllegalStateException("Maker cannot reject their own request.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        approvalRequest.setStatus("REJECTED");
+        approvalRequest.setCurrentStage("COMPLETED");
+        approvalRequest.setCheckerId(checkerId);
+        approvalRequest.setCheckerIp(checkerIp);
+        approvalRequest.setDecidedAt(now);
+        approvalRequest.setUpdatedAt(now);
+
+        approvalRequestRepository.save(approvalRequest);
+
+        Long actionId = workflowIdService.nextApprovalActionId();
+
+        ApprovalAction approvalAction = new ApprovalAction();
+        approvalAction.setActionId(actionId);
+        approvalAction.setRequestId(requestId);
+        approvalAction.setStage("CHECKER");
+        approvalAction.setAction("REJECTED");
+        approvalAction.setActorId(checkerId);
+        approvalAction.setActorIp(checkerIp);
+        approvalAction.setRemarks(remarks);
+        approvalAction.setActionAt(now);
+
+        approvalActionRepository.save(approvalAction);
     }
 }

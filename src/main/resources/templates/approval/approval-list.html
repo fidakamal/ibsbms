@@ -48,97 +48,16 @@
         </div>
 
 
-        <!-- Search / filter section -->
-        <div class="form-section">
-
-            <div class="form-section-body">
-
-                <div class="row g-3">
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Folio BO
-                        </label>
-
-                        <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Folio BO">
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Operation
-                        </label>
-
-                        <select class="form-select">
-
-                            <option value="">
-                                All
-                            </option>
-
-                            <option value="SHAREHOLDER_CREATE">
-                                Shareholder Create
-                            </option>
-
-                            <option value="SHAREHOLDER_UPDATE">
-                                Shareholder Modify
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Status
-                        </label>
-
-                        <select class="form-select">
-
-                            <option>
-                                Pending Checker
-                            </option>
-
-                            <option>
-                                Returned
-                            </option>
-
-                            <option>
-                                All
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-2 d-flex align-items-end">
-
-                        <button
-                                type="button"
-                                class="btn btn-primary w-100">
-
-                            Search
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+        <!-- Flash messages -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <span th:text="${param.success}">Done.</span>
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger">
+            <span th:text="${param.error}">Error.</span>
         </div>
 
 
-        <!-- Pending approval table -->
+        <!-- Approval table -->
         <div class="form-section">
 
             <div class="form-section-body">
@@ -163,9 +82,7 @@
 
                             <th>Status</th>
 
-                            <th class="text-end">
-                                Action
-                            </th>
+                            <th class="text-start">Action</th>
 
                         </tr>
 
@@ -174,138 +91,58 @@
 
                         <tbody>
 
-                        <!-- Temporary mock row -->
+                        <tr th:each="req : ${requests}">
 
-                        <tr>
-
-                            <td>
+                            <td th:text="${req.requestId}">
                                 100001
                             </td>
 
                             <td>
-                                <span class="badge bg-info text-dark">
+                                <span class="badge bg-info text-dark"
+                                      th:text="${req.operationCode == 'SHAREHOLDER_CREATE'} ? 'Create' : 'Modify'">
                                     Create
                                 </span>
                             </td>
 
                             <td>
-                                <strong>FOLIO-000001</strong>
+                                <strong th:text="${req.businessRef}">FOLIO-000001</strong>
                             </td>
 
-                            <td>
+                            <td th:text="${req.makerId}">
                                 test.maker
                             </td>
 
-                            <td>
+                            <td th:text="${req.businessDate}">
                                 04-Sep-2026
                             </td>
 
                             <td>
-                                <span class="badge bg-warning text-dark">
-                                    Pending Checker
+                                <span class="badge"
+                                      th:classappend="
+                                          ${req.status == 'APPROVED'} ? ' bg-success' :
+                                          (${req.status == 'REJECTED'} ? ' bg-danger' :
+                                          (${req.status == 'RETURNED_FOR_MODIFICATION'} ? ' bg-warning text-dark' :
+                                          ' bg-warning text-dark'))
+                                      "
+                                      th:text="${req.status}">
+                                    PENDING_CHECKER
                                 </span>
                             </td>
 
-                            <td class="text-end">
-
-                                <a
-                                        th:href="@{/approvals/100001}"
-                                        class="btn btn-sm btn-primary">
-
-                                    Review
-
+                            <td>
+                                <a th:href="@{/approvals/{id}(id=${req.requestId})}"
+                                   class="btn btn-sm btn-primary"
+                                   th:text="'Review'">
                                 </a>
-
                             </td>
 
                         </tr>
 
 
-                        <tr>
+                        <tr th:if="${#lists.isEmpty(requests)}">
 
-                            <td>
-                                100002
-                            </td>
-
-                            <td>
-                                <span class="badge bg-info text-dark">
-                                    Create
-                                </span>
-                            </td>
-
-                            <td>
-                                <strong>FOLIO-000002</strong>
-                            </td>
-
-                            <td>
-                                test.maker
-                            </td>
-
-                            <td>
-                                04-Sep-2026
-                            </td>
-
-                            <td>
-                                <span class="badge bg-warning text-dark">
-                                    Pending Checker
-                                </span>
-                            </td>
-
-                            <td class="text-end">
-
-                                <a
-                                        th:href="@{/approvals/100002}"
-                                        class="btn btn-sm btn-primary">
-
-                                    Review
-
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <td>
-                                100003
-                            </td>
-
-                            <td>
-                                <span class="badge bg-info text-dark">
-                                    Create
-                                </span>
-                            </td>
-
-                            <td>
-                                <strong>FOLIO-000003</strong>
-                            </td>
-
-                            <td>
-                                another.maker
-                            </td>
-
-                            <td>
-                                04-Sep-2026
-                            </td>
-
-                            <td>
-                                <span class="badge bg-warning text-dark">
-                                    Pending Checker
-                                </span>
-                            </td>
-
-                            <td class="text-end">
-
-                                <a
-                                        th:href="@{/approvals/100003}"
-                                        class="btn btn-sm btn-primary">
-
-                                    Review
-
-                                </a>
-
+                            <td colspan="7" class="text-center text-muted py-4">
+                                No approval requests found.
                             </td>
 
                         </tr>

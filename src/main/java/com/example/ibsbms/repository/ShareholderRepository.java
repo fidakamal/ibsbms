@@ -12,7 +12,7 @@ public interface ShareholderRepository
         extends JpaRepository<Shareholder, String> {
     
     Optional<Shareholder> findByFolioBoAndIsValid(String folioBo, Integer isValid);
-
+    Optional<Shareholder> findByFolioBo(String folioBo);
     @Query(value = """
         SELECT
             s.FOLIO_BO AS "folioBo",

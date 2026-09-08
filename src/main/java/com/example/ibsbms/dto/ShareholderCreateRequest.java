@@ -37,4 +37,5 @@ public class ShareholderCreateRequest {
     public void setBankInfo(BankInfoDto bankInfo) {
         this.bankInfo = bankInfo;
     }
+
 }

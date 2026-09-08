@@ -54,9 +54,9 @@
             </div>
 
 
-            <a
-                    href="/approvals"
-                    class="btn btn-outline-secondary">
+
+            <a href="/approvals"
+               class="btn btn-outline-secondary">
 
                 ← Back to Approvals
 
@@ -101,7 +101,8 @@
 
                         <div>
 
-                            <span class="badge bg-info text-dark">
+                            <span class="badge bg-info text-dark"
+                                  th:text="${approvalRequest.operationCode}">
                                 SHAREHOLDER_CREATE
                             </span>
 
@@ -116,7 +117,8 @@
                             Maker
                         </label>
 
-                        <div class="fw-semibold">
+                        <div class="fw-semibold"
+                             th:text="${approvalRequest.makerId}">
                             test.maker
                         </div>
 
@@ -156,7 +158,8 @@
                             Folio BO
                         </label>
 
-                        <div class="fw-semibold">
+                        <div class="fw-semibold"
+                             th:text="${approvalRequest.businessRef}">
                             FOLIO-000001
                         </div>
 
@@ -169,8 +172,37 @@
                             Business Date
                         </label>
 
-                        <div>
+                        <div th:text="${approvalRequest.businessDate}">
                             04-Sep-2026
+                        </div>
+
+                    </div>
+
+
+                    <!-- Checker decision info - only shown once decided -->
+
+                    <div class="col-md-3" th:if="${approvalRequest.checkerId != null}">
+
+                        <label class="form-label text-muted">
+                            Checker
+                        </label>
+
+                        <div class="fw-semibold"
+                             th:text="${approvalRequest.checkerId}">
+                            test.checker
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3" th:if="${approvalRequest.decidedAt != null}">
+
+                        <label class="form-label text-muted">
+                            Decided At
+                        </label>
+
+                        <div th:text="${approvalRequest.decidedAt}">
+                            04-Sep-2026 10:00
                         </div>
 
                     </div>
@@ -204,7 +236,7 @@
 
                         <input
                                 class="form-control"
-                                value="Test Shareholder"
+                                th:value="${newData.basicInfo.custName}"
                                 readonly>
 
                     </div>
@@ -218,7 +250,7 @@
 
                         <input
                                 class="form-control"
-                                value="Test Father"
+                                th:value="${newData.basicInfo.fatherName}"
                                 readonly>
 
                     </div>
@@ -232,7 +264,7 @@
 
                         <input
                                 class="form-control"
-                                value="Test Mother"
+                                th:value="${newData.basicInfo.motherName}"
                                 readonly>
 
                     </div>
@@ -246,7 +278,7 @@
 
                         <input
                                 class="form-control"
-                                value=""
+                                th:value="${newData.basicInfo.spouseName}"
                                 readonly>
 
                     </div>
@@ -260,7 +292,7 @@
 
                         <input
                                 class="form-control"
-                                value="Individual"
+                                th:value="${newData.basicInfo.custType == 1} ? 'Individual' : (${newData.basicInfo.custType == 2} ? 'Institution' : '')"
                                 readonly>
 
                     </div>
@@ -274,7 +306,7 @@
 
                         <input
                                 class="form-control"
-                                value="Local"
+                                th:value="${newData.basicInfo.citizenType == 1} ? 'Local' : (${newData.basicInfo.citizenType == 2} ? 'Foreign' : '')"
                                 readonly>
 
                     </div>
@@ -288,7 +320,7 @@
 
                         <input
                                 class="form-control"
-                                value="Resident"
+                                th:value="${newData.basicInfo.residentType}"
                                 readonly>
 
                     </div>
@@ -302,7 +334,7 @@
 
                         <input
                                 class="form-control"
-                                value="01700000000"
+                                th:value="${newData.basicInfo.phone}"
                                 readonly>
 
                     </div>
@@ -316,7 +348,7 @@
 
                         <input
                                 class="form-control"
-                                value="test@example.com"
+                                th:value="${newData.basicInfo.email}"
                                 readonly>
 
                     </div>
@@ -330,7 +362,7 @@
 
                         <input
                                 class="form-control"
-                                value="01-Jan-1995"
+                                th:value="${newData.basicInfo.dob != null} ? ${#temporals.format(newData.basicInfo.dob, 'dd-MMM-yyyy')} : ''"
                                 readonly>
 
                     </div>
@@ -344,7 +376,7 @@
 
                         <input
                                 class="form-control"
-                                value=""
+                                th:value="${newData.basicInfo.nidNo}"
                                 readonly>
 
                     </div>
@@ -358,7 +390,7 @@
 
                         <input
                                 class="form-control"
-                                value=""
+                                th:value="${newData.basicInfo.tinNo}"
                                 readonly>
 
                     </div>
@@ -392,7 +424,7 @@
 
                         <input
                                 class="form-control"
-                                value="Dhaka"
+                                th:value="${newData.address.add1}"
                                 readonly>
 
                     </div>
@@ -406,6 +438,7 @@
 
                         <input
                                 class="form-control"
+                                th:value="${newData.address.add2}"
                                 readonly>
 
                     </div>
@@ -419,7 +452,7 @@
 
                         <input
                                 class="form-control"
-                                value="Bangladesh"
+                                th:value="${newData.address.countryName}"
                                 readonly>
 
                     </div>
@@ -453,7 +486,7 @@
 
                         <input
                                 class="form-control"
-                                value=""
+                                th:value="${newData.bankInfo.bankName}"
                                 readonly>
 
                     </div>
@@ -467,7 +500,7 @@
 
                         <input
                                 class="form-control"
-                                value=""
+                                th:value="${newData.bankInfo.accNo}"
                                 readonly>
 
                     </div>
@@ -481,7 +514,7 @@
 
                         <input
                                 class="form-control"
-                                value=""
+                                th:value="${newData.bankInfo.branchName}"
                                 readonly>
 
                     </div>
@@ -495,7 +528,7 @@
 
                         <input
                                 class="form-control"
-                                value=""
+                                th:value="${newData.bankInfo.routingNo}"
                                 readonly>
 
                     </div>
@@ -544,104 +577,167 @@
                 </div>
 
 
-                <!-- Remarks -->
+                <!-- Already decided - buttons no longer apply -->
 
-                <div class="mb-3">
+                <div th:unless="${status == 'PENDING_CHECKER'}" class="alert alert-secondary mb-0">
 
-                    <label class="form-label">
-                        Remarks
-                    </label>
-
-                    <textarea
-                            id="remarks"
-                            name="remarks"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Remarks are required for Return or Reject."></textarea>
+                    This request has already been decided
+                    (<strong th:text="${status}">REJECTED</strong>) and can no longer
+                    be approved, returned, or rejected.
 
                 </div>
 
 
-                <div class="d-flex justify-content-end gap-2">
+                <!-- Pending - show the decision form -->
 
+                <div th:if="${status == 'PENDING_CHECKER'}">
 
-                    <!-- Reject -->
+                    <!-- Remarks -->
 
-                    <form
-                            th:action="@{/approvals/{id}/reject(id=${requestId})}"
-                            method="post">
+                    <div class="mb-3">
 
-                        <input
-                                type="hidden"
+                        <label class="form-label">
+                            Remarks
+                        </label>
+
+                        <textarea
+                                id="remarks"
                                 name="remarks"
-                                id="rejectRemarks">
+                                class="form-control"
+                                rows="4"
+                                placeholder="Remarks are required for Return or Reject."></textarea>
 
-                        <button
-                                type="submit"
-                                class="btn btn-outline-danger"
-                                onclick="
-                            document.getElementById('rejectRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
-
-                            Reject
-
-                        </button>
-
-                    </form>
+                    </div>
 
 
-                    <!-- Return -->
-
-                    <form
-                            th:action="@{/approvals/{id}/return(id=${requestId})}"
-                            method="post">
-
-                        <input
-                                type="hidden"
-                                name="remarks"
-                                id="returnRemarks">
-
-                        <button
-                                type="submit"
-                                class="btn btn-outline-warning"
-                                onclick="
-                            document.getElementById('returnRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
-
-                            Return for Modification
-
-                        </button>
-
-                    </form>
+                    <div class="d-flex justify-content-end gap-2">
 
 
-                    <!-- Approve -->
+                        <!-- Reject -->
 
-                    <form
-                            th:action="@{/approvals/{id}/approve(id=${requestId})}"
-                            method="post">
+                        <form
+                                th:action="@{/approvals/{id}/reject(id=${requestId})}"
+                                method="post"
+                                onsubmit="return copyRemarksAndValidate('rejectRemarks', true);">
 
-                        <input
-                                type="hidden"
-                                name="remarks"
-                                id="approveRemarks">
+                            <input
+                                    type="hidden"
+                                    name="remarks"
+                                    id="rejectRemarks">
 
-                        <button
-                                type="submit"
-                                class="btn btn-success"
-                                onclick="
-                            document.getElementById('approveRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
+                            <button
+                                    type="submit"
+                                    class="btn btn-outline-danger">
 
-                            Approve
+                                Reject
 
-                        </button>
+                            </button>
 
-                    </form>
+                        </form>
 
+
+                        <!-- Return -->
+
+                        <form
+                                th:action="@{/approvals/{id}/return(id=${requestId})}"
+                                method="post"
+                                onsubmit="return copyRemarksAndValidate('returnRemarks', true);">
+
+                            <input
+                                    type="hidden"
+                                    name="remarks"
+                                    id="returnRemarks">
+
+                            <button
+                                    type="submit"
+                                    class="btn btn-outline-warning">
+
+                                Return for Modification
+
+                            </button>
+
+                        </form>
+
+
+                        <!-- Approve -->
+
+                        <form
+                                th:action="@{/approvals/{id}/approve(id=${requestId})}"
+                                method="post"
+                                onsubmit="return copyRemarksAndValidate('approveRemarks', false);">
+
+                            <input
+                                    type="hidden"
+                                    name="remarks"
+                                    id="approveRemarks">
+
+                            <button
+                                    type="submit"
+                                    class="btn btn-success">
+
+                                Approve
+
+                            </button>
+
+                        </form>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Decision history -->
+
+        <div class="form-section">
+
+            <div class="form-section-body">
+
+                <h5 class="mb-4">
+                    Decision History
+                </h5>
+
+                <div class="table-responsive">
+
+                    <table class="table table-sm table-striped align-middle">
+
+                        <thead>
+
+                        <tr>
+                            <th>When</th>
+                            <th>Stage</th>
+                            <th>Action</th>
+                            <th>Actor</th>
+                            <th>Remarks</th>
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="entry : ${history}">
+
+                            <td th:text="${entry.actionAt}">04-Sep-2026 10:00</td>
+                            <td th:text="${entry.stage}">MAKER</td>
+                            <td th:text="${entry.action}">SUBMITTED</td>
+                            <td th:text="${entry.actorId}">test.maker</td>
+                            <td th:text="${entry.remarks}">-</td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(history)}">
+                            <td colspan="5" class="text-center text-muted py-3">
+                                No history yet.
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
@@ -653,6 +749,21 @@
     </div>
 
 </main>
+
+
+<script>
+    function copyRemarksAndValidate(hiddenFieldId, remarksRequired) {
+        var remarks = document.getElementById('remarks').value.trim();
+
+        if (remarksRequired && remarks === '') {
+            alert('Remarks are required for Return or Reject.');
+            return false;
+        }
+
+        document.getElementById(hiddenFieldId).value = remarks;
+        return true;
+    }
+</script>
 
 
 <script

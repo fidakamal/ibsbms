@@ -52,20 +52,36 @@ public class WorkflowIdService {
 
 
     public String generateNextFolioBo() {
-
         Number value = (Number) entityManager
                 .createNativeQuery("""
-                SELECT NVL(
-                    MAX(
-                        CASE
-                            WHEN REGEXP_LIKE(TRIM(FOLIO_BO), '^[0-9]+$')
-                            THEN TO_NUMBER(TRIM(FOLIO_BO))
-                        END
-                    ),
-                    0
-                ) + 1
-                FROM T_ACCOUNT_SHARE
-                """)
+            SELECT GREATEST(
+                (
+                    SELECT NVL(
+                        MAX(
+                            CASE
+                                WHEN REGEXP_LIKE(TRIM(FOLIO_BO), '^[0-9]+$')
+                                THEN TO_NUMBER(TRIM(FOLIO_BO))
+                            END
+                        ),
+                        0
+                    )
+                    FROM T_ACCOUNT_SHARE
+                ),
+                (
+                    SELECT NVL(
+                        MAX(
+                            CASE
+                                WHEN REGEXP_LIKE(TRIM(FOLIO_BO), '^[0-9]+$')
+                                THEN TO_NUMBER(TRIM(FOLIO_BO))
+                            END
+                        ),
+                        0
+                    )
+                    FROM T_SHAREHOLDER_CHANGE_REQUEST
+                    WHERE OPERATION_CODE = 'SHAREHOLDER_CREATE'
+                )
+            ) + 1 FROM DUAL
+            """)
                 .getSingleResult();
 
         return value.toString();
