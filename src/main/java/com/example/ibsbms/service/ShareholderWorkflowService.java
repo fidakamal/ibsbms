@@ -1,4 +1,3 @@
-```java
 package com.example.ibsbms.service;
 
 import com.example.ibsbms.dto.ShareholderCreateRequest;
@@ -578,4 +577,4 @@ public class ShareholderWorkflowService {
         return actions.get(0).getRemarks();
     }
 }
-```
+
