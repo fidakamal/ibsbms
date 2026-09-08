@@ -1,4 +1,3 @@
-```java
 package com.example.ibsbms.repository;
 
 import com.example.ibsbms.entity.Shareholder;
@@ -77,4 +76,4 @@ public interface ShareholderRepository
             @Param("folioBo") String folioBo
     );
 }
-```
+
