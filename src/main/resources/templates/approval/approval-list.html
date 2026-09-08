@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
@@ -41,7 +42,7 @@
             <div>
                 <span class="badge bg-warning text-dark fs-6">
                     Pending:
-                    <span th:text="${pendingCount}">3</span>
+                    <span th:text="${pendingCount}">0</span>
                 </span>
             </div>
 
@@ -174,42 +175,66 @@
 
                         <tbody>
 
-                        <!-- Temporary mock row -->
+                        <!-- Real database approval requests -->
+                        <tr th:each="request : ${approvalRequests}">
 
-                        <tr>
-
-                            <td>
-                                100001
+                            <td th:text="${request.requestId}">
+                                55
                             </td>
 
                             <td>
-                                <span class="badge bg-info text-dark">
+
+                                <span
+                                        class="badge bg-info text-dark"
+                                        th:text="${request.operationCode == 'SHAREHOLDER_CREATE'
+                                                  ? 'Create'
+                                                  : request.operationCode == 'SHAREHOLDER_UPDATE'
+                                                  ? 'Modify'
+                                                  : request.operationCode}">
+
                                     Create
+
                                 </span>
+
                             </td>
 
                             <td>
-                                <strong>FOLIO-000001</strong>
+
+                                <strong th:text="${request.businessRef}">
+                                    24381
+                                </strong>
+
                             </td>
 
-                            <td>
+                            <td th:text="${request.makerId}">
                                 test.maker
                             </td>
 
-                            <td>
-                                04-Sep-2026
+                            <td
+                                    th:text="${#temporals.format(request.businessDate, 'dd-MMM-yyyy')}">
+
+                                06-Sep-2026
+
                             </td>
 
                             <td>
-                                <span class="badge bg-warning text-dark">
+
+                                <span
+                                        class="badge bg-warning text-dark"
+                                        th:text="${request.status == 'PENDING_CHECKER'
+                                                  ? 'Pending Checker'
+                                                  : request.status}">
+
                                     Pending Checker
+
                                 </span>
+
                             </td>
 
                             <td class="text-end">
 
                                 <a
-                                        th:href="@{/approvals/100001}"
+                                        th:href="@{/approvals/{requestId}(requestId=${request.requestId})}"
                                         class="btn btn-sm btn-primary">
 
                                     Review
@@ -221,90 +246,14 @@
                         </tr>
 
 
-                        <tr>
+                        <!-- No pending requests -->
+                        <tr th:if="${#lists.isEmpty(approvalRequests)}">
 
-                            <td>
-                                100002
-                            </td>
+                            <td
+                                    colspan="7"
+                                    class="text-center text-muted py-4">
 
-                            <td>
-                                <span class="badge bg-info text-dark">
-                                    Create
-                                </span>
-                            </td>
-
-                            <td>
-                                <strong>FOLIO-000002</strong>
-                            </td>
-
-                            <td>
-                                test.maker
-                            </td>
-
-                            <td>
-                                04-Sep-2026
-                            </td>
-
-                            <td>
-                                <span class="badge bg-warning text-dark">
-                                    Pending Checker
-                                </span>
-                            </td>
-
-                            <td class="text-end">
-
-                                <a
-                                        th:href="@{/approvals/100002}"
-                                        class="btn btn-sm btn-primary">
-
-                                    Review
-
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <td>
-                                100003
-                            </td>
-
-                            <td>
-                                <span class="badge bg-info text-dark">
-                                    Create
-                                </span>
-                            </td>
-
-                            <td>
-                                <strong>FOLIO-000003</strong>
-                            </td>
-
-                            <td>
-                                another.maker
-                            </td>
-
-                            <td>
-                                04-Sep-2026
-                            </td>
-
-                            <td>
-                                <span class="badge bg-warning text-dark">
-                                    Pending Checker
-                                </span>
-                            </td>
-
-                            <td class="text-end">
-
-                                <a
-                                        th:href="@{/approvals/100003}"
-                                        class="btn btn-sm btn-primary">
-
-                                    Review
-
-                                </a>
+                                No pending approval requests found.
 
                             </td>
 
@@ -325,4 +274,6 @@
 </main>
 
 </body>
+
 </html>
+```
