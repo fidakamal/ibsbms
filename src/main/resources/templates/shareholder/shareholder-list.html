@@ -5,6 +5,7 @@
 
 <head>
 
+    ```
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -87,20 +88,23 @@
         }
 
     </style>
+    ```
 
 </head>
 
 <body>
 
 <!-- Sidebar -->
+
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <!-- Header -->
-<div th:replace="~{fragments/header :: header}"></div>
 
+<div th:replace="~{fragments/header :: header}"></div>
 
 <main class="main-content">
 
+    ```
     <div class="page-content">
 
         <!-- Page heading -->
@@ -131,11 +135,24 @@
 
 
         <!-- Flash messages -->
-        <div th:if="${param.success}" class="alert alert-success">
-            <span th:text="${param.success}">Done.</span>
+
+        <div th:if="${param.success}"
+             class="alert alert-success">
+
+        <span th:text="${param.success}">
+            Done.
+        </span>
+
         </div>
-        <div th:if="${param.error}" class="alert alert-danger">
-            <span th:text="${param.error}">Error.</span>
+
+
+        <div th:if="${param.error}"
+             class="alert alert-danger">
+
+        <span th:text="${param.error}">
+            Error.
+        </span>
+
         </div>
 
 
@@ -223,12 +240,28 @@
 
                     <div class="col-md-2">
 
-                        <select class="form-select">
+                        <select class="form-select"
+                                onchange="changePageSize(this.value)">
 
-                            <option>10</option>
-                            <option>25</option>
-                            <option>50</option>
-                            <option>100</option>
+                            <option value="10"
+                                    th:selected="${pageSize == 10}">
+                                10
+                            </option>
+
+                            <option value="25"
+                                    th:selected="${pageSize == 25}">
+                                25
+                            </option>
+
+                            <option value="50"
+                                    th:selected="${pageSize == 50}">
+                                50
+                            </option>
+
+                            <option value="100"
+                                    th:selected="${pageSize == 100}">
+                                100
+                            </option>
 
                         </select>
 
@@ -325,51 +358,51 @@
 
                             <td class="address-column">
 
-                                <span
-                                        th:if="${shareholder.add1 != null}"
-                                        th:text="${shareholder.add1}">
-                                    Dhaka
-                                </span>
+                            <span
+                                    th:if="${shareholder.add1 != null}"
+                                    th:text="${shareholder.add1}">
+                                Dhaka
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.add2 != null
-                                               and !#strings.isEmpty(shareholder.add2)}"
+                                           and !#strings.isEmpty(shareholder.add2)}"
                                         th:text="', ' + ${shareholder.add2}">
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.add3 != null
-                                               and !#strings.isEmpty(shareholder.add3)}"
+                                           and !#strings.isEmpty(shareholder.add3)}"
                                         th:text="', ' + ${shareholder.add3}">
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.add4 != null
-                                               and !#strings.isEmpty(shareholder.add4)}"
+                                           and !#strings.isEmpty(shareholder.add4)}"
                                         th:text="', ' + ${shareholder.add4}">
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.countryName != null
-                                               and !#strings.isEmpty(shareholder.countryName)}"
+                                           and !#strings.isEmpty(shareholder.countryName)}"
                                         th:text="', ' + ${shareholder.countryName}">
-                                </span>
+                            </span>
 
 
                                 <!-- No address -->
 
                                 <span
                                         th:if="${shareholder.add1 == null
-                                               and (shareholder.countryName == null
-                                               or #strings.isEmpty(shareholder.countryName))}">
+                                           and (shareholder.countryName == null
+                                           or #strings.isEmpty(shareholder.countryName))}">
 
-                                    -
+                                -
 
-                                </span>
+                            </span>
 
                             </td>
 
@@ -418,24 +451,22 @@
 
                             <td class="status-column">
 
+                            <span
+                                    th:if="${shareholder.isValid == 1}"
+                                    class="badge bg-success">
 
-                                <span
-                                        th:if="${shareholder.isValid == 1}"
-                                        class="badge bg-success">
+                                Valid
 
-                                    Valid
-
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:unless="${shareholder.isValid == 1}"
                                         class="badge bg-secondary">
 
-                                    Invalid
+                                Invalid
 
-                                </span>
-
+                            </span>
 
                             </td>
 
@@ -485,65 +516,181 @@
 
                     <!-- Result count -->
 
-                    <small class="text-muted"
-                           th:if="${not #lists.isEmpty(shareholders)}">
+                    <small class="text-muted">
+
+                    <span th:if="${totalItems > 0}">
 
                         Showing
 
-                        <span th:text="${#lists.size(shareholders)}">
+                        <strong th:text="${startEntry}">
+                            1
+                        </strong>
+
+                        -
+
+                        <strong th:text="${endEntry}">
                             10
-                        </span>
+                        </strong>
+
+                        of
+
+                        <strong th:text="${totalItems}">
+                            1470
+                        </strong>
 
                         entries
 
-                    </small>
+                    </span>
 
 
-                    <small class="text-muted"
-                           th:if="${#lists.isEmpty(shareholders)}">
+                        <span th:if="${totalItems == 0}">
 
                         Showing 0 entries
+
+                    </span>
 
                     </small>
 
 
                     <!-- Pagination -->
 
-                    <nav>
+                    <nav th:if="${totalPages > 1}"
+                         aria-label="Shareholder pagination">
 
                         <ul class="pagination pagination-sm mb-0">
 
+                            <!-- Previous -->
 
-                            <li class="page-item disabled">
+                            <li class="page-item"
+                                th:classappend="${page == 1} ? 'disabled'">
 
-                                <a class="page-link">
+                                <a class="page-link"
+                                   th:if="${page > 1}"
+                                   th:href="@{/shareholders(
+                   page=${page - 1},
+                   size=${pageSize},
+                   folioBo=${folioBo}
+               )}">
                                     Previous
                                 </a>
+
+                                <span class="page-link"
+                                      th:if="${page == 1}">
+                Previous
+            </span>
 
                             </li>
 
 
-                            <li class="page-item active">
+                            <!-- First page -->
 
-                                <a class="page-link">
+                            <li class="page-item"
+                                th:classappend="${page == 1} ? 'active'">
+
+                                <a class="page-link"
+                                   th:href="@{/shareholders(
+                   page=1,
+                   size=${pageSize},
+                   folioBo=${folioBo}
+               )}">
                                     1
                                 </a>
 
                             </li>
 
 
-                            <li class="page-item disabled">
+                            <!-- Left ellipsis -->
 
-                                <a class="page-link">
-                                    Next
+                            <li class="page-item disabled"
+                                th:if="${page > 4}">
+
+            <span class="page-link">
+                ...
+            </span>
+
+                            </li>
+
+
+                            <!-- Pages around current page -->
+
+                            <th:block th:each="pageNumber : ${#numbers.sequence(2, totalPages - 1)}">
+
+                                <li class="page-item"
+                                    th:if="${pageNumber >= page - 2 and pageNumber <= page + 2}"
+                                    th:classappend="${pageNumber == page} ? 'active'">
+
+                                    <a class="page-link"
+                                       th:href="@{/shareholders(
+                       page=${pageNumber},
+                       size=${pageSize},
+                       folioBo=${folioBo}
+                   )}"
+                                       th:text="${pageNumber}">
+                                        2
+                                    </a>
+
+                                </li>
+
+                            </th:block>
+
+
+                            <!-- Right ellipsis -->
+
+                            <li class="page-item disabled"
+                                th:if="${page < totalPages - 3}">
+
+            <span class="page-link">
+                ...
+            </span>
+
+                            </li>
+
+
+                            <!-- Last page -->
+
+                            <li class="page-item"
+                                th:if="${totalPages > 1}"
+                                th:classappend="${page == totalPages} ? 'active'">
+
+                                <a class="page-link"
+                                   th:href="@{/shareholders(
+                   page=${totalPages},
+                   size=${pageSize},
+                   folioBo=${folioBo}
+               )}"
+                                   th:text="${totalPages}">
+                                    567
                                 </a>
 
                             </li>
 
 
+                            <!-- Next -->
+
+                            <li class="page-item"
+                                th:classappend="${page == totalPages} ? 'disabled'">
+
+                                <a class="page-link"
+                                   th:if="${page < totalPages}"
+                                   th:href="@{/shareholders(
+                   page=${page + 1},
+                   size=${pageSize},
+                   folioBo=${folioBo}
+               )}">
+                                    Next
+                                </a>
+
+                                <span class="page-link"
+                                      th:if="${page == totalPages}">
+                Next
+            </span>
+
+                            </li>
+
                         </ul>
 
                     </nav>
+
 
                 </div>
 
@@ -553,25 +700,51 @@
         </div>
 
     </div>
+    ```
 
 </main>
 
-
 <script th:inline="javascript">
+
     function editSelectedFolio() {
-        var input = document.querySelector('input[name="folioBo"]');
-        var folio = input ? input.value.trim() : '';
+
+        var input =
+            document.querySelector('input[name="folioBo"]');
+
+        var folio =
+            input ? input.value.trim() : '';
 
         if (!folio) {
-            alert('Enter a Folio/BO number in the search box first, ' +
-                'or use the Edit link on a row in the table below.');
+
+            alert(
+                'Enter a Folio/BO number in the search box first, ' +
+                'or use the Edit link on a row in the table below.'
+            );
+
             return;
         }
 
-        window.location.href = '/shareholders/' + encodeURIComponent(folio) + '/edit';
+        window.location.href =
+            '/shareholders/' +
+            encodeURIComponent(folio) +
+            '/edit';
     }
-</script>
 
+
+    function changePageSize(size) {
+
+        const url =
+            new URL(window.location.href);
+
+        url.searchParams.set('size', size);
+
+        url.searchParams.set('page', '1');
+
+        window.location.href =
+            url.toString();
+    }
+
+</script>
 
 </body>
 

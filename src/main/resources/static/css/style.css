@@ -410,6 +410,11 @@ a {
 
 .shareholder-table .name-column {
     width: 15%;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    padding-left: 12px;
+    padding-right: 12px;
 }
 
 .shareholder-table .address-column {
@@ -417,6 +422,8 @@ a {
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: anywhere;
+    padding-left: 12px;
+    padding-right: 12px;
 }
 
 .shareholder-table .email-column {
