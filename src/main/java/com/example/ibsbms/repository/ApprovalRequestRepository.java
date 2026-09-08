@@ -7,9 +7,16 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Collection;
+import java.util.List;
+
 public interface ApprovalRequestRepository
         extends JpaRepository<ApprovalRequest, Long> {
 
+    List<ApprovalRequest> findByBusinessRefAndStatusIn(
+            String businessRef,
+            Collection<String> statuses
+    );
     @Query("""
     SELECT a
     FROM ApprovalRequest a

@@ -81,6 +81,11 @@
             white-space: nowrap;
         }
 
+        .actions-column {
+            width: 8%;
+            white-space: nowrap;
+        }
+
     </style>
 
 </head>
@@ -122,6 +127,15 @@
 
             </a>
 
+        </div>
+
+
+        <!-- Flash messages -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <span th:text="${param.success}">Done.</span>
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger">
+            <span th:text="${param.error}">Error.</span>
         </div>
 
 
@@ -188,13 +202,15 @@
                     </div>
 
 
-                    <!-- Edit -->
+                    <!-- Edit the shareholder currently typed/found above -->
 
                     <div class="col-md-2">
 
                         <button
                                 type="button"
-                                class="btn btn-outline-primary w-100">
+                                id="editSelectedBtn"
+                                class="btn btn-outline-primary w-100"
+                                onclick="editSelectedFolio()">
 
                             Edit
 
@@ -264,6 +280,10 @@
 
                             <th class="status-column">
                                 STATUS
+                            </th>
+
+                            <th class="actions-column">
+                                ACTIONS
                             </th>
 
                         </tr>
@@ -419,6 +439,21 @@
 
                             </td>
 
+
+                            <!-- Actions -->
+
+                            <td class="actions-column">
+
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/shareholders/{folio}/edit(folio=${shareholder.folioBo})}"
+                                   th:if="${shareholder.isValid == 1}">
+
+                                    Edit
+
+                                </a>
+
+                            </td>
+
                         </tr>
 
 
@@ -426,7 +461,7 @@
 
                         <tr th:if="${#lists.isEmpty(shareholders)}">
 
-                            <td colspan="8"
+                            <td colspan="9"
                                 class="text-center text-muted py-4">
 
                                 No shareholder found.
@@ -520,6 +555,22 @@
     </div>
 
 </main>
+
+
+<script th:inline="javascript">
+    function editSelectedFolio() {
+        var input = document.querySelector('input[name="folioBo"]');
+        var folio = input ? input.value.trim() : '';
+
+        if (!folio) {
+            alert('Enter a Folio/BO number in the search box first, ' +
+                'or use the Edit link on a row in the table below.');
+            return;
+        }
+
+        window.location.href = '/shareholders/' + encodeURIComponent(folio) + '/edit';
+    }
+</script>
 
 
 </body>

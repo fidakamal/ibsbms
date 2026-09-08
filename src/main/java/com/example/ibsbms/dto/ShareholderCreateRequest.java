@@ -5,13 +5,13 @@ import jakarta.validation.Valid;
 public class ShareholderCreateRequest {
 
     @Valid
-    private BasicInfoDto basicInfo;
+    private BasicInfoDto basicInfo = new BasicInfoDto();
 
     @Valid
-    private AddressDto address;
+    private AddressDto address = new AddressDto();
 
     @Valid
-    private BankInfoDto bankInfo;
+    private BankInfoDto bankInfo = new BankInfoDto();
 
 
     public BasicInfoDto getBasicInfo() {

@@ -3,7 +3,9 @@ package com.example.ibsbms.repository;
 import com.example.ibsbms.entity.ShareAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ShareAddressRepository
-        extends JpaRepository<ShareAddress, String> {
-}
+import java.util.Optional;
 
+public interface ShareAddressRepository extends JpaRepository<ShareAddress, String> {
+
+    Optional<ShareAddress> findByFolioBo(String folioBo);
+}
