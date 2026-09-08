@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    ```
+    <title>Returned for Modification</title>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+    ```
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<div class="main-wrapper">
+
+    ```
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="main-content">
+
+        <div class="page-content">
+
+            <!-- Page heading -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+                    <h2 class="mb-1">
+                        Returned for Modification
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Review requests returned by the checker and resubmit them after modification
+                    </p>
+                </div>
+
+                <div>
+                <span class="badge bg-danger fs-6">
+                    Returned:
+                    <span th:text="${returnedCount}">
+                        0
+                    </span>
+                </span>
+                </div>
+
+            </div>
+
+
+            <!-- Success message -->
+            <div th:if="${param.success}"
+                 class="alert alert-success">
+
+            <span th:text="${param.success}">
+                Request resubmitted successfully.
+            </span>
+
+            </div>
+
+
+            <!-- Error message -->
+            <div th:if="${param.error}"
+                 class="alert alert-danger">
+
+            <span th:text="${param.error}">
+                Error.
+            </span>
+
+            </div>
+
+
+            <!-- Returned requests table -->
+            <div class="form-section">
+
+                <div class="form-section-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-striped table-hover align-middle">
+
+                            <thead>
+
+                            <tr>
+
+                                <th>
+                                    Request ID
+                                </th>
+
+                                <th>
+                                    Operation
+                                </th>
+
+                                <th>
+                                    Folio BO
+                                </th>
+
+                                <th>
+                                    Maker
+                                </th>
+
+                                <th>
+                                    Returned Date
+                                </th>
+
+                                <th>
+                                    Checker Remarks
+                                </th>
+
+                                <th class="text-end">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                            <!-- Returned requests -->
+                            <tr th:each="request : ${returnedRequests}">
+
+                                <!-- Request ID -->
+                                <td>
+                                    <strong
+                                            th:text="${request.requestId}">
+                                        55
+                                    </strong>
+                                </td>
+
+
+                                <!-- Operation -->
+                                <td>
+
+                                <span
+                                        class="badge bg-info text-dark"
+                                        th:text="${request.operationCode == 'SHAREHOLDER_UPDATE'
+                                                  ? 'Modify'
+                                                  : request.operationCode == 'SHAREHOLDER_CREATE'
+                                                  ? 'Create'
+                                                  : request.operationCode}">
+
+                                    Modify
+
+                                </span>
+
+                                </td>
+
+
+                                <!-- Folio BO -->
+                                <td>
+
+                                    <strong
+                                            th:text="${request.businessRef}">
+                                        24381
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- Maker -->
+                                <td
+                                        th:text="${request.makerId}">
+                                    test.maker
+                                </td>
+
+
+                                <!-- Returned date -->
+                                <td>
+
+                                <span
+                                        th:if="${request.updatedAt != null}"
+                                        th:text="${#temporals.format(request.updatedAt, 'dd-MMM-yyyy HH:mm')}">
+
+                                    06-Sep-2026 15:30
+
+                                </span>
+
+                                    <span
+                                            th:unless="${request.updatedAt != null}">
+                                    -
+                                </span>
+
+                                </td>
+
+
+                                <!-- Checker remarks -->
+                                <td style="max-width: 300px;">
+
+                                <span
+                                        th:if="${returnRemarks[request.requestId] != null
+                                               and !#strings.isEmpty(returnRemarks[request.requestId])}"
+                                        th:text="${returnRemarks[request.requestId]}">
+
+                                    Please correct the address.
+
+                                </span>
+
+                                    <span
+                                            th:unless="${returnRemarks[request.requestId] != null
+                                                   and !#strings.isEmpty(returnRemarks[request.requestId])}"
+                                            class="text-muted">
+
+                                    No remarks provided
+
+                                </span>
+
+                                </td>
+
+
+                                <!-- Action -->
+                                <td class="text-end">
+
+                                    <a
+                                            th:href="@{/shareholders/returned/{requestId}/edit(
+                                            requestId=${request.requestId}
+                                        )}"
+                                            class="btn btn-sm btn-primary">
+
+                                        Edit &amp; Resubmit
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- No returned requests -->
+                            <tr th:if="${#lists.isEmpty(returnedRequests)}">
+
+                                <td
+                                        colspan="7"
+                                        class="text-center text-muted py-4">
+
+                                    No returned requests found.
+
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+    ```
+
+</div>
+
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+
+</html>

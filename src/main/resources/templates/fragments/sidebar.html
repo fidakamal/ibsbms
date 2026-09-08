@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
 
@@ -6,6 +7,7 @@
 
 <aside th:fragment="sidebar" class="sidebar">
 
+    ```
     <!-- Logo -->
     <div class="sidebar-logo">
         <div class="logo-circle">
@@ -31,7 +33,13 @@
             <span>Approvals</span>
         </a>
 
+        <a href="/shareholders/returned" class="sidebar-link">
+            <span class="sidebar-icon">↩</span>
+            <span>Returned for Modification</span>
+        </a>
+
     </nav>
+    ```
 
 </aside>
 

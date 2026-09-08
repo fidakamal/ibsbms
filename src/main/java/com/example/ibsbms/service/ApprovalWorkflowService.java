@@ -127,11 +127,26 @@ public class ApprovalWorkflowService {
         ShareholderChangeRequest changeRequest =
                 getChangeRequest(approvalRequest);
 
+        if ("SHAREHOLDER_UPDATE".equals(
+                changeRequest.getOperationCode())) {
+
+            approveModify(
+                    approvalRequest,
+                    changeRequest,
+                    checkerId,
+                    checkerIp,
+                    remarks
+            );
+
+            return;
+        }
+
         if (!"SHAREHOLDER_CREATE".equals(
                 changeRequest.getOperationCode())) {
 
             throw new IllegalStateException(
-                    "Only SHAREHOLDER_CREATE approval is implemented currently."
+                    "Unsupported shareholder operation: "
+                            + changeRequest.getOperationCode()
             );
         }
 
@@ -440,6 +455,446 @@ public class ApprovalWorkflowService {
 
         businessAuditRepository.save(audit);
     }
+
+
+
+    private void approveModify(
+            ApprovalRequest approvalRequest,
+            ShareholderChangeRequest changeRequest,
+            String checkerId,
+            String checkerIp,
+            String remarks) {
+
+        JsonNode oldProposal;
+        JsonNode newProposal;
+
+        try {
+
+            oldProposal =
+                    objectMapper.readTree(
+                            changeRequest.getOldValue()
+                    );
+
+            newProposal =
+                    objectMapper.readTree(
+                            changeRequest.getNewValue()
+                    );
+
+        } catch (JacksonException e) {
+
+            throw new IllegalStateException(
+                    "Unable to read shareholder modification JSON.",
+                    e
+            );
+        }
+
+        JsonNode oldBasicInfo =
+                oldProposal.path("basicInfo");
+
+        JsonNode newBasicInfo =
+                newProposal.path("basicInfo");
+
+        JsonNode oldAddress =
+                oldProposal.path("address");
+
+        JsonNode newAddress =
+                newProposal.path("address");
+
+        JsonNode oldBankInfo =
+                oldProposal.path("bankInfo");
+
+        JsonNode newBankInfo =
+                newProposal.path("bankInfo");
+
+
+        /*
+         * The Folio BO is controlled by the workflow request.
+         * Do not trust a modified Folio BO from maker JSON.
+         */
+        String folioBo =
+                approvalRequest.getEntityId();
+
+        if (folioBo == null || folioBo.isBlank()) {
+
+            folioBo =
+                    changeRequest.getFolioBo();
+        }
+
+        if (folioBo == null || folioBo.isBlank()) {
+
+            throw new IllegalStateException(
+                    "Folio BO is missing from the modification request."
+            );
+        }
+
+        final String approvedFolioBo = folioBo;
+
+
+        /*
+         * Load the existing approved shareholder.
+         */
+        Shareholder shareholder =
+                shareholderRepository
+                        .findByFolioBoAndIsValid(
+                                approvedFolioBo,
+                                1
+                        )
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Approved shareholder not found for Folio BO: "
+                                                + approvedFolioBo
+                                ));
+
+
+        /*
+         * Update ONLY permitted shareholder fields.
+         *
+         * Financial/holding fields are deliberately not touched:
+         *
+         * SHARES
+         * SUSPENSE
+         * BONUS
+         * BALANCE
+         */
+
+        shareholder.setCustName(
+                newBasicInfo.path("custName").asText(null)
+        );
+
+        shareholder.setFatherName(
+                newBasicInfo.path("fatherName").asText(null)
+        );
+
+        shareholder.setMotherName(
+                newBasicInfo.path("motherName").asText(null)
+        );
+
+        shareholder.setSpouseName(
+                newBasicInfo.path("spouseName").asText(null)
+        );
+
+        shareholder.setRepresentative(
+                newBasicInfo.path("representative").asText(null)
+        );
+
+        shareholder.setCustType(
+                nullableInteger(
+                        newBasicInfo,
+                        "custType"
+                )
+        );
+
+        shareholder.setCitizenType(
+                nullableInteger(
+                        newBasicInfo,
+                        "citizenType"
+                )
+        );
+
+        shareholder.setResidentType(
+                newBasicInfo.path("residentType").asText(null)
+        );
+
+        shareholder.setPhone(
+                newBasicInfo.path("phone").asText(null)
+        );
+
+        shareholder.setEmail(
+                newBasicInfo.path("email").asText(null)
+        );
+
+        shareholder.setDob(
+                nullableDate(
+                        newBasicInfo,
+                        "dob"
+                )
+        );
+
+        shareholder.setIsEmployee(
+                nullableIntegerOrDefault(
+                        newBasicInfo,
+                        "isEmployee",
+                        0
+                )
+        );
+
+        shareholder.setNidNo(
+                newBasicInfo.path("nidNo").asText(null)
+        );
+
+        shareholder.setTinNo(
+                newBasicInfo.path("tinNo").asText(null)
+        );
+
+        shareholder.setIcbCode(
+                nullableIntegerOrDefault(
+                        newBasicInfo,
+                        "icbCode",
+                        0
+                )
+        );
+
+        shareholder.setCheckerId(checkerId);
+
+        shareholderRepository.save(shareholder);
+
+
+        /*
+         * Update Address.
+         */
+        ShareAddress shareAddress =
+                shareAddressRepository
+                        .findByFolioBo(folioBo)
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Address record not found for Folio BO: "
+                                                + approvedFolioBo
+                                ));
+
+        shareAddress.setAdd1(
+                newAddress.path("add1").asText(null)
+        );
+
+        shareAddress.setAdd2(
+                newAddress.path("add2").asText(null)
+        );
+
+        shareAddress.setAdd3(
+                newAddress.path("add3").asText(null)
+        );
+
+        shareAddress.setAdd4(
+                newAddress.path("add4").asText(null)
+        );
+
+        shareAddress.setCountryName(
+                newAddress.path("countryName").asText(null)
+        );
+
+        shareAddressRepository.save(shareAddress);
+
+
+        /*
+         * Bank information is optional.
+         */
+        if (hasBankInformation(newBankInfo)) {
+
+            ShareBankInfo shareBankInfo =
+                    shareBankInfoRepository
+                            .findByFolioBo(folioBo)
+                            .orElse(null);
+
+            /*
+             * No existing bank record.
+             * Create one.
+             */
+            if (shareBankInfo == null) {
+
+                String bankOid =
+                        workflowIdService
+                                .generateNextBankInfoShareOid();
+
+                shareBankInfo =
+                        new ShareBankInfo();
+
+                shareBankInfo.setOid(bankOid);
+                shareBankInfo.setFolioBo(folioBo);
+            }
+
+            shareBankInfo.setAccNo(
+                    newBankInfo.path("accNo").asText(null)
+            );
+
+            shareBankInfo.setBankName(
+                    newBankInfo.path("bankName").asText(null)
+            );
+
+            shareBankInfo.setBranchName(
+                    newBankInfo.path("branchName").asText(null)
+            );
+
+            shareBankInfo.setRoutingNo(
+                    newBankInfo.path("routingNo").asText(null)
+            );
+
+            shareBankInfoRepository.save(shareBankInfo);
+        }
+
+
+        /*
+         * Calculate changed fields for the business audit.
+         */
+        String changedFields =
+                buildChangedFields(
+                        oldProposal,
+                        newProposal
+                );
+
+
+        /*
+         * Update approval request.
+         */
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        approvalRequest.setStatus(APPROVED);
+        approvalRequest.setCurrentStage(COMPLETED);
+        approvalRequest.setCheckerId(checkerId);
+        approvalRequest.setCheckerIp(checkerIp);
+        approvalRequest.setUpdatedAt(now);
+        approvalRequest.setDecidedAt(now);
+
+        Integer approvalVersion =
+                approvalRequest.getVersionNo();
+
+        if (approvalVersion == null) {
+            approvalVersion = 0;
+        }
+
+        approvalRequest.setVersionNo(
+                approvalVersion + 1
+        );
+
+        approvalRequestRepository.save(approvalRequest);
+
+
+        /*
+         * Append approval action.
+         */
+        saveAction(
+                approvalRequest.getRequestId(),
+                CHECKER,
+                "APPROVED",
+                checkerId,
+                checkerIp,
+                remarks
+        );
+
+
+        /*
+         * Business audit.
+         */
+        Long auditId =
+                workflowIdService.nextBusinessAuditId();
+
+        BusinessAudit audit =
+                new BusinessAudit();
+
+        audit.setAuditId(auditId);
+        audit.setEventTime(now);
+        audit.setModuleCode("SHAREHOLDER");
+        audit.setActionType("MODIFY");
+        audit.setEntityType("SHAREHOLDER");
+        audit.setEntityId(folioBo);
+        audit.setBusinessRef(folioBo);
+
+        audit.setChangedFields(
+                changedFields
+        );
+
+        audit.setOldValue(
+                changeRequest.getOldValue()
+        );
+
+        audit.setNewValue(
+                changeRequest.getNewValue()
+        );
+
+        audit.setActorId(checkerId);
+        audit.setClientIp(checkerIp);
+        audit.setClientPcName(null);
+        audit.setUserAgent(null);
+
+        audit.setApprovalRequestId(
+                approvalRequest.getRequestId()
+        );
+
+        audit.setCorrelationId(
+                changeRequest.getChangeId()
+        );
+
+        audit.setRemarks(remarks);
+
+        businessAuditRepository.save(audit);
+    }
+
+
+
+    private String buildChangedFields(
+            JsonNode oldProposal,
+            JsonNode newProposal) {
+
+        List<String> changedFields =
+                new java.util.ArrayList<>();
+
+        addChangedFields(
+                changedFields,
+                oldProposal.path("basicInfo"),
+                newProposal.path("basicInfo"),
+                "basicInfo"
+        );
+
+        addChangedFields(
+                changedFields,
+                oldProposal.path("address"),
+                newProposal.path("address"),
+                "address"
+        );
+
+        addChangedFields(
+                changedFields,
+                oldProposal.path("bankInfo"),
+                newProposal.path("bankInfo"),
+                "bankInfo"
+        );
+
+        try {
+
+            return objectMapper.writeValueAsString(
+                    changedFields
+            );
+
+        } catch (JacksonException e) {
+
+            throw new IllegalStateException(
+                    "Unable to create changed fields audit.",
+                    e
+            );
+        }
+    }
+
+
+
+    private void addChangedFields(
+            List<String> changedFields,
+            JsonNode oldNode,
+            JsonNode newNode,
+            String section) {
+
+        java.util.Iterator<String> fields =
+                newNode.propertyNames().iterator();
+
+        while (fields.hasNext()) {
+
+            String field =
+                    fields.next();
+
+            JsonNode oldValue =
+                    oldNode.path(field);
+
+            JsonNode newValue =
+                    newNode.path(field);
+
+            if (!oldValue.equals(newValue)) {
+
+                changedFields.add(
+                        section + "." + field
+                );
+            }
+        }
+    }
+
+
 
     @Transactional
     public void returnForModification(
