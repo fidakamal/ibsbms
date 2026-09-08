@@ -1,3 +1,4 @@
+```java
 package com.example.ibsbms.repository;
 
 import com.example.ibsbms.entity.Shareholder;
@@ -14,6 +15,10 @@ public interface ShareholderRepository
     Optional<Shareholder> findByFolioBoAndIsValid(
             String folioBo,
             Integer isValid
+    );
+
+    Optional<Shareholder> findByFolioBo(
+            String folioBo
     );
 
     @Query(value = """
@@ -72,3 +77,4 @@ public interface ShareholderRepository
             @Param("folioBo") String folioBo
     );
 }
+```
