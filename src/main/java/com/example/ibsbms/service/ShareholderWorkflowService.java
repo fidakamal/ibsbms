@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.ibsbms.entity.ApprovalAction;
 import com.example.ibsbms.repository.ApprovalActionRepository;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
@@ -340,6 +339,7 @@ public class ShareholderWorkflowService {
 
 
 
+
     @Transactional
     public void resubmitReturnedModify(
             Long requestId,
@@ -401,17 +401,23 @@ public class ShareholderWorkflowService {
                                         "Shareholder change request not found."
                                 ));
 
-        if (!"SHAREHOLDER_UPDATE".equals(
-                changeRequest.getOperationCode())) {
+        String operationCode =
+                changeRequest.getOperationCode();
+
+        /*
+         * Only CREATE and UPDATE requests can be resubmitted.
+         */
+        if (!"SHAREHOLDER_CREATE".equals(operationCode) &&
+                !"SHAREHOLDER_UPDATE".equals(operationCode)) {
 
             throw new IllegalStateException(
-                    "Only shareholder modification requests can be resubmitted."
+                    "Only shareholder Create or Modify requests can be resubmitted."
             );
         }
 
         /*
-         * The Folio is taken from the existing server-side request.
-         * Never trust the browser for this value.
+         * The Folio is always taken from the existing
+         * server-side workflow request.
          */
         String folioBo =
                 approvalRequest.getEntityId();
@@ -428,26 +434,54 @@ public class ShareholderWorkflowService {
 
         /*
          * Force the server-side Folio into the edited proposal.
+         *
+         * The Maker cannot change the Folio through the browser.
          */
         edited.getBasicInfo().setFolioBo(folioBo);
 
         /*
-         * Make sure the shareholder still exists and obtain the
-         * current approved snapshot.
+         * CREATE:
          *
-         * This also prevents resubmitting against a shareholder
-         * that has disappeared or become invalid.
+         * The shareholder does not exist in the master tables yet.
+         *
+         * Therefore:
+         * - Do NOT call snapshotOf()
+         * - Keep the existing Folio
+         * - Update only the pending NEW_VALUE
          */
-        shareholderService.snapshotOf(folioBo);
+        if ("SHAREHOLDER_CREATE".equals(operationCode)) {
+
+            /*
+             * CREATE requests do not have an approved master record yet.
+             *
+             * The Folio is already reserved by the existing
+             * T_SHAREHOLDER_CHANGE_REQUEST, so there is no need
+             * to call snapshotOf().
+             *
+             * The existing NEW_VALUE will simply be replaced with
+             * the Maker's corrected proposal.
+             */
+        }
 
         /*
-         * Build the new proposal.
+         * UPDATE:
+         *
+         * The shareholder already exists in the master tables.
+         *
+         * Verify that it still exists before resubmission.
+         */
+        if ("SHAREHOLDER_UPDATE".equals(operationCode)) {
+
+            shareholderService.snapshotOf(folioBo);
+        }
+
+        /*
+         * Build the updated proposal.
          *
          * IMPORTANT:
-         * OLD_VALUE is NOT replaced.
+         * OLD_VALUE remains unchanged.
          *
-         * It remains the original snapshot that was stored when
-         * the modification request was first created.
+         * NEW_VALUE contains the Maker's corrected version.
          */
         String newValueJson =
                 shareholderService.buildCreateProposalJson(edited);
@@ -480,8 +514,8 @@ public class ShareholderWorkflowService {
         approvalRequest.setCurrentStage("CHECKER");
 
         /*
-         * The previous checker is no longer the current actor
-         * for this new checker decision.
+         * Clear the previous checker because this is a new
+         * checker decision.
          */
         approvalRequest.setCheckerId(null);
         approvalRequest.setCheckerIp(null);
@@ -490,8 +524,7 @@ public class ShareholderWorkflowService {
         approvalRequest.setDecidedAt(null);
 
         /*
-         * A resubmission is a new submission for today's
-         * business date.
+         * New submission gets today's Bangladesh business date.
          */
         approvalRequest.setBusinessDate(
                 LocalDate.now(ZoneId.of("Asia/Dhaka"))
@@ -540,7 +573,7 @@ public class ShareholderWorkflowService {
         System.out.println("Folio BO       : " + folioBo);
         System.out.println("Request ID     : " + requestId);
         System.out.println("Maker ID       : " + makerId);
-        System.out.println("Operation      : SHAREHOLDER_UPDATE");
+        System.out.println("Operation      : " + operationCode);
         System.out.println("Status         : PENDING_CHECKER");
         System.out.println("Current Stage  : CHECKER");
         System.out.println("Business Date  : "
@@ -603,11 +636,13 @@ public class ShareholderWorkflowService {
                                         "Shareholder change request not found."
                                 ));
 
-        if (!"SHAREHOLDER_UPDATE".equals(
-                changeRequest.getOperationCode())) {
+        if (!"SHAREHOLDER_CREATE".equals(
+                changeRequest.getOperationCode()) &&
+                !"SHAREHOLDER_UPDATE".equals(
+                        changeRequest.getOperationCode())) {
 
             throw new IllegalStateException(
-                    "Only shareholder modification requests can be edited."
+                    "Only shareholder Create or Modify requests can be edited."
             );
         }
 
