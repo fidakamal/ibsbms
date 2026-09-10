@@ -1,5 +1,6 @@
 package com.example.ibsbms.controller;
 
+import com.example.ibsbms.dto.ShareholderCreateRequest;
 import com.example.ibsbms.entity.ApprovalRequest;
 import com.example.ibsbms.entity.ApprovalAction;
 import com.example.ibsbms.entity.ShareholderChangeRequest;
@@ -7,6 +8,7 @@ import com.example.ibsbms.service.ApprovalWorkflowService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.example.ibsbms.service.ShareholderService;
 
 import java.security.Principal;
 import java.util.List;
@@ -15,12 +17,14 @@ import java.util.List;
 public class ApprovalController {
 
     private final ApprovalWorkflowService approvalWorkflowService;
+    private final ShareholderService shareholderService;
 
     public ApprovalController(
-            ApprovalWorkflowService approvalWorkflowService) {
+            ApprovalWorkflowService approvalWorkflowService,
+            ShareholderService shareholderService) {
 
-        this.approvalWorkflowService =
-                approvalWorkflowService;
+        this.approvalWorkflowService = approvalWorkflowService;
+        this.shareholderService = shareholderService;
     }
 
     @GetMapping("/approvals")
@@ -56,6 +60,10 @@ public class ApprovalController {
                 approvalWorkflowService
                         .getChangeRequest(approvalRequest);
 
+        ShareholderCreateRequest proposal =
+                shareholderService.parseProposalJson(
+                        changeRequest.getNewValue());
+
         List<ApprovalAction> history =
                 approvalWorkflowService
                         .getApprovalHistory(requestId);
@@ -78,6 +86,11 @@ public class ApprovalController {
         model.addAttribute(
                 "changeRequest",
                 changeRequest
+        );
+
+        model.addAttribute(
+                "proposal",
+                proposal
         );
 
         model.addAttribute(

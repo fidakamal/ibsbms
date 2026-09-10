@@ -3,178 +3,396 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Approval Details</title>
 
-    <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-            rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    <link
-            rel="stylesheet"
-            th:href="@{/css/style.css}">
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #F5F7F7;
+            color: #263238;
+        }
 
+        .header {
+            height: 64px;
+            background: #174C4C;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-user {
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 64px);
+        }
+
+        .sidebar {
+            width: 240px;
+            background: #285A78;
+            padding: 24px 16px;
+            color: white;
+        }
+
+        .sidebar-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding: 0 12px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .sidebar-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            max-width: 1400px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            margin: 0;
+            color: #174C4C;
+            font-size: 25px;
+        }
+
+        .back-button {
+            text-decoration: none;
+            background: #285A78;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .back-button:hover {
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-title {
+            margin: 0 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #F5F7F7;
+            color: #174C4C;
+            font-size: 18px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px 24px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #52656D;
+            margin-bottom: 6px;
+        }
+
+        .field input,
+        .field textarea {
+            width: 100%;
+            border: 1px solid #D5DDDD;
+            border-radius: 5px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #F8FAFA;
+            color: #263238;
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .request-info {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px 24px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 12px;
+            background: #FFF4D6;
+            color: #7A5A00;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .decision-card {
+            border-left: 4px solid #285A78;
+        }
+
+        .decision-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .decision-buttons button {
+            border: none;
+            border-radius: 5px;
+            padding: 11px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #C0392B;
+        }
+
+        .btn-return {
+            background: #D68910;
+        }
+
+        .btn-approve {
+            background: #16A05D;
+        }
+
+        .decision-buttons button:hover {
+            opacity: 0.9;
+        }
+
+        .processed-message {
+            padding: 16px;
+            background: #F5F7F7;
+            border-radius: 6px;
+            color: #52656D;
+            font-size: 14px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #E5EAEA;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .history-table th {
+            background: #F5F7F7;
+            color: #174C4C;
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .grid,
+            .request-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .content {
+                padding: 18px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+    </style>
 </head>
-
 
 <body>
 
-<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<!-- Header -->
+<div class="header">
+    <div class="header-title">
+        IBSBMS
+    </div>
 
-<div th:replace="~{fragments/header :: header}"></div>
-
-
-<main class="main-content">
-
-    <div class="page-content">
-
-
-        <!-- Heading -->
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <div>
-
-                <h2 class="mb-1">
-                    Shareholder Approval
-                </h2>
-
-                <p class="text-muted mb-0">
-
-                    Review the proposed shareholder information
-                    before making a decision.
-
-                </p>
-
-            </div>
+    <div class="header-user">
+        User: test.maker
+    </div>
+</div>
 
 
-            <a
-                    href="/approvals"
-                    class="btn btn-outline-secondary">
+<div class="layout">
 
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            Shareholder Management
+        </div>
+
+        <a href="/shareholders" class="sidebar-link">
+            <span class="sidebar-icon">▣</span>
+            <span>Shareholders</span>
+        </a>
+
+        <a href="/shareholders/create" class="sidebar-link">
+            <span class="sidebar-icon">＋</span>
+            <span>Create Shareholder</span>
+        </a>
+
+        <a href="/approvals" class="sidebar-link">
+            <span class="sidebar-icon">✓</span>
+            <span>Approvals</span>
+        </a>
+
+        <a href="/shareholders/returned" class="sidebar-link">
+            <span class="sidebar-icon">↩</span>
+            <span>Returned for Modification</span>
+        </a>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="content">
+
+        <!-- Page Header -->
+        <div class="page-header">
+
+            <h1 class="page-title">
+                Approval Details
+            </h1>
+
+            <a href="/approvals" class="back-button">
                 ← Back to Approvals
-
             </a>
 
         </div>
 
 
-        <!-- Request information -->
+        <!-- Request Information -->
+        <div class="card">
 
-        <div class="form-section">
+            <h2 class="card-title">
+                Request Information
+            </h2>
 
-            <div class="form-section-body">
+            <div class="request-info">
 
-                <h5 class="mb-4">
-                    Request Information
-                </h5>
+                <div class="field">
+                    <label>Request ID</label>
+                    <input type="text"
+                           th:value="${approvalRequest.requestId}"
+                           readonly>
+                </div>
 
+                <div class="field">
+                    <label>Change ID</label>
+                    <input type="text"
+                           th:value="${changeRequest.changeId}"
+                           readonly>
+                </div>
 
-                <div class="row g-4">
+                <div class="field">
+                    <label>Operation</label>
+                    <input type="text"
+                           th:value="${changeRequest.operationCode}"
+                           readonly>
+                </div>
 
+                <div class="field">
+                    <label>Maker</label>
+                    <input type="text"
+                           th:value="${approvalRequest.makerId}"
+                           readonly>
+                </div>
 
-                    <div class="col-md-3">
+                <div class="field">
+                    <label>Business Reference</label>
+                    <input type="text"
+                           th:value="${approvalRequest.businessRef}"
+                           readonly>
+                </div>
 
-                        <label class="form-label text-muted">
-                            Request ID
-                        </label>
+                <div class="field">
+                    <label>Status</label>
 
-                        <div class="fw-semibold"
-                             th:text="${requestId}">
-                            100001
-                        </div>
-
+                    <div style="padding-top: 8px;">
+                        <span class="status"
+                              th:text="${approvalRequest.status}">
+                            PENDING_CHECKER
+                        </span>
                     </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label text-muted">
-                            Operation
-                        </label>
-
-                        <div>
-
-                            <span class="badge bg-info text-dark">
-                                SHAREHOLDER_CREATE
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label text-muted">
-                            Maker
-                        </label>
-
-                        <div class="fw-semibold">
-                            test.maker
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label text-muted">
-                            Status
-                        </label>
-
-                        <div>
-
-                            <span
-                                    class="badge"
-                                    th:classappend="
-            ${status == 'APPROVED'} ? ' bg-success' :
-            (${status == 'REJECTED'} ? ' bg-danger' :
-            (${status == 'RETURNED_FOR_MODIFICATION'} ? ' bg-warning text-dark' :
-            ' bg-warning text-dark'))
-        "
-                                    th:text="${status}">
-
-    PENDING_CHECKER
-
-</span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label text-muted">
-                            Folio BO
-                        </label>
-
-                        <div class="fw-semibold">
-                            FOLIO-000001
-                        </div>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label text-muted">
-                            Business Date
-                        </label>
-
-                        <div>
-                            04-Sep-2026
-                        </div>
-
-                    </div>
-
                 </div>
 
             </div>
@@ -183,186 +401,124 @@
 
 
         <!-- Basic Information -->
-
-        <div class="form-section">
-
-            <div class="form-section-body">
-
-                <h5 class="mb-4">
-                    Basic Information
-                </h5>
-
-
-                <div class="row g-3">
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Customer Name
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Test Shareholder"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Father's Name
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Test Father"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Mother's Name
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Test Mother"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Spouse Name
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value=""
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Customer Type
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Individual"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Citizenship
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Local"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Resident Type
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Resident"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Phone
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="01700000000"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Email
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="test@example.com"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Date of Birth
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="01-Jan-1995"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            NID
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value=""
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            TIN
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value=""
-                                readonly>
-
-                    </div>
-
+        <div class="card">
+
+            <h2 class="card-title">
+                Basic Information
+            </h2>
+
+            <div class="grid">
+
+                <div class="field">
+                    <label>Folio / BO</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.folioBo}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Customer Name</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.custName}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Father Name</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.fatherName}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Mother Name</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.motherName}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Spouse Name</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.spouseName}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Customer Type</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.custType}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Citizen Type</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.citizenType}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Resident Type</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.residentType}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Phone</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.phone}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Email</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.email}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Date of Birth</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.dob}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>NID No</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.nidNo}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>TIN No</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.tinNo}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Representative</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.representative}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>Employee</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.isEmployee}"
+                           readonly>
+                </div>
+
+                <div class="field">
+                    <label>ICB Code</label>
+                    <input type="text"
+                           th:value="${proposal.basicInfo?.icbCode}"
+                           readonly>
                 </div>
 
             </div>
@@ -370,60 +526,48 @@
         </div>
 
 
-        <!-- Address -->
+        <!-- Address Information -->
+        <div class="card">
 
-        <div class="form-section">
+            <h2 class="card-title">
+                Address Information
+            </h2>
 
-            <div class="form-section-body">
+            <div class="grid">
 
-                <h5 class="mb-4">
-                    Address
-                </h5>
+                <div class="field full">
+                    <label>Address Line 1</label>
+                    <input type="text"
+                           th:value="${proposal.address?.add1}"
+                           readonly>
+                </div>
 
+                <div class="field full">
+                    <label>Address Line 2</label>
+                    <input type="text"
+                           th:value="${proposal.address?.add2}"
+                           readonly>
+                </div>
 
-                <div class="row g-3">
+                <div class="field full">
+                    <label>Address Line 3</label>
+                    <input type="text"
+                           th:value="${proposal.address?.add3}"
+                           readonly>
+                </div>
 
+                <div class="field full">
+                    <label>Address Line 4</label>
+                    <input type="text"
+                           th:value="${proposal.address?.add4}"
+                           readonly>
+                </div>
 
-                    <div class="col-md-12">
-
-                        <label class="form-label">
-                            Address Line 1
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Dhaka"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Address Line 2
-                        </label>
-
-                        <input
-                                class="form-control"
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-                            Country
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value="Bangladesh"
-                                readonly>
-
-                    </div>
-
+                <div class="field">
+                    <label>Country</label>
+                    <input type="text"
+                           th:value="${proposal.address?.countryName}"
+                           readonly>
                 </div>
 
             </div>
@@ -431,75 +575,41 @@
         </div>
 
 
-        <!-- Bank information -->
+        <!-- Bank Information -->
+        <div class="card">
 
-        <div class="form-section">
+            <h2 class="card-title">
+                Bank Information
+            </h2>
 
-            <div class="form-section-body">
+            <div class="grid">
 
-                <h5 class="mb-4">
-                    Bank Information
-                </h5>
+                <div class="field">
+                    <label>Account Number</label>
+                    <input type="text"
+                           th:value="${proposal.bankInfo?.accNo}"
+                           readonly>
+                </div>
 
+                <div class="field">
+                    <label>Bank Name</label>
+                    <input type="text"
+                           th:value="${proposal.bankInfo?.bankName}"
+                           readonly>
+                </div>
 
-                <div class="row g-3">
+                <div class="field">
+                    <label>Branch Name</label>
+                    <input type="text"
+                           th:value="${proposal.bankInfo?.branchName}"
+                           readonly>
+                </div>
 
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Bank Name
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value=""
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Account Number
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value=""
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Branch
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value=""
-                                readonly>
-
-                    </div>
-
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Routing Number
-                        </label>
-
-                        <input
-                                class="form-control"
-                                value=""
-                                readonly>
-
-                    </div>
-
+                <div class="field">
+                    <label>Routing Number</label>
+                    <input type="text"
+                           th:value="${proposal.bankInfo?.routingNo}"
+                           readonly>
                 </div>
 
             </div>
@@ -507,157 +617,173 @@
         </div>
 
 
-        <!-- Checker decision -->
+        <!-- Checker Decision -->
+        <div class="card decision-card"
+             th:if="${approvalRequest.status == 'PENDING_CHECKER'}">
 
-        <div class="form-section">
+            <h2 class="card-title">
+                Checker Decision
+            </h2>
 
-            <div class="form-section-body">
+            <div class="field full">
+                <label for="remarks">
+                    Remarks
+                </label>
 
-                <h5 class="mb-3">
-                    Checker Decision
-                </h5>
-
-
-                <!-- Success message -->
-
-                <div
-                        th:if="${param.success}"
-                        class="alert alert-success">
-
-            <span th:text="${param.success}">
-                Request processed successfully.
-            </span>
-
-                </div>
+                <textarea id="remarks"
+                          name="remarks"
+                          placeholder="Enter remarks..."></textarea>
+            </div>
 
 
-                <!-- Error message -->
+            <div class="decision-buttons">
 
-                <div
-                        th:if="${param.error}"
-                        class="alert alert-danger">
+                <!-- Reject -->
+                <form th:action="@{/approvals/{id}/reject(id=${approvalRequest.requestId})}"
+                      method="post"
+                      id="rejectForm">
 
-            <span th:text="${param.error}">
-                Unable to process request.
-            </span>
+                    <input type="hidden"
+                           name="remarks"
+                           id="rejectRemarks">
 
-                </div>
+                    <button type="submit"
+                            class="btn-reject">
+                        Reject
+                    </button>
 
-
-                <!-- Remarks -->
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Remarks
-                    </label>
-
-                    <textarea
-                            id="remarks"
-                            name="remarks"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Remarks are required for Return or Reject."></textarea>
-
-                </div>
+                </form>
 
 
-                <div class="d-flex justify-content-end gap-2">
+                <!-- Return -->
+                <form th:action="@{/approvals/{id}/return(id=${approvalRequest.requestId})}"
+                      method="post"
+                      id="returnForm">
+
+                    <input type="hidden"
+                           name="remarks"
+                           id="returnRemarks">
+
+                    <button type="submit"
+                            class="btn-return">
+                        Return for Modification
+                    </button>
+
+                </form>
 
 
-                    <!-- Reject -->
+                <!-- Approve -->
+                <form th:action="@{/approvals/{id}/approve(id=${approvalRequest.requestId})}"
+                      method="post"
+                      id="approveForm">
 
-                    <form
-                            th:action="@{/approvals/{id}/reject(id=${requestId})}"
-                            method="post">
+                    <input type="hidden"
+                           name="remarks"
+                           id="approveRemarks">
 
-                        <input
-                                type="hidden"
-                                name="remarks"
-                                id="rejectRemarks">
+                    <button type="submit"
+                            class="btn-approve">
+                        Approve
+                    </button>
 
-                        <button
-                                type="submit"
-                                class="btn btn-outline-danger"
-                                onclick="
-                            document.getElementById('rejectRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
-
-                            Reject
-
-                        </button>
-
-                    </form>
-
-
-                    <!-- Return -->
-
-                    <form
-                            th:action="@{/approvals/{id}/return(id=${requestId})}"
-                            method="post">
-
-                        <input
-                                type="hidden"
-                                name="remarks"
-                                id="returnRemarks">
-
-                        <button
-                                type="submit"
-                                class="btn btn-outline-warning"
-                                onclick="
-                            document.getElementById('returnRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
-
-                            Return for Modification
-
-                        </button>
-
-                    </form>
-
-
-                    <!-- Approve -->
-
-                    <form
-                            th:action="@{/approvals/{id}/approve(id=${requestId})}"
-                            method="post">
-
-                        <input
-                                type="hidden"
-                                name="remarks"
-                                id="approveRemarks">
-
-                        <button
-                                type="submit"
-                                class="btn btn-success"
-                                onclick="
-                            document.getElementById('approveRemarks').value =
-                            document.getElementById('remarks').value;
-                        ">
-
-                            Approve
-
-                        </button>
-
-                    </form>
-
-
-                </div>
+                </form>
 
             </div>
 
         </div>
 
 
-    </div>
+        <!-- Already Processed -->
+        <div class="card"
+             th:if="${approvalRequest.status != 'PENDING_CHECKER'}">
 
-</main>
+            <h2 class="card-title">
+                Approval Status
+            </h2>
+
+            <div class="processed-message">
+                This approval request has already been processed.
+            </div>
+
+        </div>
 
 
-<script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+        <!-- Approval History -->
+        <div class="card"
+             th:if="${history != null and !history.isEmpty()}">
+
+            <h2 class="card-title">
+                Approval History
+            </h2>
+
+            <table class="history-table">
+
+                <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Stage</th>
+                    <th>Actor</th>
+                    <th>Remarks</th>
+                    <th>Action Time</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="action : ${history}">
+
+                    <td th:text="${action.action}">
+                        ACTION
+                    </td>
+
+                    <td th:text="${action.stage}">
+                        STAGE
+                    </td>
+
+                    <td th:text="${action.actorId}">
+                        ACTOR
+                    </td>
+
+                    <td th:text="${action.remarks}">
+                        REMARKS
+                    </td>
+
+                    <td th:text="${action.actionAt}">
+                        TIME
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+    function copyRemarks(targetId) {
+        const remarks = document.getElementById("remarks").value;
+        document.getElementById(targetId).value = remarks;
+    }
+
+    document.getElementById("rejectForm")?.addEventListener("submit", function () {
+        copyRemarks("rejectRemarks");
+    });
+
+    document.getElementById("returnForm")?.addEventListener("submit", function () {
+        copyRemarks("returnRemarks");
+    });
+
+    document.getElementById("approveForm")?.addEventListener("submit", function () {
+        copyRemarks("approveRemarks");
+    });
 </script>
 
 </body>
 </html>
+
