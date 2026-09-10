@@ -7,7 +7,6 @@
 
 <aside th:fragment="sidebar" class="sidebar">
 
-    ```
     <!-- Logo -->
     <div class="sidebar-logo">
         <div class="logo-circle">
@@ -28,18 +27,17 @@
             <span>Shareholders</span>
         </a>
 
-        <a href="/approvals" class="sidebar-link">
+        <a href="/approvals" class="sidebar-link" th:if="${isChecker}">
             <span class="sidebar-icon">✓</span>
             <span>Approvals</span>
         </a>
 
-        <a href="/shareholders/returned" class="sidebar-link">
+        <a href="/shareholders/returned" class="sidebar-link" th:if="${isMaker}">
             <span class="sidebar-icon">↩</span>
             <span>Returned for Modification</span>
         </a>
 
     </nav>
-    ```
 
 </aside>
 

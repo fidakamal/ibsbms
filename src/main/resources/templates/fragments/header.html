@@ -35,16 +35,18 @@
                 👤
             </div>
 
-            <span class="username">
+            <span class="username" th:text="${currentUsername}">
                 test.maker
             </span>
 
         </div>
 
         <!-- Logout -->
-        <button class="logout-button">
-            Logout
-        </button>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button class="logout-button" type="submit">
+                Logout
+            </button>
+        </form>
 
     </div>
 
