@@ -7,6 +7,7 @@ import com.example.ibsbms.service.ApprovalWorkflowService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
 import java.util.List;
 
@@ -60,6 +61,16 @@ public class ApprovalController {
                         .getApprovalHistory(requestId);
 
         model.addAttribute(
+                "requestId",
+                requestId
+        );
+
+        model.addAttribute(
+                "status",
+                approvalRequest.getStatus()
+        );
+
+        model.addAttribute(
                 "approvalRequest",
                 approvalRequest
         );
@@ -77,19 +88,53 @@ public class ApprovalController {
         return "approval/approval-details";
     }
 
+    @GetMapping("/approvals/rejected")
+    public String rejectedRequests(Model model) {
+
+        List<ApprovalRequest> requests =
+                approvalWorkflowService.getRejectedRequests();
+
+        java.util.Map<Long, String> rejectionRemarks =
+                new java.util.HashMap<>();
+
+        for (ApprovalRequest request : requests) {
+
+            rejectionRemarks.put(
+                    request.getRequestId(),
+                    approvalWorkflowService
+                            .getLatestRejectionRemarks(
+                                    request.getRequestId()
+                            )
+            );
+        }
+
+        model.addAttribute(
+                "rejectedRequests",
+                requests
+        );
+
+        model.addAttribute(
+                "rejectedCount",
+                requests.size()
+        );
+
+        model.addAttribute(
+                "rejectionRemarks",
+                rejectionRemarks
+        );
+
+        return "approval/rejected-list";
+    }
+
     @PostMapping("/approvals/{requestId}/approve")
     public String approve(
             @PathVariable Long requestId,
-            @RequestParam(required = false) String remarks) {
+            @RequestParam(required = false) String remarks,
+            Principal principal) {
 
         try {
 
-            /*
-             * Temporary checker identity.
-             *
-             * Later this will come from authentication.
-             */
-            String checkerId = "test.checker";
+            String checkerId = principal.getName();
             String checkerIp = "127.0.0.1";
 
             approvalWorkflowService.approve(
@@ -115,11 +160,12 @@ public class ApprovalController {
     @PostMapping("/approvals/{requestId}/return")
     public String returnForModification(
             @PathVariable Long requestId,
-            @RequestParam(required = false) String remarks) {
+            @RequestParam(required = false) String remarks,
+            Principal principal) {
 
         try {
 
-            String checkerId = "test.checker";
+            String checkerId = principal.getName();
             String checkerIp = "127.0.0.1";
 
             approvalWorkflowService.returnForModification(
@@ -145,11 +191,12 @@ public class ApprovalController {
     @PostMapping("/approvals/{requestId}/reject")
     public String reject(
             @PathVariable Long requestId,
-            @RequestParam(required = false) String remarks) {
+            @RequestParam(required = false) String remarks,
+            Principal principal) {
 
         try {
 
-            String checkerId = "test.checker";
+            String checkerId = principal.getName();
             String checkerIp = "127.0.0.1";
 
             approvalWorkflowService.reject(

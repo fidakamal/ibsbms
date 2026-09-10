@@ -75,6 +75,26 @@ public class ApprovalWorkflowService {
         return approvalRequestRepository.findPendingCheckerRequests();
     }
 
+    public List<ApprovalRequest> getRejectedRequests() {
+        return approvalRequestRepository.findRejectedRequests();
+    }
+
+    public String getLatestRejectionRemarks(Long requestId) {
+
+        List<ApprovalAction> actions =
+                approvalActionRepository
+                        .findByRequestIdAndActionOrderByActionAtDesc(
+                                requestId,
+                                "REJECTED"
+                        );
+
+        if (actions.isEmpty()) {
+            return "";
+        }
+
+        return actions.get(0).getRemarks();
+    }
+
     public ApprovalRequest getApprovalRequest(Long requestId) {
         return approvalRequestRepository
                 .findByRequestId(requestId)
