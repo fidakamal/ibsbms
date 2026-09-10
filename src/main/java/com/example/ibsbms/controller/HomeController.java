@@ -20,7 +20,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "dashboard";
+        return "redirect:/dashboard";
     }
 
     @GetMapping("/shareholders")
