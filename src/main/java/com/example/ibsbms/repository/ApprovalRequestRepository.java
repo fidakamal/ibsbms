@@ -52,4 +52,17 @@ public interface ApprovalRequestRepository
     List<ApprovalRequest> findReturnedForModificationRequests(
             @Param("makerId") String makerId
     );
+
+
+    @Query("""
+    SELECT a
+    FROM ApprovalRequest a
+    WHERE a.makerId = :makerId
+      AND a.sourceType = 'SHAREHOLDER_CHANGE'
+      AND a.operationCode = 'SHAREHOLDER_CREATE'
+    ORDER BY a.createdAt DESC
+""")
+    List<ApprovalRequest> findMakerCreateRequests(
+            @Param("makerId") String makerId
+    );
 }

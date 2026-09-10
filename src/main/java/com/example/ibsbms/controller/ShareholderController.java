@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
 import java.security.Principal;
 
 @Controller
@@ -64,7 +65,8 @@ public class ShareholderController {
             @Valid @ModelAttribute("shareholder")
             ShareholderCreateRequest request,
             BindingResult bindingResult,
-            Model model) {
+            Model model,
+            Principal principal) {
 
         if (bindingResult.hasErrors()) {
 
@@ -86,19 +88,7 @@ public class ShareholderController {
             return "shareholder/shareholder-create";
         }
 
-        /*
-         * Temporary maker identity.
-         *
-         * Later this will come from the authenticated session,
-         * never from the browser.
-         */
-        String makerId = "test.maker";
-
-        /*
-         * Temporary IP.
-         *
-         * Later this will come from the HTTP request/gateway.
-         */
+        String makerId = principal.getName();
         String makerIp = "127.0.0.1";
 
         shareholderWorkflowService.submitCreateForApproval(
@@ -168,7 +158,8 @@ public class ShareholderController {
             @Valid @ModelAttribute("shareholder")
             ShareholderCreateRequest request,
             BindingResult bindingResult,
-            Model model) {
+            Model model,
+            Principal principal) {
 
         if (bindingResult.hasErrors()) {
 
@@ -192,12 +183,7 @@ public class ShareholderController {
             return "shareholder/shareholder-create";
         }
 
-        /*
-         * Temporary maker identity.
-         *
-         * Later this will come from authentication.
-         */
-        String makerId = "test.maker";
+        String makerId = principal.getName();
         String makerIp = "127.0.0.1";
 
         try {
@@ -229,9 +215,11 @@ public class ShareholderController {
      */
 
     @GetMapping("/shareholders/returned")
-    public String returnedRequests(Model model) {
+    public String returnedRequests(
+            Model model,
+            Principal principal) {
 
-        String makerId = "test.maker";
+        String makerId = principal.getName();
 
         var requests =
                 shareholderWorkflowService
@@ -281,9 +269,10 @@ public class ShareholderController {
     )
     public String editReturnedRequest(
             @PathVariable Long requestId,
-            Model model) {
+            Model model,
+            Principal principal) {
 
-        String makerId = "test.maker";
+        String makerId = principal.getName();
 
         try {
 
@@ -339,7 +328,8 @@ public class ShareholderController {
             @Valid @ModelAttribute("shareholder")
             ShareholderCreateRequest request,
             BindingResult bindingResult,
-            Model model) {
+            Model model,
+            Principal principal) {
 
         if (bindingResult.hasErrors()) {
 
@@ -363,12 +353,7 @@ public class ShareholderController {
             return "shareholder/shareholder-create";
         }
 
-        /*
-         * Temporary maker identity.
-         *
-         * Later this will come from authentication.
-         */
-        String makerId = "test.maker";
+        String makerId = principal.getName();
         String makerIp = "127.0.0.1";
 
         try {
@@ -391,4 +376,3 @@ public class ShareholderController {
                 + "Request resubmitted successfully.";
     }
 }
-

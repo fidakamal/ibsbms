@@ -1156,5 +1156,10 @@ public class ApprovalWorkflowService {
                 .trim()
                 .isEmpty();
     }
+
+
+    public List<ApprovalRequest> getMakerCreateRequests(String makerId) {
+        return approvalRequestRepository.findMakerCreateRequests(makerId);
+    }
 }
 

@@ -31,6 +31,9 @@
             <span class="sidebar-icon">✓</span>
             <span>Approvals</span>
         </a>
+        <a th:href="@{/my-requests}">
+            My Requests
+        </a>
         <a href="/approvals/rejected" class="sidebar-link" th:if="${isChecker}">
             <span class="sidebar-icon">✕</span>
             <span>Rejected Requests</span>

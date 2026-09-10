@@ -139,6 +139,7 @@ public class ApprovalController {
         return "approval/rejected-list";
     }
 
+
     @PostMapping("/approvals/{requestId}/approve")
     public String approve(
             @PathVariable Long requestId,
@@ -157,11 +158,11 @@ public class ApprovalController {
                     remarks
             );
 
-            return "redirect:/approvals/"
-                    + requestId
-                    + "?success=Request approved successfully.";
+            return "redirect:/shareholders";
 
         } catch (Exception e) {
+
+            e.printStackTrace();
 
             return "redirect:/approvals/"
                     + requestId
@@ -169,6 +170,8 @@ public class ApprovalController {
                     + e.getMessage();
         }
     }
+
+
 
     @PostMapping("/approvals/{requestId}/return")
     public String returnForModification(
@@ -230,5 +233,42 @@ public class ApprovalController {
                     + "?error="
                     + e.getMessage();
         }
+    }
+
+
+    @GetMapping("/my-requests")
+    public String myRequests(
+            Principal principal,
+            Model model) {
+
+        String makerId = principal.getName();
+
+        System.out.println("======================================");
+        System.out.println("MY REQUESTS");
+        System.out.println("Logged-in user: " + makerId);
+
+        List<ApprovalRequest> requests =
+                approvalWorkflowService
+                        .getMakerCreateRequests(makerId);
+
+        System.out.println("Number of requests: " + requests.size());
+
+        for (ApprovalRequest request : requests) {
+            System.out.println(
+                    "Request ID: " + request.getRequestId()
+                            + " | Maker ID: " + request.getMakerId()
+                            + " | Operation: " + request.getOperationCode()
+                            + " | Status: " + request.getStatus()
+            );
+        }
+
+        System.out.println("======================================");
+
+        model.addAttribute(
+                "requests",
+                requests
+        );
+
+        return "approval/my-requests";
     }
 }
