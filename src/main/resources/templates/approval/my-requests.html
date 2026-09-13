@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
 
@@ -7,72 +8,65 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+          content="width=device-width, initial-scale=1">
 
-    <title>My Requests</title>
+    <title>IBSBMS - My Requests</title>
 
     <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
             rel="stylesheet">
 
+    <link
+            th:href="@{/css/style.css}"
+            rel="stylesheet">
+
     <style>
 
-        body {
-            background-color: #F5F7F7;
-            font-family: Arial, sans-serif;
+        .request-table {
+            width: 100%;
         }
 
-        .page-header {
-            background-color: #174C4C;
-            color: white;
-            padding: 20px 30px;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        .request-table th,
+        .request-table td {
+            vertical-align: middle;
         }
 
         .status-badge {
+            display: inline-block;
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
-        .status-pending {
+        .pending {
             background-color: #fff3cd;
             color: #856404;
         }
 
-        .status-approved {
+        .approved {
             background-color: #d1e7dd;
             color: #0f5132;
         }
 
-        .status-rejected {
+        .rejected {
             background-color: #f8d7da;
             color: #842029;
         }
 
-        .status-returned {
+        .returned {
             background-color: #ffe5d0;
             color: #984c0c;
         }
 
-        .status-other {
+        .other {
             background-color: #e2e3e5;
             color: #41464b;
         }
 
-        table th {
-            background-color: #285A78;
-            color: white;
+        .view-button {
+            white-space: nowrap;
         }
 
     </style>
@@ -81,170 +75,242 @@
 
 <body>
 
-<div class="page-header">
+<!-- Sidebar -->
 
-    <h3 class="mb-1">
-        My Requests
-    </h3>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-    <div>
-        Shareholder Create Requests
-    </div>
+<!-- Header -->
 
-</div>
+<div th:replace="~{fragments/header :: header}"></div>
 
+<main class="main-content">
 
-<div class="content">
+    <div class="page-content">
 
-    <div class="card">
+        <!-- Page heading -->
 
-        <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
 
-                <h5 class="mb-0">
-                    My Create Requests
-                </h5>
-
-                <span class="text-muted"
-                      th:text="${#lists.size(requests)} + ' request(s)'">
-                    0 request(s)
-                </span>
-
-            </div>
-
-
-            <!-- Requests table -->
-
-            <div class="table-responsive"
-                 th:if="${not #lists.isEmpty(requests)}">
-
-                <table class="table table-hover align-middle">
-
-                    <thead>
-
-                    <tr>
-
-                        <th>Request ID</th>
-
-                        <th>Folio / BO</th>
-
-                        <th>Operation</th>
-
-                        <th>Submitted</th>
-
-                        <th>Status</th>
-
-                        <th>Stage</th>
-
-                        <th>Action</th>
-
-                    </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    <tr th:each="request : ${requests}">
-
-                        <td th:text="${request.requestId}">
-                            1
-                        </td>
-
-
-                        <td th:text="${request.entityId}">
-                            -
-                        </td>
-
-
-                        <td>
-                            Create
-                        </td>
-
-
-                        <td th:text="${request.createdAt != null
-                                      ? #temporals.format(request.createdAt, 'dd-MM-yyyy HH:mm')
-                                      : '-'}">
-                            -
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                    th:if="${request.status == 'PENDING_CHECKER'}"
-                                    class="status-badge status-pending">
-                                Pending Checker
-                            </span>
-
-                            <span
-                                    th:if="${request.status == 'APPROVED'}"
-                                    class="status-badge status-approved">
-                                Approved
-                            </span>
-
-                            <span
-                                    th:if="${request.status == 'REJECTED'}"
-                                    class="status-badge status-rejected">
-                                Rejected
-                            </span>
-
-                            <span
-                                    th:if="${request.status == 'RETURNED_FOR_MODIFICATION'}"
-                                    class="status-badge status-returned">
-                                Returned
-                            </span>
-
-                            <span
-                                    th:if="${request.status != 'PENDING_CHECKER'
-                                           and request.status != 'APPROVED'
-                                           and request.status != 'REJECTED'
-                                           and request.status != 'RETURNED_FOR_MODIFICATION'}"
-                                    class="status-badge status-other"
-                                    th:text="${request.status}">
-                                Status
-                            </span>
-
-                        </td>
-
-
-                        <td th:text="${request.currentStage}">
-                            CHECKER
-                        </td>
-
-
-                        <td>
-
-                            <a
-                                    th:href="@{/approvals/{id}(id=${request.requestId})}"
-                                    class="btn btn-sm btn-primary">
-                                View
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-            <!-- Empty state -->
-
-            <div
-                    th:if="${#lists.isEmpty(requests)}"
-                    class="text-center py-5">
-
-                <h5 class="text-muted">
-                    No create requests found
-                </h5>
+                <h4 class="mb-1">
+                    My Requests
+                </h4>
 
                 <p class="text-muted mb-0">
-                    You have not submitted any shareholder create requests yet.
+                    Shareholder Create Requests
                 </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Main card -->
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body">
+
+                <!-- Card heading -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <h5 class="mb-0">
+                        My Create Requests
+                    </h5>
+
+                    <span class="text-muted"
+                          th:text="${#lists.size(requests)} + ' request(s)'">
+                        0 request(s)
+                    </span>
+
+                </div>
+
+
+                <!-- Request table -->
+
+                <div class="table-responsive"
+                     th:if="${not #lists.isEmpty(requests)}">
+
+                    <table class="table table-striped table-hover align-middle request-table">
+
+                        <thead class="share-table-header">
+
+                        <tr>
+
+                            <th>
+                                REQUEST ID
+                            </th>
+
+                            <th>
+                                FOLIO / BO
+                            </th>
+
+                            <th>
+                                OPERATION
+                            </th>
+
+                            <th>
+                                SUBMITTED
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                            <th>
+                                STAGE
+                            </th>
+
+                            <th>
+                                ACTIONS
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <tr th:each="request : ${requests}">
+
+                            <!-- Request ID -->
+
+                            <td th:text="${request.requestId}">
+                                1
+                            </td>
+
+
+                            <!-- Folio / BO -->
+
+                            <td th:text="${request.entityId}">
+                                -
+                            </td>
+
+
+                            <!-- Operation -->
+
+                            <td>
+                                Create
+                            </td>
+
+
+                            <!-- Submitted -->
+
+                            <td th:text="${request.createdAt != null
+                                ? #temporals.format(
+                                    request.createdAt,
+                                    'dd-MM-yyyy HH:mm'
+                                  )
+                                : '-'}">
+
+                                -
+
+                            </td>
+
+
+                            <!-- Status -->
+
+                            <td>
+
+                                <span
+                                        th:if="${request.status == 'PENDING_CHECKER'}"
+                                        class="status-badge pending">
+
+                                    Pending Checker
+
+                                </span>
+
+
+                                <span
+                                        th:if="${request.status == 'APPROVED'}"
+                                        class="status-badge approved">
+
+                                    Approved
+
+                                </span>
+
+
+                                <span
+                                        th:if="${request.status == 'REJECTED'}"
+                                        class="status-badge rejected">
+
+                                    Rejected
+
+                                </span>
+
+
+                                <span
+                                        th:if="${request.status == 'RETURNED_FOR_MODIFICATION'}"
+                                        class="status-badge returned">
+
+                                    Returned
+
+                                </span>
+
+
+                                <span
+                                        th:if="${request.status != 'PENDING_CHECKER'
+                                            and request.status != 'APPROVED'
+                                            and request.status != 'REJECTED'
+                                            and request.status != 'RETURNED_FOR_MODIFICATION'}"
+                                        class="status-badge other"
+                                        th:text="${request.status}">
+
+                                    Status
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Stage -->
+
+                            <td th:text="${request.currentStage}">
+                                CHECKER
+                            </td>
+
+
+                            <!-- Actions -->
+
+                            <td>
+
+                                <a
+                                        th:href="@{/approvals/{requestId}(requestId=${request.requestId})}"
+                                        class="btn btn-sm btn-outline-primary view-button">
+
+                                    View
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- No requests -->
+
+                <div
+                        th:if="${#lists.isEmpty(requests)}"
+                        class="text-center py-5">
+
+                    <h5 class="text-muted">
+                        No create requests found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        You have not submitted any shareholder create requests yet.
+                    </p>
+
+                </div>
 
             </div>
 
@@ -252,9 +318,8 @@
 
     </div>
 
-</div>
+</main>
 
 </body>
 
 </html>
-
