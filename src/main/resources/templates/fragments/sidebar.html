@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <body>
 
@@ -31,8 +31,11 @@
             <span class="sidebar-icon">✓</span>
             <span>Approvals</span>
         </a>
-        <a th:href="@{/my-requests}">
-            My Requests
+        <a th:href="@{/my-requests}"
+           class="sidebar-link"
+           sec:authorize="hasRole('MAKER')">
+            <span class="sidebar-icon">▤</span>
+            <span>My Requests</span>
         </a>
         <a href="/approvals/rejected" class="sidebar-link" th:if="${isChecker}">
             <span class="sidebar-icon">✕</span>
