@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>IBSBMS - Request Details</title>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+
+    <link
+            th:href="@{/css/style.css}"
+            rel="stylesheet">
+
+    <style>
+
+        .detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .approved {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .rejected {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .returned {
+            background-color: #ffe5d0;
+            color: #984c0c;
+        }
+
+        .other {
+            background-color: #e2e3e5;
+            color: #41464b;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- Sidebar -->
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Header -->
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+
+<main class="main-content">
+
+    <div class="page-content">
+
+        <!-- Page heading -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h4 class="mb-1">
+                    Request Details
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Shareholder Create Request
+                </p>
+
+            </div>
+
+            <a href="/my-requests"
+               class="btn btn-outline-secondary">
+
+                ← Back to My Requests
+
+            </a>
+
+        </div>
+
+
+        <!-- Request summary -->
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <h5 class="mb-4">
+                    Request Information
+                </h5>
+
+
+                <div class="row g-4">
+
+                    <!-- Request ID -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Request ID
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${approvalRequest.requestId}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- Folio -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Folio / BO
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${approvalRequest.entityId}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- Operation -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Operation
+                        </div>
+
+                        <div class="detail-value">
+                            Shareholder Create
+                        </div>
+
+                    </div>
+
+
+                    <!-- Maker -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Maker
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${approvalRequest.makerId}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- Status -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Status
+                        </div>
+
+                        <div>
+
+                            <span
+                                    th:if="${approvalRequest.status == 'PENDING_CHECKER'}"
+                                    class="status-badge pending">
+
+                                Pending Checker
+
+                            </span>
+
+                            <span
+                                    th:if="${approvalRequest.status == 'APPROVED'}"
+                                    class="status-badge approved">
+
+                                Approved
+
+                            </span>
+
+                            <span
+                                    th:if="${approvalRequest.status == 'REJECTED'}"
+                                    class="status-badge rejected">
+
+                                Rejected
+
+                            </span>
+
+                            <span
+                                    th:if="${approvalRequest.status == 'RETURNED_FOR_MODIFICATION'}"
+                                    class="status-badge returned">
+
+                                Returned for Modification
+
+                            </span>
+
+                            <span
+                                    th:if="${approvalRequest.status != 'PENDING_CHECKER'
+                                        and approvalRequest.status != 'APPROVED'
+                                        and approvalRequest.status != 'REJECTED'
+                                        and approvalRequest.status != 'RETURNED_FOR_MODIFICATION'}"
+                                    class="status-badge other"
+                                    th:text="${approvalRequest.status}">
+
+                                Status
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Stage -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Current Stage
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${approvalRequest.currentStage}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <!-- Submitted -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Submitted
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${approvalRequest.createdAt != null
+                                ? #temporals.format(
+                                    approvalRequest.createdAt,
+                                    'dd-MM-yyyy HH:mm'
+                                  )
+                                : '-'}">
+
+                            -
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Decided -->
+
+                    <div class="col-md-3">
+
+                        <div class="detail-label">
+                            Decided At
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${approvalRequest.decidedAt != null
+                                ? #temporals.format(
+                                    approvalRequest.decidedAt,
+                                    'dd-MM-yyyy HH:mm'
+                                  )
+                                : '-'}">
+
+                            -
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Shareholder information -->
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <h5 class="mb-4">
+                    Shareholder Information
+                </h5>
+
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Customer Name
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.custName}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Father Name
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.fatherName}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Mother Name
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.motherName}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Spouse Name
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.spouseName}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="detail-label">
+                            Phone
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.phone}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="detail-label">
+                            Email
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.email}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="detail-label">
+                            NID No
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.nidNo}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <div class="detail-label">
+                            TIN No
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.basicInfo?.tinNo}">
+                            -
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Address -->
+
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <h5 class="mb-4">
+                    Address Information
+                </h5>
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Address 1
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.address?.add1}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Address 2
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.address?.add2}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Address 3
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.address?.add3}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Address 4
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.address?.add4}">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="detail-label">
+                            Country Name
+                        </div>
+
+                        <div class="detail-value"
+                             th:text="${proposal.address?.countryName}">
+                            -
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+
+        <!-- Approval history -->
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <h5 class="mb-4">
+                    Request History
+                </h5>
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="share-table-header">
+
+                        <tr>
+
+                            <th>
+                                ACTION
+                            </th>
+
+                            <th>
+                                ACTOR
+                            </th>
+
+                            <th>
+                                REMARKS
+                            </th>
+
+                            <th>
+                                DATE
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="action : ${history}">
+
+                            <td th:text="${action.action}">
+                                -
+                            </td>
+
+                            <td th:text="${action.actorId}">
+                                -
+                            </td>
+
+                            <td th:text="${action.remarks}">
+                                -
+                            </td>
+
+                            <td th:text="${action.actionAt != null
+                                ? #temporals.format(
+                                    action.actionAt,
+                                    'dd-MM-yyyy HH:mm'
+                                  )
+                                : '-'}">
+
+                                -
+
+                            </td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(history)}">
+
+                            <td colspan="4"
+                                class="text-center text-muted py-4">
+
+                                No history available.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</main>
+
+</body>
+
+</html>

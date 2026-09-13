@@ -271,4 +271,69 @@ public class ApprovalController {
 
         return "approval/my-requests";
     }
+
+
+    @GetMapping("/my-requests/{requestId}")
+    public String myRequestDetails(
+            @PathVariable Long requestId,
+            Principal principal,
+            Model model) {
+
+        String makerId = principal.getName();
+
+        ApprovalRequest approvalRequest =
+                approvalWorkflowService
+                        .getApprovalRequest(requestId);
+
+        // Security check:
+        // A maker can only view their own requests.
+        if (!makerId.equals(approvalRequest.getMakerId())) {
+            return "redirect:/my-requests?error=You are not authorized to view this request.";
+        }
+
+        ShareholderChangeRequest changeRequest =
+                approvalWorkflowService
+                        .getChangeRequest(approvalRequest);
+
+        ShareholderCreateRequest proposal =
+                shareholderService.parseProposalJson(
+                        changeRequest.getNewValue());
+
+        List<ApprovalAction> history =
+                approvalWorkflowService
+                        .getApprovalHistory(requestId);
+        
+
+        model.addAttribute(
+                "requestId",
+                requestId
+        );
+
+        model.addAttribute(
+                "status",
+                approvalRequest.getStatus()
+        );
+
+        model.addAttribute(
+                "approvalRequest",
+                approvalRequest
+        );
+
+        model.addAttribute(
+                "changeRequest",
+                changeRequest
+        );
+
+        model.addAttribute(
+                "proposal",
+                proposal
+        );
+
+        model.addAttribute(
+                "history",
+                history
+        );
+
+        return "approval/my-request-details";
+    }
 }
