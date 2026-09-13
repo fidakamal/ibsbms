@@ -152,6 +152,37 @@ public class ShareholderController {
         return "shareholder/shareholder-create";
     }
 
+
+    @GetMapping("/shareholders/{folioBo}/view")
+    public String viewShareholder(
+            @PathVariable String folioBo,
+            Model model) {
+
+        try {
+
+            ShareholderCreateRequest snapshot =
+                    shareholderService.snapshotOf(folioBo);
+
+            model.addAttribute(
+                    "shareholder",
+                    snapshot
+            );
+
+            model.addAttribute(
+                    "folioBo",
+                    folioBo
+            );
+
+            return "shareholder/shareholder-view";
+
+        } catch (IllegalArgumentException e) {
+
+            return "redirect:/shareholders?error="
+                    + e.getMessage();
+        }
+    }
+
+
     @PostMapping("/shareholders/{folioBo}/edit")
     public String submitEdit(
             @PathVariable String folioBo,
