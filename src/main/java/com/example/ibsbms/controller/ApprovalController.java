@@ -140,6 +140,46 @@ public class ApprovalController {
     }
 
 
+    @GetMapping("/approvals/returned")
+    public String returnedRequests(Model model) {
+
+        List<ApprovalRequest> requests =
+                approvalWorkflowService
+                        .getReturnedForModificationRequests();
+
+        java.util.Map<Long, String> returnRemarks =
+                new java.util.HashMap<>();
+
+        for (ApprovalRequest request : requests) {
+
+            returnRemarks.put(
+                    request.getRequestId(),
+                    approvalWorkflowService
+                            .getLatestReturnRemarks(
+                                    request.getRequestId()
+                            )
+            );
+        }
+
+        model.addAttribute(
+                "returnedRequests",
+                requests
+        );
+
+        model.addAttribute(
+                "returnedCount",
+                requests.size()
+        );
+
+        model.addAttribute(
+                "returnRemarks",
+                returnRemarks
+        );
+
+        return "approval/returned-list";
+    }
+
+
     @PostMapping("/approvals/{requestId}/approve")
     public String approve(
             @PathVariable Long requestId,
@@ -302,7 +342,7 @@ public class ApprovalController {
         List<ApprovalAction> history =
                 approvalWorkflowService
                         .getApprovalHistory(requestId);
-        
+
 
         model.addAttribute(
                 "requestId",

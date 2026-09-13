@@ -1161,5 +1161,27 @@ public class ApprovalWorkflowService {
     public List<ApprovalRequest> getMakerCreateRequests(String makerId) {
         return approvalRequestRepository.findMakerCreateRequests(makerId);
     }
+
+
+    public List<ApprovalRequest> getReturnedForModificationRequests() {
+        return approvalRequestRepository
+                .findReturnedForModificationRequests();
+    }
+
+    public String getLatestReturnRemarks(Long requestId) {
+
+        List<ApprovalAction> actions =
+                approvalActionRepository
+                        .findByRequestIdAndActionOrderByActionAtDesc(
+                                requestId,
+                                "RETURNED_FOR_MODIFICATION"
+                        );
+
+        if (actions.isEmpty()) {
+            return "";
+        }
+
+        return actions.get(0).getRemarks();
+    }
 }
 

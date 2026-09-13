@@ -65,4 +65,16 @@ public interface ApprovalRequestRepository
     List<ApprovalRequest> findMakerCreateRequests(
             @Param("makerId") String makerId
     );
+
+
+    @Query("""
+    SELECT a
+    FROM ApprovalRequest a
+    WHERE a.status = 'RETURNED_FOR_MODIFICATION'
+      AND a.currentStage = 'MAKER'
+      AND a.sourceType = 'SHAREHOLDER_CHANGE'
+      AND a.operationCode IN ('SHAREHOLDER_CREATE', 'SHAREHOLDER_UPDATE')
+    ORDER BY a.updatedAt DESC
+""")
+    List<ApprovalRequest> findReturnedForModificationRequests();
 }

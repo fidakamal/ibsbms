@@ -42,6 +42,13 @@
             <span>Rejected Requests</span>
         </a>
 
+        <a href="/approvals/returned"
+           class="sidebar-link"
+           th:if="${isChecker}">
+            <span class="sidebar-icon">↩</span>
+            <span>Returned Requests</span>
+        </a>
+
         <a href="/shareholders/returned" class="sidebar-link" th:if="${isMaker}">
             <span class="sidebar-icon">↩</span>
             <span>Returned for Modification</span>
