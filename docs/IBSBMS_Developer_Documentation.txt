@@ -1,0 +1,767 @@
+IBSBMS
+Developer Documentation
+Internship Submission
+
+============================================================
+1. PROJECT OVERVIEW
+============================================================
+
+Project Name:
+IBSBMS – Islami Bank Share & Bond Management System
+
+Purpose:
+IBSBMS is a web-based shareholder management system designed to
+manage shareholder account information and control changes through
+a Maker–Checker approval workflow.
+
+The system supports:
+- Viewing shareholder accounts
+- Creating new shareholder records
+- Modifying existing shareholder records
+- Submitting changes for approval
+- Checker approval, rejection, or return for modification
+- Tracking request history
+- Maintaining audit information
+
+The system uses Spring Boot for the backend, Thymeleaf for the web
+interface, and Oracle Database for persistent storage.
+
+
+============================================================
+2. TECHNOLOGY STACK
+============================================================
+
+Backend:
+- Java 21
+- Spring Boot 4.1.1
+- Spring MVC
+- Spring Data JPA
+- Jakarta Validation
+- Spring Security
+
+Frontend:
+- Thymeleaf
+- HTML
+- CSS
+- Bootstrap 5.3.3
+- JavaScript where required
+
+Database:
+- Oracle Database
+- Oracle JDBC Driver (ojdbc17)
+
+Development Tools:
+- IntelliJ IDEA
+- Maven
+- Git / GitHub
+- GitHub Desktop
+
+
+============================================================
+3. SYSTEM ARCHITECTURE
+============================================================
+
+The application follows a layered architecture.
+
+                  +----------------------+
+                  |      Web Browser     |
+                  |  Thymeleaf / HTML    |
+                  +----------+-----------+
+                             |
+                             v
+                  +----------------------+
+                  |     Controller       |
+                  |  HTTP Request/Route  |
+                  +----------+-----------+
+                             |
+                             v
+                  +----------------------+
+                  |       Service        |
+                  | Business Logic       |
+                  +----------+-----------+
+                             |
+                             v
+                  +----------------------+
+                  |     Repository       |
+                  | Spring Data JPA      |
+                  +----------+-----------+
+                             |
+                             v
+                  +----------------------+
+                  |    Oracle Database   |
+                  +----------------------+
+
+
+Main flow:
+
+User -> Controller -> Service -> Repository -> Oracle DB
+                         |
+                         v
+                    Business Rules
+                         |
+                         v
+                 Approval Workflow
+
+
+============================================================
+4. PROJECT STRUCTURE
+============================================================
+
+The main package structure is organized as follows:
+
+com.example.ibsbms
+|
++-- config
+|     +-- SecurityConfig
+|
++-- controller
+|     +-- HomeController
+|     +-- DashboardController
+|     +-- ShareholderController
+|     +-- ApprovalController
+|
++-- dto
+|     +-- BasicInfoDto
+|     +-- AddressDto
+|     +-- BankInfoDto
+|     +-- ShareholderCreateRequest
+|
++-- entity
+|     +-- Shareholder
+|     +-- ShareAddress
+|     +-- ShareBankInfo
+|     +-- ApprovalRequest
+|     +-- ApprovalAction
+|     +-- ShareholderChangeRequest
+|     +-- BusinessAudit
+|
++-- repository
+|     +-- ShareholderRepository
+|     +-- ShareAddressRepository
+|     +-- ShareBankInfoRepository
+|     +-- ApprovalRequestRepository
+|     +-- DashboardRepository
+|
++-- service
+|     +-- ShareholderService
+|     +-- ShareholderWorkflowService
+|     +-- ApprovalWorkflowService
+|     +-- DashboardService
+|     +-- WorkflowIdService
+|
++-- resources
+      +-- templates
+      |     +-- shareholder
+      |     +-- approval
+      |     +-- fragments
+      |
+      +-- static
+            +-- css
+
+
+============================================================
+5. USER ROLES
+============================================================
+
+The application uses two main roles.
+
+MAKER
+-----
+The Maker is responsible for entering and modifying shareholder
+information.
+
+Maker permissions include:
+- View shareholder records
+- Create shareholder records
+- Modify shareholder records
+- Submit requests for approval
+- View own requests
+- View requests returned for modification
+- Resubmit returned requests
+
+CHECKER
+-------
+The Checker is responsible for reviewing submitted requests.
+
+Checker permissions include:
+- View shareholder records
+- View pending approvals
+- Review request details
+- Approve requests
+- Reject requests
+- Return requests to the Maker for modification
+- View rejected requests
+- View returned requests
+
+
+============================================================
+6. SHAREHOLDER MODULE
+============================================================
+
+The Shareholder module manages the final shareholder master data.
+
+The main master tables are:
+
+T_ACCOUNT_SHARE
+---------------
+Stores the primary shareholder/account information.
+
+Examples:
+- FOLIO_BO
+- CUST_NAME
+- FATHER_NAME
+- MOTHER_NAME
+- PHONE
+- EMAIL
+- DOB
+- NID_NO
+- TIN_NO
+- SHARES
+- BALANCE
+- IS_VALID
+
+T_ADDRESS_SHARE
+---------------
+Stores shareholder address information.
+
+Examples:
+- FOLIO_BO
+- ADD1
+- ADD2
+- ADD3
+- ADD4
+- COUNTRY_NAME
+
+T_BANKINFO_SHARE
+----------------
+Stores optional bank information.
+
+Examples:
+- FOLIO_BO
+- BANK_NAME
+- ACC_NO
+- BRANCH_NAME
+- ROUTING_NO
+
+
+============================================================
+7. CREATE SHAREHOLDER WORKFLOW
+============================================================
+
+A Maker does not directly create the final approved shareholder
+record.
+
+The workflow is:
+
+Maker enters information
+        |
+        v
+Server creates/reserves Folio/BO
+        |
+        v
+Create change request
+        |
+        v
+Approval request = PENDING_CHECKER
+        |
+        v
+Checker reviews request
+        |
+        +-------------------+
+        |                   |
+        v                   v
+     APPROVE              REJECT
+        |                   |
+        v                   v
+Update master          Request ends
+tables
+        |
+        v
+Approved shareholder
+
+
+The proposal is stored in T_SHAREHOLDER_CHANGE_REQUEST.
+
+The approval state is stored in T_APPROVAL_REQUEST.
+
+Actions such as Maker submission and Checker decisions are recorded
+in T_APPROVAL_ACTION.
+
+
+============================================================
+8. MODIFY SHAREHOLDER WORKFLOW
+============================================================
+
+For an existing approved shareholder, the Maker loads the approved
+snapshot and edits the permitted fields.
+
+The existing master data is not immediately overwritten.
+
+Workflow:
+
+Approved shareholder
+        |
+        v
+Maker selects Edit
+        |
+        v
+Load approved snapshot
+        |
+        v
+Maker changes information
+        |
+        v
+Create SHAREHOLDER_UPDATE request
+        |
+        v
+Checker review
+        |
+   +----+---------+
+   |              |
+   v              v
+Approve         Return/Reject
+   |              |
+   v              v
+Update master   Request remains
+tables          outside approval
+   |
+   v
+Updated shareholder
+
+
+The modification request keeps:
+
+OLD_VALUE
+---------
+Snapshot of the previously approved data.
+
+NEW_VALUE
+---------
+The Maker's proposed changes.
+
+
+============================================================
+9. RETURN FOR MODIFICATION
+============================================================
+
+A Checker can return a request when changes are required.
+
+When a request is returned:
+
+- Status becomes RETURNED_FOR_MODIFICATION
+- Current stage becomes MAKER
+- Checker information is retained
+- Return remarks are recorded
+- An approval action is created
+
+The Maker can open the returned request and correct the data.
+
+On resubmission:
+
+- The same REQUEST_ID is retained
+- The existing OLD_VALUE is preserved
+- NEW_VALUE is replaced with the corrected proposal
+- Version is incremented
+- Status becomes PENDING_CHECKER
+- Current stage becomes CHECKER
+- Checker assignment is cleared
+- A RESUBMITTED action is recorded
+
+This allows the complete request lifecycle to be tracked.
+
+
+============================================================
+10. APPROVAL DATA MODEL
+============================================================
+
+The approval workflow uses separate tables for the proposal,
+approval state, and action history.
+
+T_SHAREHOLDER_CHANGE_REQUEST
+----------------------------
+Stores the proposed change.
+
+Important information:
+- CHANGE_ID
+- BUSINESS_REF
+- OPERATION_CODE
+- OLD_VALUE
+- NEW_VALUE
+- VERSION
+
+T_APPROVAL_REQUEST
+------------------
+Stores the current approval state.
+
+Important information:
+- REQUEST_ID
+- BUSINESS_REF
+- SOURCE_TYPE
+- OPERATION_CODE
+- STATUS
+- CURRENT_STAGE
+- MAKER_ID
+- CHECKER_ID
+- CREATED_AT
+- UPDATED_AT
+- DECIDED_AT
+
+T_APPROVAL_ACTION
+-----------------
+Stores the history of workflow actions.
+
+Examples:
+- SUBMITTED
+- APPROVED
+- REJECTED
+- RETURNED_FOR_MODIFICATION
+- RESUBMITTED
+
+T_BUSINESS_AUDIT
+----------------
+Stores business-level audit information for traceability.
+
+
+============================================================
+11. DATABASE RELATIONSHIP OVERVIEW
+============================================================
+
+                    FOLIO_BO
+                       |
+          +------------+------------+
+          |            |            |
+          v            v            v
+ T_ACCOUNT_SHARE  T_ADDRESS_SHARE  T_BANKINFO_SHARE
+          |
+          |
+          v
+T_SHAREHOLDER_CHANGE_REQUEST
+          |
+          v
+T_APPROVAL_REQUEST
+          |
+          v
+T_APPROVAL_ACTION
+
+Business audit information is maintained separately in:
+
+T_BUSINESS_AUDIT
+
+
+============================================================
+12. CONTROLLER LAYER
+============================================================
+
+HomeController
+--------------
+Handles the main navigation and shareholder list.
+
+Important routes:
+- GET /
+- GET /shareholders
+
+DashboardController
+-------------------
+Displays dashboard statistics.
+
+Route:
+- GET /dashboard
+
+ShareholderController
+---------------------
+Handles shareholder creation, modification, viewing, and returned
+request resubmission.
+
+Important routes:
+- GET /shareholders/create
+- POST /shareholders/create
+- GET /shareholders/{folioBo}/view
+- GET /shareholders/{folioBo}/edit
+- POST /shareholders/{folioBo}/edit
+- GET /shareholders/returned
+- GET /shareholders/returned/{requestId}/edit
+- POST /shareholders/returned/{requestId}/resubmit
+
+ApprovalController
+------------------
+Handles Checker operations.
+
+Important routes:
+- GET /approvals
+- GET /approvals/{requestId}
+- POST /approvals/{requestId}/approve
+- POST /approvals/{requestId}/return
+- POST /approvals/{requestId}/reject
+- GET /approvals/rejected
+- GET /approvals/returned
+
+It also provides Maker request history through:
+- GET /my-requests
+- GET /my-requests/{requestId}
+
+
+============================================================
+13. SERVICE LAYER
+============================================================
+
+ShareholderService
+------------------
+Responsible for shareholder-related business operations such as:
+
+- Reading shareholder snapshots
+- Building proposal JSON
+- Parsing proposal JSON
+- Applying an approved shareholder change
+- Updating shareholder, address, and bank information
+
+ShareholderWorkflowService
+--------------------------
+Responsible for submitting and managing shareholder change requests.
+
+Examples:
+- Submit create request
+- Submit modify request
+- Retrieve returned request data
+- Resubmit returned request
+
+ApprovalWorkflowService
+-----------------------
+Responsible for Checker workflow operations.
+
+Examples:
+- Retrieve pending requests
+- Approve request
+- Reject request
+- Return request for modification
+- Retrieve approval history
+- Retrieve decision/return remarks
+
+DashboardService
+----------------
+Retrieves dashboard statistics from the database.
+
+
+============================================================
+14. REPOSITORY LAYER
+============================================================
+
+Repositories use Spring Data JPA.
+
+Examples:
+
+ShareholderRepository
+---------------------
+Provides shareholder CRUD operations and custom queries for the
+shareholder list and Folio/BO search.
+
+ShareAddressRepository
+----------------------
+Provides address data access using Folio/BO.
+
+ShareBankInfoRepository
+-----------------------
+Provides bank information data access using Folio/BO.
+
+ApprovalRequestRepository
+-------------------------
+Retrieves:
+- Pending Checker requests
+- Rejected requests
+- Returned requests
+- Maker request history
+
+DashboardRepository
+-------------------
+Provides database counts for:
+- Total shareholders
+- Active accounts
+- Pending approvals
+- Dormant/invalid accounts
+
+
+============================================================
+15. SECURITY
+============================================================
+
+Spring Security protects application routes based on user roles.
+
+Maker-only operations:
+- Create shareholder
+- Edit shareholder
+- Returned request modification
+- Resubmission
+- Maker request history
+
+Checker-only operations:
+- Approval list
+- Approve
+- Reject
+- Return for modification
+- Rejected request list
+- Returned request list
+
+Both Maker and Checker can:
+- View dashboard
+- View shareholder list
+- View shareholder details
+
+The current development environment uses in-memory test users.
+Production authentication should use the organization's actual
+authentication/user-management mechanism.
+
+
+============================================================
+16. DASHBOARD
+============================================================
+
+The dashboard retrieves statistics dynamically from Oracle rather
+than using hardcoded values.
+
+Displayed statistics include:
+
+- Total Shareholders
+- Active Accounts
+- Pending Approval
+- Dormant Accounts
+
+The dashboard flow is:
+
+DashboardController
+        |
+        v
+DashboardService
+        |
+        v
+DashboardRepository
+        |
+        v
+Oracle Database
+        |
+        v
+Thymeleaf Dashboard
+
+
+============================================================
+17. IMPORTANT BUSINESS RULES
+============================================================
+
+1. A Maker submits changes; the Maker does not approve them.
+
+2. A Checker reviews the Maker's request.
+
+3. A Maker cannot act as the Checker for the same request.
+
+4. Final master data should be updated only after approval.
+
+5. Rejected requests are not applied to the master tables.
+
+6. Returned requests can be corrected and resubmitted.
+
+7. The original OLD_VALUE must remain available for modification
+   requests.
+
+8. Shares, Suspense, Bonus, and Balance are not Maker-editable
+   business fields during shareholder modification.
+
+9. Workflow history should remain traceable through approval actions.
+
+10. Business date should be assigned by the server using the
+    Bangladesh business timezone (Asia/Dhaka).
+
+
+============================================================
+18. TYPICAL REQUEST LIFECYCLE
+============================================================
+
+                  +----------------+
+                  | Maker submits  |
+                  +-------+--------+
+                          |
+                          v
+                  +----------------+
+                  | PENDING_CHECKER|
+                  +-------+--------+
+                          |
+              +-----------+-----------+
+              |           |           |
+              v           v           v
+           APPROVE     RETURN       REJECT
+              |           |           |
+              v           v           v
+           Applied     MAKER       Request
+           to master   correction   ends
+                       |
+                       v
+                   RESUBMIT
+                       |
+                       v
+                 PENDING_CHECKER
+
+
+============================================================
+19. DEVELOPMENT AND DEPLOYMENT NOTES
+============================================================
+
+Prerequisites:
+- Java 21
+- Maven
+- Oracle Database access
+- Oracle JDBC driver
+- Network/office access required for the Oracle environment
+
+Typical development process:
+
+1. Clone/open the project.
+2. Configure the required database connection.
+3. Ensure the correct Spring profile is active.
+4. Start the Spring Boot application.
+5. Access the application through port 8080.
+6. Test Maker and Checker workflows separately.
+7. Commit changes using Git.
+8. Push changes to the team's repository.
+
+The Oracle database may only be reachable when connected to the
+required office network/IP environment.
+
+
+============================================================
+20. TESTING CHECKLIST
+============================================================
+
+Before submitting a change, verify:
+
+[ ] Maker can log in.
+[ ] Checker can log in.
+[ ] Maker can view shareholders.
+[ ] Checker can view shareholders.
+[ ] Maker can create a shareholder request.
+[ ] Created request appears under Checker approvals.
+[ ] Checker can approve the request.
+[ ] Approved data appears in the master tables.
+[ ] Checker can reject a request.
+[ ] Rejected request appears in Rejected Requests.
+[ ] Checker can return a request.
+[ ] Returned request appears for the Maker.
+[ ] Maker can edit and resubmit the returned request.
+[ ] Resubmitted request returns to the Checker queue.
+[ ] Checker Returned Requests disappear after resubmission.
+[ ] Maker cannot access Checker-only endpoints.
+[ ] Checker cannot perform Maker-only edit/create operations.
+[ ] Dashboard values are retrieved from Oracle.
+[ ] Shareholder search and pagination work correctly.
+
+
+============================================================
+21. CONCLUSION
+============================================================
+
+IBSBMS provides a structured shareholder management solution with
+a controlled Maker–Checker workflow. The separation between
+proposal data, approval state, action history, and final master
+records provides traceability and helps prevent unauthorized direct
+changes to shareholder information.
+
+The application is designed using a layered Spring Boot architecture,
+with role-based security and Oracle-backed persistence, making it
+suitable as a foundation for further integration with production
+banking systems and authentication mechanisms.
