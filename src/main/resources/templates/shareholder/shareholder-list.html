@@ -168,17 +168,12 @@
                 <div class="row g-3 mb-4">
 
 
-                    <!-- Pending Approval -->
-
-                    <div class="col-md-3">
-
+                    <!-- Pending Approval: Checker only -->
+                    <div class="col-md-3" th:if="${isChecker}">
                         <a href="/approvals"
                            class="btn btn-outline-secondary w-100">
-
                             Pending Approval
-
                         </a>
-
                     </div>
 
 
