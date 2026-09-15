@@ -215,14 +215,20 @@
 
                             <td>
 
+                                <!-- Pending Checker -->
+                                <!-- Also handles old PENDING_APPROVER records -->
+
                                 <span
-                                        th:if="${request.status == 'PENDING_CHECKER'}"
+                                        th:if="${request.status == 'PENDING_CHECKER'
+                                            or request.status == 'PENDING_APPROVER'}"
                                         class="status-badge pending">
 
                                     Pending Checker
 
                                 </span>
 
+
+                                <!-- Approved -->
 
                                 <span
                                         th:if="${request.status == 'APPROVED'}"
@@ -233,6 +239,8 @@
                                 </span>
 
 
+                                <!-- Rejected -->
+
                                 <span
                                         th:if="${request.status == 'REJECTED'}"
                                         class="status-badge rejected">
@@ -241,6 +249,8 @@
 
                                 </span>
 
+
+                                <!-- Returned -->
 
                                 <span
                                         th:if="${request.status == 'RETURNED_FOR_MODIFICATION'}"
@@ -251,8 +261,11 @@
                                 </span>
 
 
+                                <!-- Other / Unknown Status -->
+
                                 <span
                                         th:if="${request.status != 'PENDING_CHECKER'
+                                            and request.status != 'PENDING_APPROVER'
                                             and request.status != 'APPROVED'
                                             and request.status != 'REJECTED'
                                             and request.status != 'RETURNED_FOR_MODIFICATION'}"
@@ -323,3 +336,4 @@
 </body>
 
 </html>
+

@@ -3,7 +3,6 @@ package com.example.ibsbms.enums;
 public enum StatusCode {
 
     PENDING_CHECKER(1),
-    PENDING_APPROVER(2),
     RETURNED_FOR_MODIFICATION(3),
     APPROVED(4),
     REJECTED(5),
@@ -35,4 +34,3 @@ public enum StatusCode {
         );
     }
 }
-
