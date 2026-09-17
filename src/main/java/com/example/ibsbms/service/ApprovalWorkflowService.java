@@ -1165,7 +1165,7 @@ public class ApprovalWorkflowService {
             String customerName) {
 
         List<ApprovalRequest> requests =
-                approvalRequestRepository.findMakerCreateRequests(makerId);
+                approvalRequestRepository.findMakerChangeRequests(makerId);
 
         if (customerName == null || customerName.isBlank()) {
             return requests;
@@ -1224,7 +1224,7 @@ public class ApprovalWorkflowService {
 
 
     public List<ApprovalRequest> getMakerCreateRequests(String makerId) {
-        return approvalRequestRepository.findMakerCreateRequests(makerId);
+        return approvalRequestRepository.findMakerChangeRequests(makerId);
     }
 
 

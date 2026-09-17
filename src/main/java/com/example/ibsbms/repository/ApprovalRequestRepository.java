@@ -59,10 +59,13 @@ public interface ApprovalRequestRepository
     FROM ApprovalRequest a
     WHERE a.makerId = :makerId
       AND a.sourceType = 'SHAREHOLDER_CHANGE'
-      AND a.operationCode = 'SHAREHOLDER_CREATE'
+      AND a.operationCode IN (
+          'SHAREHOLDER_CREATE',
+          'SHAREHOLDER_UPDATE'
+      )
     ORDER BY a.createdAt DESC
 """)
-    List<ApprovalRequest> findMakerCreateRequests(
+    List<ApprovalRequest> findMakerChangeRequests(
             @Param("makerId") String makerId
     );
 
