@@ -20,6 +20,10 @@ import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import tools.jackson.databind.JsonNode;
+
+import java.time.LocalDate;
+
 @Service
 public class ShareholderService {
 
@@ -49,13 +53,457 @@ public class ShareholderService {
             return new ShareholderCreateRequest();
         }
 
+        String trimmed = json.trim();
+
+        /*
+         * ============================================================
+         * FORMAT 1: CURRENT JSON
+         * ============================================================
+         *
+         * {
+         *   "version": 1,
+         *   "basicInfo": {...},
+         *   "address": {...},
+         *   "bankInfo": {...}
+         * }
+         */
+        if (trimmed.startsWith("{")) {
+
+            try {
+
+                JsonNode root =
+                        objectMapper.readTree(trimmed);
+
+                /*
+                 * Current proposal format
+                 */
+                if (root.has("basicInfo")) {
+
+                    return objectMapper.treeToValue(
+                            root,
+                            ShareholderCreateRequest.class
+                    );
+                }
+
+                /*
+                 * ====================================================
+                 * FORMAT 2: OLD FLAT JSON
+                 * ====================================================
+                 *
+                 * {
+                 *   "folioBo": "...",
+                 *   "custName": "...",
+                 *   ...
+                 *   "addressDto": {...},
+                 *   "bankInfoShareDto": {...}
+                 * }
+                 */
+
+                ShareholderCreateRequest request =
+                        new ShareholderCreateRequest();
+
+                BasicInfoDto basicInfo =
+                        new BasicInfoDto();
+
+                basicInfo.setFolioBo(
+                        root.path("folioBo").asText(null)
+                );
+
+                basicInfo.setCustName(
+                        root.path("custName").asText(null)
+                );
+
+                basicInfo.setFatherName(
+                        root.path("fatherName").asText(null)
+                );
+
+                basicInfo.setMotherName(
+                        root.path("motherName").asText(null)
+                );
+
+                basicInfo.setSpouseName(
+                        root.path("spouseName").asText(null)
+                );
+
+                basicInfo.setRepresentative(
+                        root.path("representativeName").asText(null)
+                );
+
+                basicInfo.setCustType(
+                        root.hasNonNull("custType")
+                                ? root.get("custType").asInt()
+                                : null
+                );
+
+                basicInfo.setCitizenType(
+                        root.hasNonNull("citizenType")
+                                ? root.get("citizenType").asInt()
+                                : null
+                );
+
+                basicInfo.setResidentType(
+                        root.path("residentType").asText(null)
+                );
+
+                basicInfo.setPhone(
+                        root.path("phone").asText(null)
+                );
+
+                basicInfo.setEmail(
+                        root.path("email").asText(null)
+                );
+
+                basicInfo.setIsEmployee(
+                        root.hasNonNull("isEmployee")
+                                ? root.get("isEmployee").asInt()
+                                : null
+                );
+
+                basicInfo.setNidNo(
+                        root.path("nidNo").asText(null)
+                );
+
+                basicInfo.setTinNo(
+                        root.path("tinNo").asText(null)
+                );
+
+                basicInfo.setIcbCode(
+                        root.hasNonNull("icbCode")
+                                ? root.get("icbCode").asInt()
+                                : null
+                );
+
+                if (root.hasNonNull("dateOfBirth")) {
+
+                    String dateOfBirth =
+                            root.get("dateOfBirth").asText();
+
+                    if (!dateOfBirth.isBlank()) {
+                        basicInfo.setDob(
+                                LocalDate.parse(dateOfBirth)
+                        );
+                    }
+                }
+
+                request.setBasicInfo(basicInfo);
+
+                AddressDto address =
+                        new AddressDto();
+
+                JsonNode addressNode =
+                        root.path("addressDto");
+
+                address.setAdd1(
+                        addressNode.path("add1").asText(null)
+                );
+
+                address.setAdd2(
+                        addressNode.path("add2").asText(null)
+                );
+
+                address.setAdd3(
+                        addressNode.path("add3").asText(null)
+                );
+
+                address.setAdd4(
+                        addressNode.path("add4").asText(null)
+                );
+
+                address.setCountryName(
+                        addressNode.path("countryName").asText(null)
+                );
+
+                request.setAddress(address);
+
+                BankInfoDto bankInfo =
+                        new BankInfoDto();
+
+                JsonNode bankNode =
+                        root.path("bankInfoShareDto");
+
+                bankInfo.setAccNo(
+                        bankNode.path("accNo").asText(null)
+                );
+
+                bankInfo.setBankName(
+                        bankNode.path("bankName").asText(null)
+                );
+
+                bankInfo.setBranchName(
+                        bankNode.path("branchName").asText(null)
+                );
+
+                bankInfo.setRoutingNo(
+                        bankNode.path("routingNo").asText(null)
+                );
+
+                request.setBankInfo(bankInfo);
+
+                return request;
+            }
+
+            catch (JacksonException |
+                   java.time.format.DateTimeParseException e) {
+
+                throw new IllegalStateException(
+                        "Unable to parse shareholder proposal JSON",
+                        e
+                );
+            }
+        }
+
+
+        /*
+         * ============================================================
+         * FORMAT 3: VERY OLD ShareholderFormDTO.toString()
+         * ============================================================
+         *
+         * Example:
+         *
+         * ShareholderFormDTO(
+         *     folioBo=11,
+         *     custName=Rafi cagol,
+         *     phone=01629676950,
+         *     ...
+         * )
+         */
+        if (trimmed.startsWith("ShareholderFormDTO(")) {
+
+            return parseLegacyShareholderFormDto(trimmed);
+        }
+
+
+        throw new IllegalStateException(
+                "Unknown shareholder proposal format."
+        );
+    }
+
+
+
+
+    private ShareholderCreateRequest parseLegacyShareholderFormDto(
+            String text) {
+
+        /*
+         * Remove:
+         *
+         * ShareholderFormDTO(
+         *        ...
+         * )
+         */
+        String body = text.substring(
+                "ShareholderFormDTO(".length(),
+                text.endsWith(")") ? text.length() - 1 : text.length()
+        );
+
+        /*
+         * Extract key=value pairs.
+         *
+         * Important:
+         * Values themselves may contain commas.
+         *
+         * Example:
+         *
+         * add1=79/c/5, Uttor Jatrabari,Dhaka,
+         * add2=,
+         *
+         * So we cannot simply split on ",".
+         *
+         * Instead we look for:
+         *
+         * , nextField=
+         */
+        java.util.regex.Pattern pattern =
+                java.util.regex.Pattern.compile(
+                        "(\\w+)=((?:(?!,\\s+\\w+=).)*)"
+                );
+
+        java.util.regex.Matcher matcher =
+                pattern.matcher(body);
+
+        java.util.Map<String, String> values =
+                new java.util.LinkedHashMap<>();
+
+        while (matcher.find()) {
+
+            String key = matcher.group(1);
+            String value = matcher.group(2);
+
+            values.put(
+                    key,
+                    cleanLegacyValue(value)
+            );
+        }
+
+
+        ShareholderCreateRequest request =
+                new ShareholderCreateRequest();
+
+
+        /*
+         * ============================================================
+         * BASIC INFORMATION
+         * ============================================================
+         */
+
+        BasicInfoDto basicInfo =
+                new BasicInfoDto();
+
+        basicInfo.setFolioBo(
+                values.get("folioBo")
+        );
+
+        basicInfo.setCustName(
+                values.get("custName")
+        );
+
+        basicInfo.setFatherName(
+                values.get("fatherName")
+        );
+
+        basicInfo.setMotherName(
+                values.get("motherName")
+        );
+
+        basicInfo.setSpouseName(
+                values.get("spouseName")
+        );
+
+        /*
+         * Older DTO may use representativeName.
+         */
+        basicInfo.setRepresentative(
+                values.get("representativeName")
+        );
+
+        basicInfo.setPhone(
+                values.get("phone")
+        );
+
+        basicInfo.setEmail(
+                values.get("email")
+        );
+
+        basicInfo.setResidentType(
+                values.get("residentType")
+        );
+
+        basicInfo.setCustType(
+                parseInteger(values.get("custType"))
+        );
+
+        basicInfo.setCitizenType(
+                parseInteger(values.get("citizenType"))
+        );
+
+        basicInfo.setIsEmployee(
+                parseInteger(values.get("isEmployee"))
+        );
+
+        basicInfo.setNidNo(
+                values.get("nidNo")
+        );
+
+        basicInfo.setTinNo(
+                values.get("tinNo")
+        );
+
+        basicInfo.setIcbCode(
+                parseInteger(values.get("icbCode"))
+        );
+
+        request.setBasicInfo(basicInfo);
+
+
+        /*
+         * ============================================================
+         * ADDRESS
+         * ============================================================
+         */
+
+        AddressDto address =
+                new AddressDto();
+
+        address.setAdd1(
+                values.get("add1")
+        );
+
+        address.setAdd2(
+                values.get("add2")
+        );
+
+        address.setAdd3(
+                values.get("add3")
+        );
+
+        address.setAdd4(
+                values.get("add4")
+        );
+
+        address.setCountryName(
+                values.get("countryName")
+        );
+
+        request.setAddress(address);
+
+
+        /*
+         * ============================================================
+         * BANK INFORMATION
+         * ============================================================
+         *
+         * The old ShareholderFormDTO does not appear to contain
+         * bank information, so we simply provide an empty DTO.
+         */
+
+        BankInfoDto bankInfo =
+                new BankInfoDto();
+
+        request.setBankInfo(bankInfo);
+
+
+        return request;
+    }
+
+
+
+    private String cleanLegacyValue(String value) {
+
+        if (value == null) {
+            return null;
+        }
+
+        String cleaned = value.trim();
+
+        if ("null".equalsIgnoreCase(cleaned)) {
+            return null;
+        }
+
+        return cleaned;
+    }
+
+
+
+
+
+    private Integer parseInteger(String value) {
+
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
         try {
-            return objectMapper.readValue(json, ShareholderCreateRequest.class);
-        } catch (JacksonException e) {
-            throw new IllegalStateException(
-                    "Unable to parse shareholder proposal JSON", e);
+            return Integer.valueOf(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
+
+
+
+
+
+
 
     public String buildCreateProposalJson(ShareholderCreateRequest request) {
 

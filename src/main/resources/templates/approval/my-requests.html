@@ -75,19 +75,13 @@
 
 <body>
 
-<!-- Sidebar -->
-
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-<!-- Header -->
 
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="main-content">
 
     <div class="page-content">
-
-        <!-- Page heading -->
 
         <div class="d-flex justify-content-between align-items-center mb-4">
 
@@ -98,26 +92,21 @@
                 </h4>
 
                 <p class="text-muted mb-0">
-                    Shareholder Create Requests
+                    Shareholder Change Requests
                 </p>
 
             </div>
 
         </div>
 
-
-        <!-- Main card -->
-
         <div class="card border-0 shadow-sm">
 
             <div class="card-body">
 
-                <!-- Card heading -->
-
                 <div class="d-flex justify-content-between align-items-center mb-4">
 
                     <h5 class="mb-0">
-                        My Create Requests
+                        My Requests
                     </h5>
 
                     <span class="text-muted"
@@ -127,9 +116,7 @@
 
                 </div>
 
-
-                <!-- Customer Name Search -->
-
+                <!-- Search -->
                 <form method="get"
                       action="/my-requests"
                       class="row g-3 mb-4">
@@ -147,21 +134,16 @@
 
                     <div class="col-md-3">
 
-                        <button
-                                type="submit"
+                        <button type="submit"
                                 class="btn btn-primary w-100">
-
                             Search
-
                         </button>
 
                     </div>
 
                 </form>
 
-
-                <!-- Request table -->
-
+                <!-- Requests table -->
                 <div class="table-responsive"
                      th:if="${not #lists.isEmpty(requests)}">
 
@@ -171,33 +153,19 @@
 
                         <tr>
 
-                            <th>
-                                REQUEST ID
-                            </th>
+                            <th>REQUEST ID</th>
 
-                            <th>
-                                FOLIO / BO
-                            </th>
+                            <th>FOLIO / BO</th>
 
-                            <th>
-                                OPERATION
-                            </th>
+                            <th>OPERATION</th>
 
-                            <th>
-                                SUBMITTED
-                            </th>
+                            <th>SUBMITTED</th>
 
-                            <th>
-                                STATUS
-                            </th>
+                            <th>STATUS</th>
 
-                            <th>
-                                STAGE
-                            </th>
+                            <th>STAGE</th>
 
-                            <th>
-                                ACTIONS
-                            </th>
+                            <th>ACTIONS</th>
 
                         </tr>
 
@@ -207,91 +175,73 @@
 
                         <tr th:each="request : ${requests}">
 
-                            <!-- Request ID -->
-
                             <td th:text="${request.requestId}">
                                 1
                             </td>
-
-
-                            <!-- Folio / BO -->
 
                             <td th:text="${request.entityId}">
                                 -
                             </td>
 
-
                             <!-- Operation -->
-
                             <td>
-                                Create
+
+                                <span
+                                        th:if="${request.operationCode == 'SHAREHOLDER_CREATE'}">
+                                    Create
+                                </span>
+
+                                <span
+                                        th:if="${request.operationCode == 'SHAREHOLDER_UPDATE'}">
+                                    Modify
+                                </span>
+
+                                <span
+                                        th:if="${request.operationCode != 'SHAREHOLDER_CREATE'
+                                            and request.operationCode != 'SHAREHOLDER_UPDATE'}"
+                                        th:text="${request.operationCode}">
+                                    -
+                                </span>
+
                             </td>
 
-
                             <!-- Submitted -->
-
                             <td th:text="${request.createdAt != null
                                 ? #temporals.format(
                                     request.createdAt,
                                     'dd-MM-yyyy HH:mm'
                                   )
                                 : '-'}">
-
                                 -
-
                             </td>
 
-
                             <!-- Status -->
-
                             <td>
-
-                                <!-- Pending Checker -->
 
                                 <span
                                         th:if="${request.status == 'PENDING_CHECKER'
                                             or request.status == 'PENDING_APPROVER'}"
                                         class="status-badge pending">
-
                                     Pending Checker
-
                                 </span>
-
-
-                                <!-- Approved -->
 
                                 <span
                                         th:if="${request.status == 'APPROVED'}"
                                         class="status-badge approved">
-
                                     Approved
-
                                 </span>
-
-
-                                <!-- Rejected -->
 
                                 <span
                                         th:if="${request.status == 'REJECTED'}"
                                         class="status-badge rejected">
-
                                     Rejected
-
                                 </span>
-
-
-                                <!-- Returned -->
 
                                 <span
                                         th:if="${request.status == 'RETURNED_FOR_MODIFICATION'}"
                                         class="status-badge returned">
-
                                     Returned
-
                                 </span>
-
-
-                                <!-- Other / Unknown Status -->
 
                                 <span
                                         th:if="${request.status != 'PENDING_CHECKER'
@@ -301,31 +251,23 @@
                                             and request.status != 'RETURNED_FOR_MODIFICATION'}"
                                         class="status-badge other"
                                         th:text="${request.status}">
-
                                     Status
-
                                 </span>
 
                             </td>
 
-
                             <!-- Stage -->
-
                             <td th:text="${request.currentStage}">
                                 CHECKER
                             </td>
 
-
                             <!-- Actions -->
-
                             <td>
 
                                 <a
                                         th:href="@{/my-requests/{requestId}(requestId=${request.requestId})}"
                                         class="btn btn-sm btn-outline-primary view-button">
-
                                     View
-
                                 </a>
 
                             </td>
@@ -338,30 +280,30 @@
 
                 </div>
 
-
-                <!-- No requests -->
-
+                <!-- Empty state -->
                 <div
                         th:if="${#lists.isEmpty(requests)}"
                         class="text-center py-5">
 
-                    <h5 class="text-muted">
+                    <h5 class="text-muted"
+                        th:if="${customerName == null or customerName.isBlank()}">
                         No requests found
                     </h5>
 
+                    <h5 class="text-muted"
+                        th:if="${customerName != null and !customerName.isBlank()}">
+                        No matching requests found
+                    </h5>
+
                     <p class="text-muted mb-0"
-                       th:if="${customerName == null or #strings.isEmpty(customerName)}">
-
-                        You have not submitted any shareholder create requests yet.
-
+                       th:if="${customerName == null or customerName.isBlank()}">
+                        You have not submitted any shareholder requests yet.
                     </p>
 
                     <p class="text-muted mb-0"
-                       th:unless="${customerName == null or #strings.isEmpty(customerName)}">
-
-                        No requests found for the customer name
-                        "<strong th:text="${customerName}"></strong>".
-
+                       th:if="${customerName != null and !customerName.isBlank()}">
+                        No shareholder requests match the customer name
+                        "<span th:text="${customerName}">name</span>".
                     </p>
 
                 </div>
