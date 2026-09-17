@@ -279,19 +279,127 @@ public class ApprovalController {
     @GetMapping("/my-requests")
     public String myRequests(
             @RequestParam(required = false) String customerName,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
             Principal principal,
             Model model) {
 
         String makerId = principal.getName();
 
-        List<ApprovalRequest> requests =
+        /*
+         * Allow only the page sizes we want.
+         */
+        if (size != 10 &&
+                size != 25 &&
+                size != 50 &&
+                size != 100) {
+
+            size = 10;
+        }
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        /*
+         * If there is a customer-name search, we currently
+         * filter the requests in memory.
+         *
+         * Therefore pagination should be applied after the
+         * search filtering.
+         */
+        List<ApprovalRequest> allRequests =
                 approvalWorkflowService.searchMakerRequests(
                         makerId,
                         customerName
                 );
 
-        model.addAttribute("requests", requests);
-        model.addAttribute("customerName", customerName);
+        int totalItems = allRequests.size();
+
+        int totalPages =
+                (int) Math.ceil(
+                        (double) totalItems / size
+                );
+
+        if (totalPages > 0 && page > totalPages) {
+            page = totalPages;
+        }
+
+        int startIndex =
+                (page - 1) * size;
+
+        int endIndex =
+                Math.min(
+                        startIndex + size,
+                        totalItems
+                );
+
+        List<ApprovalRequest> requests;
+
+        if (totalItems == 0) {
+
+            requests = new java.util.ArrayList<>();
+
+        } else {
+
+            requests =
+                    allRequests.subList(
+                            startIndex,
+                            endIndex
+                    );
+        }
+
+        long startEntry = 0;
+        long endEntry = 0;
+
+        if (totalItems > 0) {
+
+            startEntry =
+                    startIndex + 1;
+
+            endEntry =
+                    endIndex;
+        }
+
+        model.addAttribute(
+                "requests",
+                requests
+        );
+
+        model.addAttribute(
+                "customerName",
+                customerName
+        );
+
+        model.addAttribute(
+                "page",
+                page
+        );
+
+        model.addAttribute(
+                "pageSize",
+                size
+        );
+
+        model.addAttribute(
+                "totalItems",
+                totalItems
+        );
+
+        model.addAttribute(
+                "totalPages",
+                totalPages
+        );
+
+        model.addAttribute(
+                "startEntry",
+                startEntry
+        );
+
+        model.addAttribute(
+                "endEntry",
+                endEntry
+        );
 
         return "approval/my-requests";
     }

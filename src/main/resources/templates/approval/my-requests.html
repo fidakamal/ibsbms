@@ -280,6 +280,170 @@
 
                 </div>
 
+
+                <!-- Pagination -->
+                <div th:if="${totalItems > 0}"
+                     class="d-flex justify-content-between align-items-center mt-4">
+
+                    <div class="text-muted">
+
+                        Showing
+                        <span th:text="${startEntry}">
+            1
+        </span>
+
+                        -
+                        <span th:text="${endEntry}">
+            10
+        </span>
+
+                        of
+                        <span th:text="${totalItems}">
+            100
+        </span>
+
+                        requests
+
+                    </div>
+
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <!-- Page Size -->
+                        <div class="d-flex align-items-center gap-2">
+
+            <span class="text-muted">
+                Show
+            </span>
+
+                            <select
+                                    class="form-select form-select-sm"
+                                    style="width: 80px;"
+                                    onchange="changePageSize(this.value)">
+
+                                <option
+                                        value="10"
+                                        th:selected="${pageSize == 10}">
+                                    10
+                                </option>
+
+                                <option
+                                        value="25"
+                                        th:selected="${pageSize == 25}">
+                                    25
+                                </option>
+
+                                <option
+                                        value="50"
+                                        th:selected="${pageSize == 50}">
+                                    50
+                                </option>
+
+                                <option
+                                        value="100"
+                                        th:selected="${pageSize == 100}">
+                                    100
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Page Navigation -->
+                        <nav
+                                th:if="${totalPages > 1}"
+                                aria-label="My Requests pagination">
+
+                            <ul class="pagination pagination-sm mb-0">
+
+                                <!-- Previous -->
+                                <li
+                                        class="page-item"
+                                        th:classappend="${page == 1} ? 'disabled'">
+
+                                    <a
+                                            class="page-link"
+                                            th:href="@{/my-requests(
+                                page=${page - 1},
+                                size=${pageSize},
+                                customerName=${customerName}
+                            )}">
+                                        Previous
+                                    </a>
+
+                                </li>
+
+
+                                <!-- Page Numbers -->
+                                <li
+                                        class="page-item"
+                                        th:each="pageNumber : ${#numbers.sequence(1, totalPages)}"
+                                        th:classappend="${pageNumber == page} ? 'active'">
+
+                                    <a
+                                            class="page-link"
+                                            th:href="@{/my-requests(
+                                page=${pageNumber},
+                                size=${pageSize},
+                                customerName=${customerName}
+                            )}"
+                                            th:text="${pageNumber}">
+                                        1
+                                    </a>
+
+                                </li>
+
+
+                                <!-- Next -->
+                                <li
+                                        class="page-item"
+                                        th:classappend="${page == totalPages} ? 'disabled'">
+
+                                    <a
+                                            class="page-link"
+                                            th:href="@{/my-requests(
+                                page=${page + 1},
+                                size=${pageSize},
+                                customerName=${customerName}
+                            )}">
+                                        Next
+                                    </a>
+
+                                </li>
+
+                            </ul>
+
+                        </nav>
+
+                    </div>
+
+                </div>
+
+
+                <script>
+
+                    function changePageSize(size) {
+
+                        const customerName =
+                            new URLSearchParams(
+                                window.location.search
+                            ).get("customerName");
+
+                        let url =
+                            "/my-requests?page=1&size=" + size;
+
+                        if (customerName) {
+                            url +=
+                                "&customerName=" +
+                                encodeURIComponent(customerName);
+                        }
+
+                        window.location.href = url;
+                    }
+
+                </script>
+
                 <!-- Empty state -->
                 <div
                         th:if="${#lists.isEmpty(requests)}"

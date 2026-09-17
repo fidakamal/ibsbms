@@ -73,6 +73,38 @@ public interface ApprovalRequestRepository
     @Query("""
     SELECT a
     FROM ApprovalRequest a
+    WHERE a.makerId = :makerId
+      AND a.sourceType = 'SHAREHOLDER_CHANGE'
+      AND a.operationCode IN (
+          'SHAREHOLDER_CREATE',
+          'SHAREHOLDER_UPDATE'
+      )
+    ORDER BY a.createdAt DESC
+""")
+    List<ApprovalRequest> findMakerChangeRequests(
+            @Param("makerId") String makerId,
+            org.springframework.data.domain.Pageable pageable
+    );
+
+
+    @Query("""
+    SELECT COUNT(a)
+    FROM ApprovalRequest a
+    WHERE a.makerId = :makerId
+      AND a.sourceType = 'SHAREHOLDER_CHANGE'
+      AND a.operationCode IN (
+          'SHAREHOLDER_CREATE',
+          'SHAREHOLDER_UPDATE'
+      )
+""")
+    long countMakerChangeRequests(
+            @Param("makerId") String makerId
+    );
+
+
+    @Query("""
+    SELECT a
+    FROM ApprovalRequest a
     WHERE a.status = 'RETURNED_FOR_MODIFICATION'
       AND a.currentStage = 'MAKER'
       AND a.sourceType = 'SHAREHOLDER_CHANGE'

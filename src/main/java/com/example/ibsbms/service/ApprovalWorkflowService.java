@@ -1248,5 +1248,32 @@ public class ApprovalWorkflowService {
 
         return actions.get(0).getRemarks();
     }
+
+
+
+    public List<ApprovalRequest> getMakerRequests(
+            String makerId,
+            int page,
+            int size) {
+
+        org.springframework.data.domain.PageRequest pageRequest =
+                org.springframework.data.domain.PageRequest.of(
+                        page - 1,
+                        size
+                );
+
+        return approvalRequestRepository.findMakerChangeRequests(
+                makerId,
+                pageRequest
+        );
+    }
+
+
+    public long countMakerRequests(String makerId) {
+
+        return approvalRequestRepository.countMakerChangeRequests(
+                makerId
+        );
+    }
 }
 
