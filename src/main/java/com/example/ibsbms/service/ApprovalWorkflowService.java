@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class ApprovalWorkflowService {
@@ -1155,6 +1156,70 @@ public class ApprovalWorkflowService {
                 .asText("")
                 .trim()
                 .isEmpty();
+    }
+
+
+
+    public List<ApprovalRequest> searchMakerRequests(
+            String makerId,
+            String customerName) {
+
+        List<ApprovalRequest> requests =
+                approvalRequestRepository.findMakerCreateRequests(makerId);
+
+        if (customerName == null || customerName.isBlank()) {
+            return requests;
+        }
+
+        String searchText =
+                customerName.trim().toLowerCase();
+
+        List<ApprovalRequest> filteredRequests =
+                new java.util.ArrayList<>();
+
+        for (ApprovalRequest request : requests) {
+
+            try {
+
+                ShareholderChangeRequest changeRequest =
+                        getChangeRequest(request);
+
+                if (changeRequest.getNewValue() == null ||
+                        changeRequest.getNewValue().isBlank()) {
+                    continue;
+                }
+
+                JsonNode proposal =
+                        objectMapper.readTree(
+                                changeRequest.getNewValue()
+                        );
+
+                String custName =
+                        proposal
+                                .path("basicInfo")
+                                .path("custName")
+                                .asText("");
+
+                if (custName.toLowerCase()
+                        .contains(searchText)) {
+
+                    filteredRequests.add(request);
+                }
+
+            } catch (JacksonException e) {
+
+                /*
+                 * Older requests may contain proposal data
+                 * that is not stored as JSON.
+                 *
+                 * Ignore those records during customer-name
+                 * search instead of failing the entire page.
+                 */
+                continue;
+            }
+        }
+
+        return filteredRequests;
     }
 
 
