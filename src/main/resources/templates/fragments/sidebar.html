@@ -1,60 +1,115 @@
 <!DOCTYPE html>
 
 <html lang="en"
-      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <body>
 
 <aside th:fragment="sidebar" class="sidebar">
 
-    <!-- Logo -->
+
     <div class="sidebar-logo">
-        <div class="logo-circle">
-            IB
-        </div>
+        <div class="logo-circle">IB</div>
     </div>
 
-    <!-- Navigation -->
     <nav class="sidebar-nav">
 
-        <a href="/" class="sidebar-link active">
+        <!-- Dashboard -->
+        <a href="/"
+           class="sidebar-link"
+           th:classappend="${currentUri == '/' or currentUri == '/dashboard'}
+                        ? ' active'">
+
             <span class="sidebar-icon">▦</span>
             <span>Dashboard</span>
+
         </a>
 
-        <a href="/shareholders" class="sidebar-link">
+
+        <!-- Shareholders -->
+        <a href="/shareholders"
+           class="sidebar-link"
+           th:classappend="${currentUri.startsWith('/shareholders')
+                        and !currentUri.startsWith('/shareholders/returned')}
+                        ? ' active'">
+
             <span class="sidebar-icon">♙</span>
             <span>Shareholders</span>
+
         </a>
 
-        <a href="/approvals" class="sidebar-link" th:if="${isChecker}">
+
+        <!-- Approvals -->
+        <a href="/approvals"
+           class="sidebar-link"
+           th:if="${isChecker}"
+           th:classappend="${currentUri == '/approvals'
+                        or
+                        (currentUri.startsWith('/approvals/')
+                        and !currentUri.startsWith('/approvals/rejected')
+                        and !currentUri.startsWith('/approvals/returned'))}
+                        ? ' active'">
+
             <span class="sidebar-icon">✓</span>
             <span>Approvals</span>
+
         </a>
+
+
+        <!-- My Requests -->
         <a th:href="@{/my-requests}"
            class="sidebar-link"
-           sec:authorize="hasRole('MAKER')">
+           sec:authorize="hasRole('MAKER')"
+           th:classappend="${currentUri.startsWith('/my-requests')}
+                        ? ' active'">
+
             <span class="sidebar-icon">▤</span>
             <span>My Requests</span>
+
         </a>
-        <a href="/approvals/rejected" class="sidebar-link" th:if="${isChecker}">
+
+
+        <!-- Rejected Requests -->
+        <a href="/approvals/rejected"
+           class="sidebar-link"
+           th:if="${isChecker}"
+           th:classappend="${currentUri.startsWith('/approvals/rejected')}
+                        ? ' active'">
+
             <span class="sidebar-icon">✕</span>
             <span>Rejected Requests</span>
+
         </a>
 
+
+        <!-- Checker Returned Requests -->
         <a href="/approvals/returned"
            class="sidebar-link"
-           th:if="${isChecker}">
+           th:if="${isChecker}"
+           th:classappend="${currentUri.startsWith('/approvals/returned')}
+                        ? ' active'">
+
             <span class="sidebar-icon">↩</span>
             <span>Returned Requests</span>
+
         </a>
 
-        <a href="/shareholders/returned" class="sidebar-link" th:if="${isMaker}">
+
+        <!-- Maker Returned Requests -->
+        <a href="/shareholders/returned"
+           class="sidebar-link"
+           th:if="${isMaker}"
+           th:classappend="${currentUri.startsWith('/shareholders/returned')}
+                        ? ' active'">
+
             <span class="sidebar-icon">↩</span>
             <span>Returned for Modification</span>
+
         </a>
 
     </nav>
+
 
 </aside>
 
