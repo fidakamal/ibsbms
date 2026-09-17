@@ -21,9 +21,7 @@ public class ShareholderController {
     private final ShareholderWorkflowService shareholderWorkflowService;
     private final ShareholderService shareholderService;
 
-    public ShareholderController(
-            ShareholderWorkflowService shareholderWorkflowService,
-            ShareholderService shareholderService) {
+    public ShareholderController(ShareholderWorkflowService shareholderWorkflowService, ShareholderService shareholderService) {
 
         this.shareholderWorkflowService = shareholderWorkflowService;
         this.shareholderService = shareholderService;
@@ -37,53 +35,27 @@ public class ShareholderController {
     @GetMapping("/shareholders/create")
     public String createForm(Model model) {
 
-        model.addAttribute(
-                "shareholder",
-                new ShareholderCreateRequest()
-        );
+        model.addAttribute("shareholder", new ShareholderCreateRequest());
 
-        model.addAttribute(
-                "formAction",
-                "/shareholders/create"
-        );
+        model.addAttribute("formAction", "/shareholders/create");
 
-        model.addAttribute(
-                "editMode",
-                false
-        );
+        model.addAttribute("editMode", false);
 
-        model.addAttribute(
-                "folioBo",
-                null
-        );
+        model.addAttribute("folioBo", null);
 
         return "shareholder/shareholder-create";
     }
 
     @PostMapping("/shareholders/create")
-    public String createShareholder(
-            @Valid @ModelAttribute("shareholder")
-            ShareholderCreateRequest request,
-            BindingResult bindingResult,
-            Model model,
-            Principal principal) {
+    public String createShareholder(@Valid @ModelAttribute("shareholder") ShareholderCreateRequest request, BindingResult bindingResult, Model model, Principal principal) {
 
         if (bindingResult.hasErrors()) {
 
-            model.addAttribute(
-                    "formAction",
-                    "/shareholders/create"
-            );
+            model.addAttribute("formAction", "/shareholders/create");
 
-            model.addAttribute(
-                    "editMode",
-                    false
-            );
+            model.addAttribute("editMode", false);
 
-            model.addAttribute(
-                    "folioBo",
-                    null
-            );
+            model.addAttribute("folioBo", null);
 
             return "shareholder/shareholder-create";
         }
@@ -91,11 +63,7 @@ public class ShareholderController {
         String makerId = principal.getName();
         String makerIp = "127.0.0.1";
 
-        shareholderWorkflowService.submitCreateForApproval(
-                request,
-                makerId,
-                makerIp
-        );
+        shareholderWorkflowService.submitCreateForApproval(request, makerId, makerIp);
 
         return "redirect:/shareholders";
     }
@@ -110,106 +78,61 @@ public class ShareholderController {
      * ==========================================================
      */
     @GetMapping("/shareholders/{folioBo}/edit")
-    public String editForm(
-            @PathVariable String folioBo,
-            Model model) {
+    public String editForm(@PathVariable String folioBo, Model model) {
 
         ShareholderCreateRequest snapshot;
 
         try {
 
-            snapshot =
-                    shareholderService.snapshotOf(folioBo);
+            snapshot = shareholderService.snapshotOf(folioBo);
 
         } catch (IllegalArgumentException e) {
 
-            return "redirect:/shareholders?error="
-                    + e.getMessage();
+            return "redirect:/shareholders?error=" + e.getMessage();
         }
 
-        model.addAttribute(
-                "shareholder",
-                snapshot
-        );
+        model.addAttribute("shareholder", snapshot);
 
-        model.addAttribute(
-                "formAction",
-                "/shareholders/"
-                        + folioBo
-                        + "/edit"
-        );
+        model.addAttribute("formAction", "/shareholders/" + folioBo + "/edit");
 
-        model.addAttribute(
-                "editMode",
-                true
-        );
+        model.addAttribute("editMode", true);
 
-        model.addAttribute(
-                "folioBo",
-                folioBo
-        );
+        model.addAttribute("folioBo", folioBo);
 
         return "shareholder/shareholder-create";
     }
 
 
     @GetMapping("/shareholders/{folioBo}/view")
-    public String viewShareholder(
-            @PathVariable String folioBo,
-            Model model) {
+    public String viewShareholder(@PathVariable String folioBo, Model model) {
 
         try {
 
-            ShareholderCreateRequest snapshot =
-                    shareholderService.snapshotOf(folioBo);
+            ShareholderCreateRequest snapshot = shareholderService.snapshotOf(folioBo);
 
-            model.addAttribute(
-                    "shareholder",
-                    snapshot
-            );
+            model.addAttribute("shareholder", snapshot);
 
-            model.addAttribute(
-                    "folioBo",
-                    folioBo
-            );
+            model.addAttribute("folioBo", folioBo);
 
             return "shareholder/shareholder-view";
 
         } catch (IllegalArgumentException e) {
 
-            return "redirect:/shareholders?error="
-                    + e.getMessage();
+            return "redirect:/shareholders?error=" + e.getMessage();
         }
     }
 
 
     @PostMapping("/shareholders/{folioBo}/edit")
-    public String submitEdit(
-            @PathVariable String folioBo,
-            @Valid @ModelAttribute("shareholder")
-            ShareholderCreateRequest request,
-            BindingResult bindingResult,
-            Model model,
-            Principal principal) {
+    public String submitEdit(@PathVariable String folioBo, @Valid @ModelAttribute("shareholder") ShareholderCreateRequest request, BindingResult bindingResult, Model model, Principal principal) {
 
         if (bindingResult.hasErrors()) {
 
-            model.addAttribute(
-                    "formAction",
-                    "/shareholders/"
-                            + folioBo
-                            + "/edit"
-            );
+            model.addAttribute("formAction", "/shareholders/" + folioBo + "/edit");
 
-            model.addAttribute(
-                    "editMode",
-                    true
-            );
+            model.addAttribute("editMode", true);
 
-            model.addAttribute(
-                    "folioBo",
-                    folioBo
-            );
+            model.addAttribute("folioBo", folioBo);
 
             return "shareholder/shareholder-create";
         }
@@ -219,24 +142,14 @@ public class ShareholderController {
 
         try {
 
-            shareholderWorkflowService.submitModifyForApproval(
-                    folioBo,
-                    request,
-                    makerId,
-                    makerIp
-            );
+            shareholderWorkflowService.submitModifyForApproval(folioBo, request, makerId, makerIp);
 
-        } catch (IllegalArgumentException |
-                 IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
 
-            return "redirect:/shareholders/"
-                    + folioBo
-                    + "/edit?error="
-                    + e.getMessage();
+            return "redirect:/shareholders/" + folioBo + "/edit?error=" + e.getMessage();
         }
 
-        return "redirect:/shareholders?success="
-                + "Modification submitted for approval.";
+        return "redirect:/shareholders?success=" + "Modification submitted for approval.";
     }
 
     /*
@@ -246,46 +159,24 @@ public class ShareholderController {
      */
 
     @GetMapping("/shareholders/returned")
-    public String returnedRequests(
-            Model model,
-            Principal principal) {
+    public String returnedRequests(Model model, Principal principal) {
 
         String makerId = principal.getName();
 
-        var requests =
-                shareholderWorkflowService
-                        .getReturnedForModificationRequests(
-                                makerId
-                        );
+        var requests = shareholderWorkflowService.getReturnedForModificationRequests(makerId);
 
-        java.util.Map<Long, String> returnRemarks =
-                new java.util.HashMap<>();
+        java.util.Map<Long, String> returnRemarks = new java.util.HashMap<>();
 
         for (ApprovalRequest request : requests) {
 
-            returnRemarks.put(
-                    request.getRequestId(),
-                    shareholderWorkflowService
-                            .getLatestReturnRemarks(
-                                    request.getRequestId()
-                            )
-            );
+            returnRemarks.put(request.getRequestId(), shareholderWorkflowService.getLatestReturnRemarks(request.getRequestId()));
         }
 
-        model.addAttribute(
-                "returnedRequests",
-                requests
-        );
+        model.addAttribute("returnedRequests", requests);
 
-        model.addAttribute(
-                "returnedCount",
-                requests.size()
-        );
+        model.addAttribute("returnedCount", requests.size());
 
-        model.addAttribute(
-                "returnRemarks",
-                returnRemarks
-        );
+        model.addAttribute("returnRemarks", returnRemarks);
 
         return "shareholder/returned-list";
     }
@@ -295,54 +186,28 @@ public class ShareholderController {
      * Edit Returned Request
      * ==========================================================
      */
-    @GetMapping(
-            "/shareholders/returned/{requestId}/edit"
-    )
-    public String editReturnedRequest(
-            @PathVariable Long requestId,
-            Model model,
-            Principal principal) {
+    @GetMapping("/shareholders/returned/{requestId}/edit")
+    public String editReturnedRequest(@PathVariable Long requestId, Model model, Principal principal) {
 
         String makerId = principal.getName();
 
         try {
 
-            ShareholderCreateRequest snapshot =
-                    shareholderWorkflowService
-                            .getReturnedRequestData(
-                                    requestId,
-                                    makerId
-                            );
+            ShareholderCreateRequest snapshot = shareholderWorkflowService.getReturnedRequestData(requestId, makerId);
 
-            model.addAttribute(
-                    "shareholder",
-                    snapshot
-            );
+            model.addAttribute("shareholder", snapshot);
 
-            model.addAttribute(
-                    "formAction",
-                    "/shareholders/returned/"
-                            + requestId
-                            + "/resubmit"
-            );
+            model.addAttribute("formAction", "/shareholders/returned/" + requestId + "/resubmit");
 
-            model.addAttribute(
-                    "editMode",
-                    true
-            );
+            model.addAttribute("editMode", true);
 
-            model.addAttribute(
-                    "returnedRequestId",
-                    requestId
-            );
+            model.addAttribute("returnedRequestId", requestId);
 
             return "shareholder/shareholder-create";
 
-        } catch (IllegalArgumentException |
-                 IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
 
-            return "redirect:/shareholders/returned?error="
-                    + e.getMessage();
+            return "redirect:/shareholders/returned?error=" + e.getMessage();
         }
     }
 
@@ -351,35 +216,16 @@ public class ShareholderController {
      * Resubmit Returned Request
      * ==========================================================
      */
-    @PostMapping(
-            "/shareholders/returned/{requestId}/resubmit"
-    )
-    public String resubmitReturned(
-            @PathVariable Long requestId,
-            @Valid @ModelAttribute("shareholder")
-            ShareholderCreateRequest request,
-            BindingResult bindingResult,
-            Model model,
-            Principal principal) {
+    @PostMapping("/shareholders/returned/{requestId}/resubmit")
+    public String resubmitReturned(@PathVariable Long requestId, @Valid @ModelAttribute("shareholder") ShareholderCreateRequest request, BindingResult bindingResult, Model model, Principal principal) {
 
         if (bindingResult.hasErrors()) {
 
-            model.addAttribute(
-                    "formAction",
-                    "/shareholders/returned/"
-                            + requestId
-                            + "/resubmit"
-            );
+            model.addAttribute("formAction", "/shareholders/returned/" + requestId + "/resubmit");
 
-            model.addAttribute(
-                    "editMode",
-                    true
-            );
+            model.addAttribute("editMode", true);
 
-            model.addAttribute(
-                    "returnedRequestId",
-                    requestId
-            );
+            model.addAttribute("returnedRequestId", requestId);
 
             return "shareholder/shareholder-create";
         }
@@ -389,21 +235,13 @@ public class ShareholderController {
 
         try {
 
-            shareholderWorkflowService.resubmitReturnedModify(
-                    requestId,
-                    request,
-                    makerId,
-                    makerIp
-            );
+            shareholderWorkflowService.resubmitReturnedModify(requestId, request, makerId, makerIp);
 
-        } catch (IllegalArgumentException |
-                 IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
 
-            return "redirect:/shareholders/returned?error="
-                    + e.getMessage();
+            return "redirect:/shareholders/returned?error=" + e.getMessage();
         }
 
-        return "redirect:/shareholders/returned?success="
-                + "Request resubmitted successfully.";
+        return "redirect:/shareholders/returned?success=" + "Request resubmitted successfully.";
     }
 }

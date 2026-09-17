@@ -27,13 +27,7 @@ public class ShareholderWorkflowService {
 
     private final ObjectMapper objectMapper;
 
-    public ShareholderWorkflowService(
-            ShareholderService shareholderService,
-            WorkflowIdService workflowIdService,
-            ShareholderChangeRequestRepository changeRequestRepository,
-            ApprovalRequestRepository approvalRequestRepository,
-            ApprovalActionRepository approvalActionRepository,
-            ObjectMapper objectMapper) {
+    public ShareholderWorkflowService(ShareholderService shareholderService, WorkflowIdService workflowIdService, ShareholderChangeRequestRepository changeRequestRepository, ApprovalRequestRepository approvalRequestRepository, ApprovalActionRepository approvalActionRepository, ObjectMapper objectMapper) {
 
         this.shareholderService = shareholderService;
         this.workflowIdService = workflowIdService;
@@ -49,40 +43,25 @@ public class ShareholderWorkflowService {
      * ==========================================================
      */
     @Transactional
-    public void submitCreateForApproval(
-            ShareholderCreateRequest request,
-            String makerId,
-            String makerIp) {
+    public void submitCreateForApproval(ShareholderCreateRequest request, String makerId, String makerIp) {
 
         request.getBasicInfo().setFolioBo(null);
 
-        String folioBo =
-                workflowIdService.generateNextFolioBo();
+        String folioBo = workflowIdService.generateNextFolioBo();
 
-        boolean alreadyReserved =
-                changeRequestRepository
-                        .existsByFolioBoAndOperationCode(
-                                folioBo,
-                                "SHAREHOLDER_CREATE"
-                        );
+        boolean alreadyReserved = changeRequestRepository.existsByFolioBoAndOperationCode(folioBo, "SHAREHOLDER_CREATE");
 
         if (alreadyReserved) {
-            throw new IllegalStateException(
-                    "Generated Folio BO is already reserved: "
-                            + folioBo
-            );
+            throw new IllegalStateException("Generated Folio BO is already reserved: " + folioBo);
         }
 
         request.getBasicInfo().setFolioBo(folioBo);
 
-        String proposalJson =
-                shareholderService.buildCreateProposalJson(request);
+        String proposalJson = shareholderService.buildCreateProposalJson(request);
 
-        String changeId =
-                workflowIdService.generateChangeId();
+        String changeId = workflowIdService.generateChangeId();
 
-        ShareholderChangeRequest changeRequest =
-                new ShareholderChangeRequest();
+        ShareholderChangeRequest changeRequest = new ShareholderChangeRequest();
 
         changeRequest.setChangeId(changeId);
         changeRequest.setFolioBo(folioBo);
@@ -97,14 +76,11 @@ public class ShareholderWorkflowService {
 
         changeRequestRepository.save(changeRequest);
 
-        Long requestId =
-                workflowIdService.nextApprovalRequestId();
+        Long requestId = workflowIdService.nextApprovalRequestId();
 
-        LocalDate businessDate =
-                LocalDate.now(ZoneId.of("Asia/Dhaka"));
+        LocalDate businessDate = LocalDate.now(ZoneId.of("Asia/Dhaka"));
 
-        ApprovalRequest approvalRequest =
-                new ApprovalRequest();
+        ApprovalRequest approvalRequest = new ApprovalRequest();
 
         approvalRequest.setRequestId(requestId);
         approvalRequest.setOperationCode("SHAREHOLDER_CREATE");
@@ -129,11 +105,9 @@ public class ShareholderWorkflowService {
 
         approvalRequestRepository.save(approvalRequest);
 
-        Long actionId =
-                workflowIdService.nextApprovalActionId();
+        Long actionId = workflowIdService.nextApprovalActionId();
 
-        ApprovalAction approvalAction =
-                new ApprovalAction();
+        ApprovalAction approvalAction = new ApprovalAction();
 
         approvalAction.setActionId(actionId);
         approvalAction.setRequestId(requestId);
@@ -153,50 +127,25 @@ public class ShareholderWorkflowService {
      * ==========================================================
      */
     @Transactional
-    public void submitModifyForApproval(
-            String folioBo,
-            ShareholderCreateRequest edited,
-            String makerId,
-            String makerIp) {
+    public void submitModifyForApproval(String folioBo, ShareholderCreateRequest edited, String makerId, String makerIp) {
 
         edited.getBasicInfo().setFolioBo(folioBo);
 
-        boolean hasActiveRequest =
-                !approvalRequestRepository
-                        .findByBusinessRefAndStatusIn(
-                                folioBo,
-                                List.of(
-                                        "PENDING_CHECKER",
-                                        "RETURNED_FOR_MODIFICATION"
-                                )
-                        )
-                        .isEmpty();
+        boolean hasActiveRequest = !approvalRequestRepository.findByBusinessRefAndStatusIn(folioBo, List.of("PENDING_CHECKER", "RETURNED_FOR_MODIFICATION")).isEmpty();
 
         if (hasActiveRequest) {
-            throw new IllegalStateException(
-                    "There is already a pending change request for Folio/BO "
-                            + folioBo
-            );
+            throw new IllegalStateException("There is already a pending change request for Folio/BO " + folioBo);
         }
 
-        ShareholderCreateRequest currentSnapshot =
-                shareholderService.snapshotOf(folioBo);
+        ShareholderCreateRequest currentSnapshot = shareholderService.snapshotOf(folioBo);
 
-        String oldValueJson =
-                shareholderService.buildCreateProposalJson(
-                        currentSnapshot
-                );
+        String oldValueJson = shareholderService.buildCreateProposalJson(currentSnapshot);
 
-        String newValueJson =
-                shareholderService.buildCreateProposalJson(
-                        edited
-                );
+        String newValueJson = shareholderService.buildCreateProposalJson(edited);
 
-        String changeId =
-                workflowIdService.generateChangeId();
+        String changeId = workflowIdService.generateChangeId();
 
-        ShareholderChangeRequest changeRequest =
-                new ShareholderChangeRequest();
+        ShareholderChangeRequest changeRequest = new ShareholderChangeRequest();
 
         changeRequest.setChangeId(changeId);
         changeRequest.setFolioBo(folioBo);
@@ -211,14 +160,11 @@ public class ShareholderWorkflowService {
 
         changeRequestRepository.save(changeRequest);
 
-        Long requestId =
-                workflowIdService.nextApprovalRequestId();
+        Long requestId = workflowIdService.nextApprovalRequestId();
 
-        LocalDate businessDate =
-                LocalDate.now(ZoneId.of("Asia/Dhaka"));
+        LocalDate businessDate = LocalDate.now(ZoneId.of("Asia/Dhaka"));
 
-        ApprovalRequest approvalRequest =
-                new ApprovalRequest();
+        ApprovalRequest approvalRequest = new ApprovalRequest();
 
         approvalRequest.setRequestId(requestId);
         approvalRequest.setOperationCode("SHAREHOLDER_UPDATE");
@@ -243,11 +189,9 @@ public class ShareholderWorkflowService {
 
         approvalRequestRepository.save(approvalRequest);
 
-        Long actionId =
-                workflowIdService.nextApprovalActionId();
+        Long actionId = workflowIdService.nextApprovalActionId();
 
-        ApprovalAction approvalAction =
-                new ApprovalAction();
+        ApprovalAction approvalAction = new ApprovalAction();
 
         approvalAction.setActionId(actionId);
         approvalAction.setRequestId(requestId);
@@ -274,78 +218,42 @@ public class ShareholderWorkflowService {
      * shareholder does not exist in the master tables yet.
      */
     @Transactional
-    public void resubmitReturnedModify(
-            Long requestId,
-            ShareholderCreateRequest edited,
-            String makerId,
-            String makerIp) {
+    public void resubmitReturnedModify(Long requestId, ShareholderCreateRequest edited, String makerId, String makerIp) {
 
-        ApprovalRequest approvalRequest =
-                approvalRequestRepository
-                        .findByRequestId(requestId)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Approval request not found: "
-                                                + requestId
-                                ));
+        ApprovalRequest approvalRequest = approvalRequestRepository.findByRequestId(requestId).orElseThrow(() -> new IllegalArgumentException("Approval request not found: " + requestId));
 
-        if (!"RETURNED_FOR_MODIFICATION".equals(
-                approvalRequest.getStatus())) {
+        if (!"RETURNED_FOR_MODIFICATION".equals(approvalRequest.getStatus())) {
 
-            throw new IllegalStateException(
-                    "This request is not returned for modification."
-            );
+            throw new IllegalStateException("This request is not returned for modification.");
         }
 
-        if (!"MAKER".equals(
-                approvalRequest.getCurrentStage())) {
+        if (!"MAKER".equals(approvalRequest.getCurrentStage())) {
 
-            throw new IllegalStateException(
-                    "This request is not currently at Maker stage."
-            );
+            throw new IllegalStateException("This request is not currently at Maker stage.");
         }
 
-        if (makerId == null ||
-                !makerId.equals(
-                        approvalRequest.getMakerId())) {
+        if (makerId == null || !makerId.equals(approvalRequest.getMakerId())) {
 
-            throw new IllegalStateException(
-                    "Only the original maker can resubmit this request."
-            );
+            throw new IllegalStateException("Only the original maker can resubmit this request.");
         }
 
-        ShareholderChangeRequest changeRequest =
-                changeRequestRepository
-                        .findByChangeId(
-                                approvalRequest.getSourceId()
-                        )
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Shareholder change request not found."
-                                ));
+        ShareholderChangeRequest changeRequest = changeRequestRepository.findByChangeId(approvalRequest.getSourceId()).orElseThrow(() -> new IllegalArgumentException("Shareholder change request not found."));
 
-        String operationCode =
-                changeRequest.getOperationCode();
+        String operationCode = changeRequest.getOperationCode();
 
-        if (!"SHAREHOLDER_CREATE".equals(operationCode) &&
-                !"SHAREHOLDER_UPDATE".equals(operationCode)) {
+        if (!"SHAREHOLDER_CREATE".equals(operationCode) && !"SHAREHOLDER_UPDATE".equals(operationCode)) {
 
-            throw new IllegalStateException(
-                    "Only shareholder Create or Modify requests can be resubmitted."
-            );
+            throw new IllegalStateException("Only shareholder Create or Modify requests can be resubmitted.");
         }
 
-        String folioBo =
-                approvalRequest.getEntityId();
+        String folioBo = approvalRequest.getEntityId();
 
         if (folioBo == null || folioBo.isBlank()) {
             folioBo = changeRequest.getFolioBo();
         }
 
         if (folioBo == null || folioBo.isBlank()) {
-            throw new IllegalStateException(
-                    "Folio BO is missing from the request."
-            );
+            throw new IllegalStateException("Folio BO is missing from the request.");
         }
 
         edited.getBasicInfo().setFolioBo(folioBo);
@@ -371,13 +279,9 @@ public class ShareholderWorkflowService {
             shareholderService.snapshotOf(folioBo);
         }
 
-        String newValueJson =
-                shareholderService.buildCreateProposalJson(
-                        edited
-                );
+        String newValueJson = shareholderService.buildCreateProposalJson(edited);
 
-        Integer changeVersion =
-                changeRequest.getVersionNo();
+        Integer changeVersion = changeRequest.getVersionNo();
 
         if (changeVersion == null) {
             changeVersion = 0;
@@ -385,9 +289,7 @@ public class ShareholderWorkflowService {
 
         changeRequest.setNewValue(newValueJson);
         changeRequest.setUpdatedAt(LocalDateTime.now());
-        changeRequest.setVersionNo(
-                changeVersion + 1
-        );
+        changeRequest.setVersionNo(changeVersion + 1);
 
         changeRequestRepository.save(changeRequest);
 
@@ -403,22 +305,15 @@ public class ShareholderWorkflowService {
         approvalRequest.setUpdatedAt(LocalDateTime.now());
         approvalRequest.setDecidedAt(null);
 
-        approvalRequest.setBusinessDate(
-                LocalDate.now(
-                        ZoneId.of("Asia/Dhaka")
-                )
-        );
+        approvalRequest.setBusinessDate(LocalDate.now(ZoneId.of("Asia/Dhaka")));
 
-        Integer approvalVersion =
-                approvalRequest.getVersionNo();
+        Integer approvalVersion = approvalRequest.getVersionNo();
 
         if (approvalVersion == null) {
             approvalVersion = 0;
         }
 
-        approvalRequest.setVersionNo(
-                approvalVersion + 1
-        );
+        approvalRequest.setVersionNo(approvalVersion + 1);
 
         approvalRequestRepository.save(approvalRequest);
 
@@ -426,11 +321,9 @@ public class ShareholderWorkflowService {
          * Keep the previous RETURNED_FOR_MODIFICATION action
          * and append a new RESUBMITTED action.
          */
-        Long actionId =
-                workflowIdService.nextApprovalActionId();
+        Long actionId = workflowIdService.nextApprovalActionId();
 
-        ApprovalAction approvalAction =
-                new ApprovalAction();
+        ApprovalAction approvalAction = new ApprovalAction();
 
         approvalAction.setActionId(actionId);
         approvalAction.setRequestId(requestId);
@@ -446,20 +339,14 @@ public class ShareholderWorkflowService {
         System.out.println("======================================");
         System.out.println("RETURNED REQUEST RESUBMITTED");
         System.out.println("======================================");
-        System.out.println("Change ID      : "
-                + changeRequest.getChangeId());
-        System.out.println("Folio BO       : "
-                + folioBo);
-        System.out.println("Request ID     : "
-                + requestId);
-        System.out.println("Maker ID       : "
-                + makerId);
-        System.out.println("Operation      : "
-                + operationCode);
+        System.out.println("Change ID      : " + changeRequest.getChangeId());
+        System.out.println("Folio BO       : " + folioBo);
+        System.out.println("Request ID     : " + requestId);
+        System.out.println("Maker ID       : " + makerId);
+        System.out.println("Operation      : " + operationCode);
         System.out.println("Status         : PENDING_CHECKER");
         System.out.println("Current Stage  : CHECKER");
-        System.out.println("Business Date  : "
-                + approvalRequest.getBusinessDate());
+        System.out.println("Business Date  : " + approvalRequest.getBusinessDate());
         System.out.println("======================================");
     }
 
@@ -468,13 +355,9 @@ public class ShareholderWorkflowService {
      * RETURNED REQUEST LIST
      * ==========================================================
      */
-    public List<ApprovalRequest> getReturnedForModificationRequests(
-            String makerId) {
+    public List<ApprovalRequest> getReturnedForModificationRequests(String makerId) {
 
-        return approvalRequestRepository
-                .findReturnedForModificationRequests(
-                        makerId
-                );
+        return approvalRequestRepository.findReturnedForModificationRequests(makerId);
     }
 
     /*
@@ -482,76 +365,39 @@ public class ShareholderWorkflowService {
      * LOAD RETURNED REQUEST DATA
      * ==========================================================
      */
-    public ShareholderCreateRequest getReturnedRequestData(
-            Long requestId,
-            String makerId) {
+    public ShareholderCreateRequest getReturnedRequestData(Long requestId, String makerId) {
 
-        ApprovalRequest approvalRequest =
-                approvalRequestRepository
-                        .findByRequestId(requestId)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Approval request not found: "
-                                                + requestId
-                                ));
+        ApprovalRequest approvalRequest = approvalRequestRepository.findByRequestId(requestId).orElseThrow(() -> new IllegalArgumentException("Approval request not found: " + requestId));
 
-        if (!"RETURNED_FOR_MODIFICATION".equals(
-                approvalRequest.getStatus())) {
+        if (!"RETURNED_FOR_MODIFICATION".equals(approvalRequest.getStatus())) {
 
-            throw new IllegalStateException(
-                    "This request is not returned for modification."
-            );
+            throw new IllegalStateException("This request is not returned for modification.");
         }
 
-        if (!"MAKER".equals(
-                approvalRequest.getCurrentStage())) {
+        if (!"MAKER".equals(approvalRequest.getCurrentStage())) {
 
-            throw new IllegalStateException(
-                    "This request is not currently at Maker stage."
-            );
+            throw new IllegalStateException("This request is not currently at Maker stage.");
         }
 
-        if (!makerId.equals(
-                approvalRequest.getMakerId())) {
+        if (!makerId.equals(approvalRequest.getMakerId())) {
 
-            throw new IllegalStateException(
-                    "You are not authorized to edit this request."
-            );
+            throw new IllegalStateException("You are not authorized to edit this request.");
         }
 
-        ShareholderChangeRequest changeRequest =
-                changeRequestRepository
-                        .findByChangeId(
-                                approvalRequest.getSourceId()
-                        )
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Shareholder change request not found."
-                                ));
+        ShareholderChangeRequest changeRequest = changeRequestRepository.findByChangeId(approvalRequest.getSourceId()).orElseThrow(() -> new IllegalArgumentException("Shareholder change request not found."));
 
-        if (!"SHAREHOLDER_CREATE".equals(
-                changeRequest.getOperationCode()) &&
-                !"SHAREHOLDER_UPDATE".equals(
-                        changeRequest.getOperationCode())) {
+        if (!"SHAREHOLDER_CREATE".equals(changeRequest.getOperationCode()) && !"SHAREHOLDER_UPDATE".equals(changeRequest.getOperationCode())) {
 
-            throw new IllegalStateException(
-                    "Only shareholder Create or Modify requests can be edited."
-            );
+            throw new IllegalStateException("Only shareholder Create or Modify requests can be edited.");
         }
 
         try {
 
-            return objectMapper.readValue(
-                    changeRequest.getNewValue(),
-                    ShareholderCreateRequest.class
-            );
+            return objectMapper.readValue(changeRequest.getNewValue(), ShareholderCreateRequest.class);
 
         } catch (Exception e) {
 
-            throw new IllegalStateException(
-                    "Unable to read returned shareholder proposal.",
-                    e
-            );
+            throw new IllegalStateException("Unable to read returned shareholder proposal.", e);
         }
     }
 
@@ -560,15 +406,9 @@ public class ShareholderWorkflowService {
      * LATEST RETURN REMARKS
      * ==========================================================
      */
-    public String getLatestReturnRemarks(
-            Long requestId) {
+    public String getLatestReturnRemarks(Long requestId) {
 
-        List<ApprovalAction> actions =
-                approvalActionRepository
-                        .findByRequestIdAndActionOrderByActionAtDesc(
-                                requestId,
-                                "RETURNED_FOR_MODIFICATION"
-                        );
+        List<ApprovalAction> actions = approvalActionRepository.findByRequestIdAndActionOrderByActionAtDesc(requestId, "RETURNED_FOR_MODIFICATION");
 
         if (actions.isEmpty()) {
             return "";

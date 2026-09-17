@@ -19,126 +19,57 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(
-            PasswordEncoder passwordEncoder) {
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
 
-        UserDetails maker =
-                org.springframework.security.core.userdetails.User
-                        .withUsername("test.maker")
-                        .password(
-                                passwordEncoder.encode("maker123")
-                        )
-                        .roles("MAKER")
-                        .build();
+        UserDetails maker = org.springframework.security.core.userdetails.User.withUsername("test.maker").password(passwordEncoder.encode("maker123")).roles("MAKER").build();
 
-        UserDetails checker =
-                org.springframework.security.core.userdetails.User
-                        .withUsername("checker")
-                        .password(
-                                passwordEncoder.encode("checker123")
-                        )
-                        .roles("CHECKER")
-                        .build();
+        UserDetails checker = org.springframework.security.core.userdetails.User.withUsername("checker").password(passwordEncoder.encode("checker123")).roles("CHECKER").build();
 
-        return new InMemoryUserDetailsManager(
-                maker,
-                checker
-        );
+        return new InMemoryUserDetailsManager(maker, checker);
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
 
                         /*
                          * Public pages/resources
-                         */
-                        .requestMatchers(
-                                "/login",
-                                "/css/**",
-                                "/js/**",
-                                "/static.css/**"
-                        ).permitAll()
+                         */.requestMatchers("/login", "/css/**", "/js/**", "/static.css/**").permitAll()
 
                         /*
                          * Maker-only
-                         */
-                        .requestMatchers(
-                                "/shareholders/create"
-                        ).hasRole("MAKER")
+                         */.requestMatchers("/shareholders/create").hasRole("MAKER")
 
-                        .requestMatchers(
-                                "/shareholders/*/edit"
-                        ).hasRole("MAKER")
+                        .requestMatchers("/shareholders/*/edit").hasRole("MAKER")
 
-                        .requestMatchers(
-                                "/shareholders/returned",
-                                "/shareholders/returned/**"
-                        ).hasRole("MAKER")
+                        .requestMatchers("/shareholders/returned", "/shareholders/returned/**").hasRole("MAKER")
 
-                        .requestMatchers(
-                                "/my-requests",
-                                "/my-requests/**"
-                        ).hasRole("MAKER")
+                        .requestMatchers("/my-requests", "/my-requests/**").hasRole("MAKER")
 
                         /*
                          * Checker-only
-                         */
-                        .requestMatchers(
-                                "/approvals",
-                                "/approvals/**"
-                        ).hasRole("CHECKER")
+                         */.requestMatchers("/approvals", "/approvals/**").hasRole("CHECKER")
 
                         /*
                          * Maker + Checker
-                         */
-                        .requestMatchers(
-                                "/shareholders",
-                                "/shareholders/**"
-                        ).hasAnyRole(
-                                "MAKER",
-                                "CHECKER"
-                        )
+                         */.requestMatchers("/shareholders", "/shareholders/**").hasAnyRole("MAKER", "CHECKER")
 
-                        .requestMatchers(
-                                "/"
-                        ).hasAnyRole(
-                                "MAKER",
-                                "CHECKER"
-                        )
+                        .requestMatchers("/").hasAnyRole("MAKER", "CHECKER")
 
                         /*
                          * Everything else requires login
-                         */
-                        .anyRequest().authenticated()
-                )
+                         */.anyRequest().authenticated())
 
                 /*
                  * Login
-                 */
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/login?error=true")
-                        .permitAll()
-                )
+                 */.formLogin(form -> form.loginPage("/login").loginProcessingUrl("/login").usernameParameter("username").passwordParameter("password").defaultSuccessUrl("/", true).failureUrl("/login?error=true").permitAll())
 
                 /*
                  * Logout
-                 */
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
-                        .permitAll()
-                );
+                 */.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout=true").permitAll());
 
         return http.build();
     }
