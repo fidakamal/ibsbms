@@ -407,12 +407,25 @@
                     Approval Details
                 </h1>
 
-                <a href="/approvals"
+                
+                <a th:href="${from == 'rejected'
+             ? '/approvals/rejected'
+             : from == 'returned'
+             ? '/approvals/returned'
+             : '/approvals'}"
                    class="back-button">
 
-                    ← Back to Approvals
+    <span th:text="${from == 'rejected'
+                    ? '← Back to Rejected Requests'
+                    : from == 'returned'
+                    ? '← Back to Returned Requests'
+                    : '← Back to Approvals'}">
+        ← Back to Approvals
+    </span>
 
                 </a>
+
+
 
             </div>
 
@@ -1107,7 +1120,7 @@
         </main>
 
     </div>
-    ```
+
 
 </div>
 
