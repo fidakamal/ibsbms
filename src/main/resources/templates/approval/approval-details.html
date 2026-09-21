@@ -1021,8 +1021,9 @@
             </div>
 
 
+            
             <!-- =================================================
-                 Already Processed
+                 Approval Status
                  ================================================= -->
 
             <div class="card"
@@ -1032,13 +1033,23 @@
                     Approval Status
                 </h2>
 
-                <div class="processed-message">
+                <div class="processed-message"
+                     th:if="${approvalRequest.status == 'RETURNED_FOR_MODIFICATION'}">
+
+                    This request has been returned to the maker for modification.
+
+                </div>
+
+                <div class="processed-message"
+                     th:if="${approvalRequest.status != 'RETURNED_FOR_MODIFICATION'}">
 
                     This approval request has already been processed.
 
                 </div>
 
             </div>
+
+
 
 
             <!-- =================================================
