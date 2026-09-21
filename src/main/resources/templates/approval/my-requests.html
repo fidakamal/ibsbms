@@ -5,6 +5,7 @@
 
 <head>
 
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -71,6 +72,7 @@
 
     </style>
 
+
 </head>
 
 <body>
@@ -81,6 +83,7 @@
 
 <main class="main-content">
 
+    ```
     <div class="page-content">
 
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -99,6 +102,25 @@
 
         </div>
 
+
+        <!-- Success Message -->
+        <div th:if="${param.success}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+        <span th:text="${param.success}">
+            Shareholder request submitted successfully.
+        </span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+
+        </div>
+
+
         <div class="card border-0 shadow-sm">
 
             <div class="card-body">
@@ -111,10 +133,11 @@
 
                     <span class="text-muted"
                           th:text="${#lists.size(requests)} + ' request(s)'">
-                        0 request(s)
-                    </span>
+                    0 request(s)
+                </span>
 
                 </div>
+
 
                 <!-- Search -->
                 <form method="get"
@@ -142,6 +165,7 @@
                     </div>
 
                 </form>
+
 
                 <!-- Requests table -->
                 <div class="table-responsive"
@@ -183,83 +207,88 @@
                                 -
                             </td>
 
+
                             <!-- Operation -->
                             <td>
 
-                                <span
-                                        th:if="${request.operationCode == 'SHAREHOLDER_CREATE'}">
-                                    Create
-                                </span>
+                            <span
+                                    th:if="${request.operationCode == 'SHAREHOLDER_CREATE'}">
+                                Create
+                            </span>
 
                                 <span
                                         th:if="${request.operationCode == 'SHAREHOLDER_UPDATE'}">
-                                    Modify
-                                </span>
+                                Modify
+                            </span>
 
                                 <span
                                         th:if="${request.operationCode != 'SHAREHOLDER_CREATE'
-                                            and request.operationCode != 'SHAREHOLDER_UPDATE'}"
+                                        and request.operationCode != 'SHAREHOLDER_UPDATE'}"
                                         th:text="${request.operationCode}">
-                                    -
-                                </span>
+                                -
+                            </span>
 
                             </td>
+
 
                             <!-- Submitted -->
                             <td th:text="${request.createdAt != null
-                                ? #temporals.format(
-                                    request.createdAt,
-                                    'dd-MM-yyyy HH:mm'
-                                  )
-                                : '-'}">
+                            ? #temporals.format(
+                                request.createdAt,
+                                'dd-MM-yyyy HH:mm'
+                              )
+                            : '-'}">
                                 -
                             </td>
+
 
                             <!-- Status -->
                             <td>
 
-                                <span
-                                        th:if="${request.status == 'PENDING_CHECKER'
-                                            or request.status == 'PENDING_APPROVER'}"
-                                        class="status-badge pending">
-                                    Pending Checker
-                                </span>
+                            <span
+                                    th:if="${request.status == 'PENDING_CHECKER'
+                                        or request.status == 'PENDING_APPROVER'}"
+                                    class="status-badge pending">
+                                Pending Checker
+                            </span>
 
                                 <span
                                         th:if="${request.status == 'APPROVED'}"
                                         class="status-badge approved">
-                                    Approved
-                                </span>
+                                Approved
+                            </span>
 
                                 <span
                                         th:if="${request.status == 'REJECTED'}"
                                         class="status-badge rejected">
-                                    Rejected
-                                </span>
+                                Rejected
+                            </span>
 
                                 <span
                                         th:if="${request.status == 'RETURNED_FOR_MODIFICATION'}"
                                         class="status-badge returned">
-                                    Returned
-                                </span>
+                                Returned
+                            </span>
 
                                 <span
                                         th:if="${request.status != 'PENDING_CHECKER'
-                                            and request.status != 'PENDING_APPROVER'
-                                            and request.status != 'APPROVED'
-                                            and request.status != 'REJECTED'
-                                            and request.status != 'RETURNED_FOR_MODIFICATION'}"
+                                        and request.status != 'PENDING_APPROVER'
+                                        and request.status != 'APPROVED'
+                                        and request.status != 'REJECTED'
+                                        and request.status != 'RETURNED_FOR_MODIFICATION'}"
                                         class="status-badge other"
                                         th:text="${request.status}">
-                                    Status
-                                </span>
+                                Status
+                            </span>
 
                             </td>
+
 
                             <!-- Stage -->
                             <td th:text="${request.currentStage}">
                                 CHECKER
                             </td>
+
 
                             <!-- Actions -->
                             <td>
@@ -288,19 +317,22 @@
                     <div class="text-muted">
 
                         Showing
+
                         <span th:text="${startEntry}">
-            1
-        </span>
+                        1
+                    </span>
 
                         -
+
                         <span th:text="${endEntry}">
-            10
-        </span>
+                        10
+                    </span>
 
                         of
+
                         <span th:text="${totalItems}">
-            100
-        </span>
+                        100
+                    </span>
 
                         requests
 
@@ -309,12 +341,13 @@
 
                     <div class="d-flex align-items-center gap-3">
 
+
                         <!-- Page Size -->
                         <div class="d-flex align-items-center gap-2">
 
-            <span class="text-muted">
-                Show
-            </span>
+                        <span class="text-muted">
+                            Show
+                        </span>
 
                             <select
                                     class="form-select form-select-sm"
@@ -357,6 +390,7 @@
 
                             <ul class="pagination pagination-sm mb-0">
 
+
                                 <!-- Previous -->
                                 <li
                                         class="page-item"
@@ -365,10 +399,10 @@
                                     <a
                                             class="page-link"
                                             th:href="@{/my-requests(
-                                page=${page - 1},
-                                size=${pageSize},
-                                customerName=${customerName}
-                            )}">
+                                            page=${page - 1},
+                                            size=${pageSize},
+                                            customerName=${customerName}
+                                        )}">
                                         Previous
                                     </a>
 
@@ -384,10 +418,10 @@
                                     <a
                                             class="page-link"
                                             th:href="@{/my-requests(
-                                page=${pageNumber},
-                                size=${pageSize},
-                                customerName=${customerName}
-                            )}"
+                                            page=${pageNumber},
+                                            size=${pageSize},
+                                            customerName=${customerName}
+                                        )}"
                                             th:text="${pageNumber}">
                                         1
                                     </a>
@@ -403,10 +437,10 @@
                                     <a
                                             class="page-link"
                                             th:href="@{/my-requests(
-                                page=${page + 1},
-                                size=${pageSize},
-                                customerName=${customerName}
-                            )}">
+                                            page=${page + 1},
+                                            size=${pageSize},
+                                            customerName=${customerName}
+                                        )}">
                                         Next
                                     </a>
 
@@ -434,15 +468,18 @@
                             "/my-requests?page=1&size=" + size;
 
                         if (customerName) {
+
                             url +=
                                 "&customerName=" +
                                 encodeURIComponent(customerName);
+
                         }
 
                         window.location.href = url;
                     }
 
                 </script>
+
 
                 <!-- Empty state -->
                 <div
@@ -477,6 +514,7 @@
         </div>
 
     </div>
+
 
 </main>
 

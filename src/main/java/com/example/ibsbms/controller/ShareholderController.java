@@ -65,7 +65,7 @@ public class ShareholderController {
 
         shareholderWorkflowService.submitCreateForApproval(request, makerId, makerIp);
 
-        return "redirect:/shareholders";
+        return "redirect:/my-requests?success=Shareholder request submitted successfully.";
     }
 
     /*
