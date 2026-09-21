@@ -617,3 +617,108 @@ textarea.checker-remarks-input:focus {
     font-size: 15px;
 }
 
+
+
+
+
+       /* =========================================================
+          Sidebar Collapse
+          ========================================================= */
+
+   .sidebar,
+   .top-header,
+   .main-content {
+       transition:
+               width 0.25s ease,
+               left 0.25s ease,
+               margin-left 0.25s ease;
+   }
+
+
+/* =========================================================
+   Collapsed Sidebar
+   ========================================================= */
+
+body.sidebar-collapsed .sidebar {
+    width: 70px;
+}
+
+
+/* Hide menu text */
+
+body.sidebar-collapsed .sidebar-link > span:not(.sidebar-icon) {
+    display: none;
+}
+
+
+/* Center icons */
+
+body.sidebar-collapsed .sidebar-link {
+    justify-content: center;
+    gap: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+/* Keep icon visible */
+
+body.sidebar-collapsed .sidebar-icon {
+    display: inline-block;
+    width: 22px;
+}
+
+
+/* Move header */
+
+body.sidebar-collapsed .top-header {
+    left: 70px;
+}
+
+
+/* Move main content */
+
+body.sidebar-collapsed .main-content {
+    margin-left: 70px;
+}
+
+
+/* Keep logo centered */
+
+body.sidebar-collapsed .sidebar-logo {
+    justify-content: center;
+}
+
+
+/* =========================================================
+   Collapsed Sidebar Tooltips
+   ========================================================= */
+
+body.sidebar-collapsed .sidebar-link {
+    position: relative;
+}
+
+body.sidebar-collapsed .sidebar-link:hover::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+
+    left: 62px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    background-color: #174c4c;
+    color: #ffffff;
+
+    padding: 7px 10px;
+
+    border-radius: 4px;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+
+    z-index: 2000;
+}
+

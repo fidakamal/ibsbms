@@ -18,6 +18,7 @@
         <!-- Dashboard -->
         <a href="/"
            class="sidebar-link"
+           data-tooltip="Dashboard"
            th:classappend="${currentUri == '/' or currentUri == '/dashboard'}
                         ? ' active'">
 
@@ -30,6 +31,7 @@
         <!-- Shareholders -->
         <a href="/shareholders"
            class="sidebar-link"
+           data-tooltip="Shareholders"
            th:classappend="${currentUri.startsWith('/shareholders')
                         and !currentUri.startsWith('/shareholders/returned')}
                         ? ' active'">
@@ -43,6 +45,7 @@
         <!-- Approvals -->
         <a href="/approvals"
            class="sidebar-link"
+           data-tooltip="Approvals"
            th:if="${isChecker}"
            th:classappend="${(currentUri == '/approvals'
                  or
@@ -62,6 +65,7 @@
         <!-- My Requests -->
         <a th:href="@{/my-requests}"
            class="sidebar-link"
+           data-tooltip="My Requests"
            sec:authorize="hasRole('MAKER')"
            th:classappend="${currentUri.startsWith('/my-requests')}
                         ? ' active'">
@@ -75,6 +79,7 @@
         <!-- Rejected Requests -->
         <a href="/approvals/rejected"
            class="sidebar-link"
+           data-tooltip="Rejected Requests"
            th:if="${isChecker}"
            th:classappend="${currentUri.startsWith('/approvals/rejected')
                  or from == 'rejected'}
@@ -89,6 +94,7 @@
         <!-- Checker Returned Requests -->
         <a href="/approvals/returned"
            class="sidebar-link"
+           data-tooltip="Returned Requests"
            th:if="${isChecker}"
            th:classappend="${currentUri.startsWith('/approvals/returned')
                  or from == 'returned'}
@@ -103,6 +109,7 @@
         <!-- Maker Returned Requests -->
         <a href="/shareholders/returned"
            class="sidebar-link"
+           data-tooltip="Returned for Modification"
            th:if="${isMaker}"
            th:classappend="${currentUri.startsWith('/shareholders/returned')}
                         ? ' active'">

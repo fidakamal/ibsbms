@@ -4,13 +4,18 @@
 
 <body>
 
-<header th:fragment="header" class="top-header">
+<header th:fragment="header"
+        class="top-header">
 
-    <!-- Left side -->
     <div class="header-left">
 
-        <button class="menu-button" type="button">
+        <button class="menu-button"
+                type="button"
+                id="sidebarToggle"
+                aria-label="Toggle sidebar">
+
             ☰
+
         </button>
 
         <span class="header-title">
@@ -19,30 +24,56 @@
 
     </div>
 
-    <!-- Right side -->
+
     <div class="header-right">
 
-        <!-- User -->
         <div class="user-section">
 
             <div class="user-icon">
                 👤
             </div>
 
-            <span class="username" th:text="${currentUsername}">
+            <span class="username"
+                  th:text="${currentUsername}">
                 test.maker
             </span>
 
         </div>
 
-        <!-- Logout -->
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button class="logout-button" type="submit">
+
+        <form th:action="@{/logout}"
+              method="post"
+              style="display:inline;">
+
+            <button class="logout-button"
+                    type="submit">
+
                 Logout
+
             </button>
+
         </form>
 
     </div>
+
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+
+        const sidebarToggle =
+            document.getElementById("sidebarToggle");
+
+        if (sidebarToggle) {
+
+            sidebarToggle.addEventListener("click", function () {
+
+                document.body.classList.toggle("sidebar-collapsed");
+
+            });
+
+        }
+
+    </script>
 
 </header>
 
