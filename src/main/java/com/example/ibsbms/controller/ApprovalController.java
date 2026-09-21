@@ -231,9 +231,7 @@ public class ApprovalController {
                     remarks
             );
 
-            return "redirect:/approvals/"
-                    + requestId
-                    + "?success=Request returned to maker for modification.";
+            return "redirect:/approvals/returned?success=Request returned to maker for modification.";
 
         } catch (Exception e) {
 
@@ -262,9 +260,7 @@ public class ApprovalController {
                     remarks
             );
 
-            return "redirect:/approvals/"
-                    + requestId
-                    + "?success=Request rejected successfully.";
+            return "redirect:/approvals/rejected?success=Request rejected successfully.";
 
         } catch (Exception e) {
 

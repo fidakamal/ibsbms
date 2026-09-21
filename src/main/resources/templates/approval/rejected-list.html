@@ -50,6 +50,23 @@
 
         </div>
 
+        <!-- Success Message -->
+        <div th:if="${param.success}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+    <span th:text="${param.success}">
+        Request rejected successfully.
+    </span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+
+        </div>
+
 
         <!-- Rejected requests table -->
         <div class="form-section">
