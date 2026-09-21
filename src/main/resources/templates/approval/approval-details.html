@@ -1,89 +1,27 @@
 <!DOCTYPE html>
+
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
+    ```
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Approval Details</title>
 
+    <!-- Global IBSBMS CSS -->
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
     <style>
-        * {
-            box-sizing: border-box;
-        }
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #F5F7F7;
-            color: #263238;
-        }
-
-        .header {
-            height: 64px;
-            background: #174C4C;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .header-user {
-            font-size: 14px;
-        }
-
-        .layout {
-            display: flex;
-            min-height: calc(100vh - 64px);
-        }
-
-        .sidebar {
-            width: 240px;
-            background: #285A78;
-            padding: 24px 16px;
-            color: white;
-        }
-
-        .sidebar-title {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 25px;
-            padding: 0 12px;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: white;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-
-        .sidebar-link:hover {
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .sidebar-icon {
-            width: 20px;
-            text-align: center;
-        }
-
-        .content {
-            flex: 1;
-            padding: 30px;
-            max-width: 1400px;
-        }
+        /* =========================================================
+           Approval Details - Page Header
+           ========================================================= */
 
         .page-header {
             display: flex;
@@ -111,6 +49,11 @@
             opacity: 0.9;
         }
 
+
+        /* =========================================================
+           Approval Details - Cards
+           ========================================================= */
+
         .card {
             background: white;
             border-radius: 8px;
@@ -126,6 +69,22 @@
             color: #174C4C;
             font-size: 18px;
         }
+
+
+        /* =========================================================
+           Request Information
+           ========================================================= */
+
+        .request-info {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px 24px;
+        }
+
+
+        /* =========================================================
+           General Fields
+           ========================================================= */
 
         .grid {
             display: grid;
@@ -166,84 +125,9 @@
         }
 
 
-        /* Checker Remarks */
-        .checker-remarks-section {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .checker-remarks-label {
-            display: block;
-            width: 100%;
-            margin-bottom: 8px;
-
-            font-size: 13px;
-            font-weight: 600;
-            color: #52656D;
-        }
-
-        .checker-remarks-input {
-            display: block;
-            width: 100% !important;
-            height: 130px !important;
-            min-height: 130px !important;
-
-            padding: 12px 14px !important;
-
-            border: 1px solid #D5DDDD !important;
-            border-radius: 5px !important;
-
-            background: #F8FAFA !important;
-            color: #263238;
-
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-
-            resize: vertical;
-        }
-
-        .checker-remarks-input:focus {
-            outline: none;
-            border-color: #174C4C !important;
-            box-shadow: 0 0 0 2px rgba(23, 76, 76, 0.12);
-        }
-
-        .checker-remarks-input::placeholder {
-            color: #8A969A;
-        }
-
-
-        /* Return validation error */
-        .return-error {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-
-            width: 100%;
-            margin-top: 10px;
-            padding: 10px 12px;
-
-            background: #FFF5F5;
-            border: 1px solid #E6B8B8;
-            border-radius: 5px;
-
-            color: #B42318;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .return-error-icon {
-            flex-shrink: 0;
-            font-size: 15px;
-        }
-
-        .request-info {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px 24px;
-        }
+        /* =========================================================
+           Status
+           ========================================================= */
 
         .status {
             display: inline-block;
@@ -254,6 +138,11 @@
             font-size: 12px;
             font-weight: 600;
         }
+
+
+        /* =========================================================
+           Checker Decision
+           ========================================================= */
 
         .decision-card {
             border-left: 4px solid #285A78;
@@ -291,594 +180,981 @@
             opacity: 0.9;
         }
 
+
+        /* =========================================================
+           Checker Remarks
+           ========================================================= */
+
+        .checker-remarks-section {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .checker-remarks-label {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+
+            font-size: 13px;
+            font-weight: 600;
+            color: #52656D;
+        }
+
+        .checker-remarks-input {
+            display: block;
+
+            width: 100% !important;
+
+            height: 130px !important;
+            min-height: 130px !important;
+
+            padding: 12px 14px !important;
+
+            border: 1px solid #D5DDDD !important;
+            border-radius: 5px !important;
+
+            background: #F8FAFA !important;
+            color: #263238;
+
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+
+            resize: vertical;
+        }
+
+        .checker-remarks-input:focus {
+            outline: none;
+
+            border-color: #174C4C !important;
+
+            box-shadow:
+                    0 0 0 2px rgba(23, 76, 76, 0.12);
+        }
+
+        .checker-remarks-input::placeholder {
+            color: #8A969A;
+        }
+
+
+        /* =========================================================
+           Return Validation Error
+           ========================================================= */
+
+        .return-error {
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 8px;
+
+            width: 100%;
+
+            margin-top: 10px;
+
+            padding: 10px 12px;
+
+            background: #FFF5F5;
+
+            border: 1px solid #E6B8B8;
+
+            border-radius: 5px;
+
+            color: #B42318;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .return-error-icon {
+            flex-shrink: 0;
+
+            font-size: 15px;
+        }
+
+
+        /* =========================================================
+           Already Processed
+           ========================================================= */
+
         .processed-message {
             padding: 16px;
+
             background: #F5F7F7;
+
             border-radius: 6px;
+
             color: #52656D;
+
             font-size: 14px;
         }
 
+
+        /* =========================================================
+           Approval History
+           ========================================================= */
+
         .history-table {
             width: 100%;
+
             border-collapse: collapse;
         }
 
         .history-table th,
         .history-table td {
             padding: 11px 12px;
+
             border-bottom: 1px solid #E5EAEA;
+
             text-align: left;
+
             font-size: 13px;
         }
 
         .history-table th {
             background: #F5F7F7;
+
             color: #174C4C;
+
             font-weight: 600;
         }
 
+
+        /* =========================================================
+           Responsive
+           ========================================================= */
+
         @media (max-width: 900px) {
-            .sidebar {
-                width: 200px;
-            }
 
             .grid,
             .request-info {
                 grid-template-columns: 1fr;
             }
+
+            .decision-buttons {
+                flex-wrap: wrap;
+            }
         }
 
         @media (max-width: 650px) {
-            .layout {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-            }
-
-            .content {
-                padding: 18px;
-            }
 
             .page-header {
                 flex-direction: column;
+
                 align-items: flex-start;
+
                 gap: 12px;
             }
+
+            .decision-buttons {
+                flex-direction: column;
+            }
+
+            .decision-buttons form {
+                width: 100%;
+            }
+
+            .decision-buttons button {
+                width: 100%;
+            }
+
+            .history-table {
+                display: block;
+
+                overflow-x: auto;
+            }
         }
+
     </style>
+    ```
+
 </head>
 
 <body>
 
-<!-- Header -->
-<div class="header">
-    <div class="header-title">
-        IBSBMS
-    </div>
+<div class="main-wrapper">
 
-    <div class="header-user">
-        User: test.maker
-    </div>
-</div>
+    ```
+    <!-- =====================================================
+         Common Sidebar
+         ===================================================== -->
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 
-<div class="layout">
+    <!-- =====================================================
+         Main Application Content
+         ===================================================== -->
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
+    <div class="main-content">
 
-        <div class="sidebar-title">
-            Shareholder Management
-        </div>
-
-        <a href="/shareholders" class="sidebar-link">
-            <span class="sidebar-icon">▣</span>
-            <span>Shareholders</span>
-        </a>
-
-        <a href="/shareholders/create" class="sidebar-link">
-            <span class="sidebar-icon">＋</span>
-            <span>Create Shareholder</span>
-        </a>
-
-        <a href="/approvals" class="sidebar-link">
-            <span class="sidebar-icon">✓</span>
-            <span>Approvals</span>
-        </a>
-
-        <a href="/shareholders/returned" class="sidebar-link">
-            <span class="sidebar-icon">↩</span>
-            <span>Returned for Modification</span>
-        </a>
-
-    </aside>
+        <!-- Common Header -->
+        <div th:replace="~{fragments/header :: header}"></div>
 
 
-    <!-- Main Content -->
-    <main class="content">
-
-        <!-- Page Header -->
-        <div class="page-header">
-
-            <h1 class="page-title">
-                Approval Details
-            </h1>
-
-            <a href="/approvals" class="back-button">
-                ← Back to Approvals
-            </a>
-
-        </div>
+        <main class="page-content">
 
 
+            <!-- =================================================
+                 Page Header
+                 ================================================= -->
+
+            <div class="page-header">
+
+                <h1 class="page-title">
+                    Approval Details
+                </h1>
+
+                <a href="/approvals"
+                   class="back-button">
+
+                    ← Back to Approvals
+
+                </a>
+
+            </div>
 
 
+            <!-- =================================================
+                 Request Information
+                 ================================================= -->
+
+            <div class="card">
+
+                <h2 class="card-title">
+                    Request Information
+                </h2>
+
+                <div class="request-info">
+
+                    <div class="field">
+
+                        <label>
+                            Request ID
+                        </label>
+
+                        <input type="text"
+                               th:value="${approvalRequest.requestId}"
+                               readonly>
+
+                    </div>
 
 
-        <!-- Request Information -->
-        <div class="card">
+                    <div class="field">
 
-            <h2 class="card-title">
-                Request Information
-            </h2>
+                        <label>
+                            Change ID
+                        </label>
 
-            <div class="request-info">
+                        <input type="text"
+                               th:value="${changeRequest.changeId}"
+                               readonly>
 
-                <div class="field">
-                    <label>Request ID</label>
-                    <input type="text"
-                           th:value="${approvalRequest.requestId}"
-                           readonly>
-                </div>
+                    </div>
 
-                <div class="field">
-                    <label>Change ID</label>
-                    <input type="text"
-                           th:value="${changeRequest.changeId}"
-                           readonly>
-                </div>
 
-                <div class="field">
-                    <label>Operation</label>
-                    <input type="text"
-                           th:value="${changeRequest.operationCode}"
-                           readonly>
-                </div>
+                    <div class="field">
 
-                <div class="field">
-                    <label>Maker</label>
-                    <input type="text"
-                           th:value="${approvalRequest.makerId}"
-                           readonly>
-                </div>
+                        <label>
+                            Operation
+                        </label>
 
-                <div class="field">
-                    <label>Business Reference</label>
-                    <input type="text"
-                           th:value="${approvalRequest.businessRef}"
-                           readonly>
-                </div>
+                        <input type="text"
+                               th:value="${changeRequest.operationCode}"
+                               readonly>
 
-                <div class="field">
-                    <label>Status</label>
+                    </div>
 
-                    <div style="padding-top: 8px;">
+
+                    <div class="field">
+
+                        <label>
+                            Maker
+                        </label>
+
+                        <input type="text"
+                               th:value="${approvalRequest.makerId}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Business Reference
+                        </label>
+
+                        <input type="text"
+                               th:value="${approvalRequest.businessRef}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Status
+                        </label>
+
+                        <div style="padding-top: 8px;">
+
                         <span class="status"
                               th:text="${approvalRequest.status}">
+
                             PENDING_CHECKER
+
                         </span>
+
+                        </div>
+
                     </div>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Basic Information -->
-        <div class="card">
-
-            <h2 class="card-title">
-                Basic Information
-            </h2>
-
-            <div class="grid">
-
-                <div class="field">
-                    <label>Folio / BO</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.folioBo}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Customer Name</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.custName}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Father Name</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.fatherName}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Mother Name</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.motherName}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Spouse Name</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.spouseName}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Customer Type</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.custType}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Citizen Type</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.citizenType}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Resident Type</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.residentType}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Phone</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.phone}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Email</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.email}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Date of Birth</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.dob}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>NID No</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.nidNo}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>TIN No</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.tinNo}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Representative</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.representative}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Employee</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.isEmployee}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>ICB Code</label>
-                    <input type="text"
-                           th:value="${proposal.basicInfo?.icbCode}"
-                           readonly>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Address Information -->
-        <div class="card">
-
-            <h2 class="card-title">
-                Address Information
-            </h2>
-
-            <div class="grid">
-
-                <div class="field full">
-                    <label>Address Line 1</label>
-                    <input type="text"
-                           th:value="${proposal.address?.add1}"
-                           readonly>
-                </div>
-
-                <div class="field full">
-                    <label>Address Line 2</label>
-                    <input type="text"
-                           th:value="${proposal.address?.add2}"
-                           readonly>
-                </div>
-
-                <div class="field full">
-                    <label>Address Line 3</label>
-                    <input type="text"
-                           th:value="${proposal.address?.add3}"
-                           readonly>
-                </div>
-
-                <div class="field full">
-                    <label>Address Line 4</label>
-                    <input type="text"
-                           th:value="${proposal.address?.add4}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Country</label>
-                    <input type="text"
-                           th:value="${proposal.address?.countryName}"
-                           readonly>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Bank Information -->
-        <div class="card">
-
-            <h2 class="card-title">
-                Bank Information
-            </h2>
-
-            <div class="grid">
-
-                <div class="field">
-                    <label>Account Number</label>
-                    <input type="text"
-                           th:value="${proposal.bankInfo?.accNo}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Bank Name</label>
-                    <input type="text"
-                           th:value="${proposal.bankInfo?.bankName}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Branch Name</label>
-                    <input type="text"
-                           th:value="${proposal.bankInfo?.branchName}"
-                           readonly>
-                </div>
-
-                <div class="field">
-                    <label>Routing Number</label>
-                    <input type="text"
-                           th:value="${proposal.bankInfo?.routingNo}"
-                           readonly>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Checker Decision -->
-        <div class="card decision-card"
-             th:if="${approvalRequest.status == 'PENDING_CHECKER'}">
-
-            <h2 class="card-title">
-                Checker Decision
-            </h2>
-
-
-            <div class="checker-remarks-section">
-
-                <label for="remarks" class="checker-remarks-label">
-                    Remarks
-                </label>
-
-                <textarea id="remarks"
-                          name="remarks"
-                          class="checker-remarks-input"
-                          placeholder="Enter remarks before taking an action..."
-                          rows="5"></textarea>
-
-                <div th:if="${param.error}"
-                     class="return-error">
-
-                    <span class="return-error-icon">⚠</span>
-
-                    <span th:text="${param.error}">
-            Remarks are required. Please provide a reason before returning this request for modification.
-        </span>
 
                 </div>
 
             </div>
 
 
+            <!-- =================================================
+                 Basic Information
+                 ================================================= -->
 
-            <div class="decision-buttons">
+            <div class="card">
 
-                <!-- Reject -->
-                <form th:action="@{/approvals/{id}/reject(id=${approvalRequest.requestId})}"
-                      method="post"
-                      id="rejectForm">
+                <h2 class="card-title">
+                    Basic Information
+                </h2>
 
-                    <input type="hidden"
-                           name="remarks"
-                           id="rejectRemarks">
-
-                    <button type="submit"
-                            class="btn-reject">
-                        Reject
-                    </button>
-
-                </form>
+                <div class="grid">
 
 
-                <!-- Return -->
-                <form th:action="@{/approvals/{id}/return(id=${approvalRequest.requestId})}"
-                      method="post"
-                      id="returnForm">
+                    <div class="field">
 
-                    <input type="hidden"
-                           name="remarks"
-                           id="returnRemarks">
+                        <label>
+                            Folio / BO
+                        </label>
 
-                    <button type="submit"
-                            class="btn-return">
-                        Return for Modification
-                    </button>
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.folioBo}"
+                               readonly>
 
-                </form>
+                    </div>
 
 
-                <!-- Approve -->
-                <form th:action="@{/approvals/{id}/approve(id=${approvalRequest.requestId})}"
-                      method="post"
-                      id="approveForm">
+                    <div class="field">
 
-                    <input type="hidden"
-                           name="remarks"
-                           id="approveRemarks">
+                        <label>
+                            Customer Name
+                        </label>
 
-                    <button type="submit"
-                            class="btn-approve">
-                        Approve
-                    </button>
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.custName}"
+                               readonly>
 
-                </form>
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Father Name
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.fatherName}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Mother Name
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.motherName}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Spouse Name
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.spouseName}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Customer Type
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.custType}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Citizen Type
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.citizenType}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Resident Type
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.residentType}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Phone
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.phone}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Email
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.email}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Date of Birth
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.dob}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            NID No
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.nidNo}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            TIN No
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.tinNo}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Representative
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.representative}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Employee
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.isEmployee}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            ICB Code
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.basicInfo?.icbCode}"
+                               readonly>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </div>
+
+            <!-- =================================================
+                 Address Information
+                 ================================================= -->
+
+            <div class="card">
+
+                <h2 class="card-title">
+                    Address Information
+                </h2>
+
+                <div class="grid">
 
 
-        <!-- Already Processed -->
-        <div class="card"
-             th:if="${approvalRequest.status != 'PENDING_CHECKER'}">
+                    <div class="field full">
 
-            <h2 class="card-title">
-                Approval Status
-            </h2>
+                        <label>
+                            Address Line 1
+                        </label>
 
-            <div class="processed-message">
-                This approval request has already been processed.
+                        <input type="text"
+                               th:value="${proposal.address?.add1}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label>
+                            Address Line 2
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.address?.add2}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label>
+                            Address Line 3
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.address?.add3}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label>
+                            Address Line 4
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.address?.add4}"
+                               readonly>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Country
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.address?.countryName}"
+                               readonly>
+
+                    </div>
+
+                </div>
+
             </div>
 
-        </div>
+
+            <!-- =================================================
+                 Bank Information
+                 ================================================= -->
+
+            <div class="card">
+
+                <h2 class="card-title">
+                    Bank Information
+                </h2>
+
+                <div class="grid">
 
 
-        <!-- Approval History -->
-        <div class="card"
-             th:if="${history != null and !history.isEmpty()}">
+                    <div class="field">
 
-            <h2 class="card-title">
-                Approval History
-            </h2>
+                        <label>
+                            Account Number
+                        </label>
 
-            <table class="history-table">
+                        <input type="text"
+                               th:value="${proposal.bankInfo?.accNo}"
+                               readonly>
 
-                <thead>
-                <tr>
-                    <th>Action</th>
-                    <th>Stage</th>
-                    <th>Actor</th>
-                    <th>Remarks</th>
-                    <th>Action Time</th>
-                </tr>
-                </thead>
+                    </div>
 
-                <tbody>
 
-                <tr th:each="action : ${history}">
+                    <div class="field">
 
-                    <td th:text="${action.action}">
-                        ACTION
-                    </td>
+                        <label>
+                            Bank Name
+                        </label>
 
-                    <td th:text="${action.stage}">
-                        STAGE
-                    </td>
+                        <input type="text"
+                               th:value="${proposal.bankInfo?.bankName}"
+                               readonly>
 
-                    <td th:text="${action.actorId}">
-                        ACTOR
-                    </td>
+                    </div>
 
-                    <td th:text="${action.remarks}">
-                        REMARKS
-                    </td>
 
-                    <td th:text="${action.actionAt}">
-                        TIME
-                    </td>
+                    <div class="field">
 
-                </tr>
+                        <label>
+                            Branch Name
+                        </label>
 
-                </tbody>
+                        <input type="text"
+                               th:value="${proposal.bankInfo?.branchName}"
+                               readonly>
 
-            </table>
+                    </div>
 
-        </div>
 
-    </main>
+                    <div class="field">
+
+                        <label>
+                            Routing Number
+                        </label>
+
+                        <input type="text"
+                               th:value="${proposal.bankInfo?.routingNo}"
+                               readonly>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 Checker Decision
+                 ================================================= -->
+
+            <div class="card decision-card"
+                 th:if="${approvalRequest.status == 'PENDING_CHECKER'}">
+
+                <h2 class="card-title">
+                    Checker Decision
+                </h2>
+
+
+                <div class="checker-remarks-section">
+
+                    <label for="remarks"
+                           class="checker-remarks-label">
+
+                        Remarks
+
+                    </label>
+
+
+                    <textarea id="remarks"
+                              name="remarks"
+                              class="checker-remarks-input"
+                              placeholder="Enter remarks before taking an action..."
+                              rows="5"></textarea>
+
+
+                    <div th:if="${param.error}"
+                         class="return-error">
+
+                    <span class="return-error-icon">
+                        ⚠
+                    </span>
+
+                        <span th:text="${param.error}">
+
+                        Remarks are required. Please provide a reason before returning this request for modification.
+
+                    </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="decision-buttons">
+
+
+                    <!-- Reject -->
+
+                    <form th:action="@{/approvals/{id}/reject(id=${approvalRequest.requestId})}"
+                          method="post"
+                          id="rejectForm">
+
+                        <input type="hidden"
+                               name="remarks"
+                               id="rejectRemarks">
+
+                        <button type="submit"
+                                class="btn-reject">
+
+                            Reject
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- Return -->
+
+                    <form th:action="@{/approvals/{id}/return(id=${approvalRequest.requestId})}"
+                          method="post"
+                          id="returnForm">
+
+                        <input type="hidden"
+                               name="remarks"
+                               id="returnRemarks">
+
+                        <button type="submit"
+                                class="btn-return">
+
+                            Return for Modification
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- Approve -->
+
+                    <form th:action="@{/approvals/{id}/approve(id=${approvalRequest.requestId})}"
+                          method="post"
+                          id="approveForm">
+
+                        <input type="hidden"
+                               name="remarks"
+                               id="approveRemarks">
+
+                        <button type="submit"
+                                class="btn-approve">
+
+                            Approve
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 Already Processed
+                 ================================================= -->
+
+            <div class="card"
+                 th:if="${approvalRequest.status != 'PENDING_CHECKER'}">
+
+                <h2 class="card-title">
+                    Approval Status
+                </h2>
+
+                <div class="processed-message">
+
+                    This approval request has already been processed.
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 Approval History
+                 ================================================= -->
+
+            <div class="card"
+                 th:if="${history != null and !history.isEmpty()}">
+
+                <h2 class="card-title">
+                    Approval History
+                </h2>
+
+
+                <table class="history-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            Action
+                        </th>
+
+                        <th>
+                            Stage
+                        </th>
+
+                        <th>
+                            Actor
+                        </th>
+
+                        <th>
+                            Remarks
+                        </th>
+
+                        <th>
+                            Action Time
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="action : ${history}">
+
+                        <td th:text="${action.action}">
+                            ACTION
+                        </td>
+
+                        <td th:text="${action.stage}">
+                            STAGE
+                        </td>
+
+                        <td th:text="${action.actorId}">
+                            ACTOR
+                        </td>
+
+                        <td th:text="${action.remarks}">
+                            REMARKS
+                        </td>
+
+                        <td th:text="${action.actionAt}">
+                            TIME
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        </main>
+
+    </div>
+    ```
 
 </div>
 
+<!-- =========================================================
+     Remarks Handling
+     ========================================================= -->
 
 <script>
+
     function copyRemarks(targetId) {
-        const remarks = document.getElementById("remarks").value;
-        document.getElementById(targetId).value = remarks;
+
+        const remarks =
+            document.getElementById("remarks").value;
+
+        document.getElementById(targetId).value =
+            remarks;
     }
 
-    document.getElementById("rejectForm")?.addEventListener("submit", function () {
-        copyRemarks("rejectRemarks");
-    });
 
-    document.getElementById("returnForm")?.addEventListener("submit", function () {
-        copyRemarks("returnRemarks");
-    });
+    document
+        .getElementById("rejectForm")
+        ?.addEventListener("submit", function () {
 
-    document.getElementById("approveForm")?.addEventListener("submit", function () {
-        copyRemarks("approveRemarks");
-    });
+            copyRemarks("rejectRemarks");
+
+        });
+
+
+    document
+        .getElementById("returnForm")
+        ?.addEventListener("submit", function () {
+
+            copyRemarks("returnRemarks");
+
+        });
+
+
+    document
+        .getElementById("approveForm")
+        ?.addEventListener("submit", function () {
+
+            copyRemarks("approveRemarks");
+
+        });
+
 </script>
 
 </body>
-</html>
 
+</html>

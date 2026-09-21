@@ -249,7 +249,7 @@
                                 <!-- Action -->
                                 <td>
 
-                                    <a th:href="@{'/approvals/' + ${request.requestId}}"
+                                    <a th:href="@{/approvals/{id}(id=${request.requestId}, from='returned')}">
                                        class="btn btn-sm btn-outline-primary">
 
                                         View

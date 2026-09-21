@@ -50,53 +50,30 @@ public class ApprovalController {
     @GetMapping("/approvals/{requestId}")
     public String approvalDetails(
             @PathVariable Long requestId,
+            @RequestParam(required = false) String from,
             Model model) {
 
         ApprovalRequest approvalRequest =
-                approvalWorkflowService
-                        .getApprovalRequest(requestId);
+                approvalWorkflowService.getApprovalRequest(requestId);
 
         ShareholderChangeRequest changeRequest =
-                approvalWorkflowService
-                        .getChangeRequest(approvalRequest);
+                approvalWorkflowService.getChangeRequest(approvalRequest);
 
         ShareholderCreateRequest proposal =
                 shareholderService.parseProposalJson(
                         changeRequest.getNewValue());
 
         List<ApprovalAction> history =
-                approvalWorkflowService
-                        .getApprovalHistory(requestId);
+                approvalWorkflowService.getApprovalHistory(requestId);
 
-        model.addAttribute(
-                "requestId",
-                requestId
-        );
+        model.addAttribute("requestId", requestId);
+        model.addAttribute("status", approvalRequest.getStatus());
+        model.addAttribute("approvalRequest", approvalRequest);
+        model.addAttribute("changeRequest", changeRequest);
+        model.addAttribute("proposal", proposal);
+        model.addAttribute("history", history);
 
-        model.addAttribute(
-                "status",
-                approvalRequest.getStatus()
-        );
-
-        model.addAttribute(
-                "approvalRequest",
-                approvalRequest
-        );
-
-        model.addAttribute(
-                "changeRequest",
-                changeRequest
-        );
-
-        model.addAttribute(
-                "proposal",
-                proposal
-        );
-
-        model.addAttribute(
-                "history",
-                history
-        );
+        model.addAttribute("from", from);
 
         return "approval/approval-details";
     }

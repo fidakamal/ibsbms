@@ -44,12 +44,14 @@
         <a href="/approvals"
            class="sidebar-link"
            th:if="${isChecker}"
-           th:classappend="${currentUri == '/approvals'
-                        or
-                        (currentUri.startsWith('/approvals/')
-                        and !currentUri.startsWith('/approvals/rejected')
-                        and !currentUri.startsWith('/approvals/returned'))}
-                        ? ' active'">
+           th:classappend="${(currentUri == '/approvals'
+                 or
+                 (currentUri.startsWith('/approvals/')
+                 and !currentUri.startsWith('/approvals/rejected')
+                 and !currentUri.startsWith('/approvals/returned')))
+                 and from != 'rejected'
+                 and from != 'returned'}
+                 ? ' active'">
 
             <span class="sidebar-icon">✓</span>
             <span>Approvals</span>
@@ -74,8 +76,9 @@
         <a href="/approvals/rejected"
            class="sidebar-link"
            th:if="${isChecker}"
-           th:classappend="${currentUri.startsWith('/approvals/rejected')}
-                        ? ' active'">
+           th:classappend="${currentUri.startsWith('/approvals/rejected')
+                 or from == 'rejected'}
+                 ? ' active'">
 
             <span class="sidebar-icon">✕</span>
             <span>Rejected Requests</span>
@@ -87,8 +90,9 @@
         <a href="/approvals/returned"
            class="sidebar-link"
            th:if="${isChecker}"
-           th:classappend="${currentUri.startsWith('/approvals/returned')}
-                        ? ' active'">
+           th:classappend="${currentUri.startsWith('/approvals/returned')
+                 or from == 'returned'}
+                 ? ' active'">
 
             <span class="sidebar-icon">↩</span>
             <span>Returned Requests</span>
