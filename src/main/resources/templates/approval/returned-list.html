@@ -22,12 +22,13 @@
 
 <body>
 
-<div class="app-layout">
+<div class="main-wrapper">
 
     <!-- Sidebar -->
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 
+    <!-- Main Content -->
     <div class="main-content">
 
         <!-- Header -->
@@ -73,8 +74,7 @@
 
                 <div class="card-body">
 
-
-                    <!-- Header -->
+                    <!-- Card Header -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
 
                         <div>
@@ -124,7 +124,7 @@
 
                         <table class="table table-hover align-middle mb-0">
 
-                            <thead>
+                            <thead class="share-table-header">
 
                             <tr>
 
@@ -249,7 +249,7 @@
                                 <!-- Action -->
                                 <td>
 
-                                    <a th:href="@{/approvals/{id}(id=${request.requestId}, from='returned')}">
+                                    <a th:href="@{/approvals/{id}(id=${request.requestId}, from='returned')}"
                                        class="btn btn-sm btn-outline-primary">
 
                                         View
