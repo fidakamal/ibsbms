@@ -39,7 +39,8 @@ public interface ShareholderRepository
                 a.COUNTRY_NAME AS "countryName",
 
                 ROW_NUMBER() OVER (
-                    ORDER BY s.FOLIO_BO
+                    ORDER BY s.REGISTRATION_DATE DESC NULLS LAST,
+                             s.FOLIO_BO DESC
                 ) AS rn
 
             FROM T_ACCOUNT_SHARE s

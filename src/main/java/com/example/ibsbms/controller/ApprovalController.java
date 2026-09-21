@@ -198,7 +198,7 @@ public class ApprovalController {
                     remarks
             );
 
-            return "redirect:/shareholders";
+            return "redirect:/shareholders?success=Request approved successfully.";
 
         } catch (Exception e) {
 
