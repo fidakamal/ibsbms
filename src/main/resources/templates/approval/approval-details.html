@@ -165,6 +165,80 @@
             min-height: 90px;
         }
 
+
+        /* Checker Remarks */
+        .checker-remarks-section {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .checker-remarks-label {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+
+            font-size: 13px;
+            font-weight: 600;
+            color: #52656D;
+        }
+
+        .checker-remarks-input {
+            display: block;
+            width: 100% !important;
+            height: 130px !important;
+            min-height: 130px !important;
+
+            padding: 12px 14px !important;
+
+            border: 1px solid #D5DDDD !important;
+            border-radius: 5px !important;
+
+            background: #F8FAFA !important;
+            color: #263238;
+
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+
+            resize: vertical;
+        }
+
+        .checker-remarks-input:focus {
+            outline: none;
+            border-color: #174C4C !important;
+            box-shadow: 0 0 0 2px rgba(23, 76, 76, 0.12);
+        }
+
+        .checker-remarks-input::placeholder {
+            color: #8A969A;
+        }
+
+
+        /* Return validation error */
+        .return-error {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 12px;
+
+            background: #FFF5F5;
+            border: 1px solid #E6B8B8;
+            border-radius: 5px;
+
+            color: #B42318;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .return-error-icon {
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+
         .request-info {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -338,6 +412,10 @@
             </a>
 
         </div>
+
+
+
+
 
 
         <!-- Request Information -->
@@ -625,15 +703,32 @@
                 Checker Decision
             </h2>
 
-            <div class="field full">
-                <label for="remarks">
+
+            <div class="checker-remarks-section">
+
+                <label for="remarks" class="checker-remarks-label">
                     Remarks
                 </label>
 
                 <textarea id="remarks"
                           name="remarks"
-                          placeholder="Enter remarks..."></textarea>
+                          class="checker-remarks-input"
+                          placeholder="Enter remarks before taking an action..."
+                          rows="5"></textarea>
+
+                <div th:if="${param.error}"
+                     class="return-error">
+
+                    <span class="return-error-icon">⚠</span>
+
+                    <span th:text="${param.error}">
+            Remarks are required. Please provide a reason before returning this request for modification.
+        </span>
+
+                </div>
+
             </div>
+
 
 
             <div class="decision-buttons">

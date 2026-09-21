@@ -455,3 +455,165 @@ a {
 }
 
 
+
+       /* Checker Decision - Remarks */
+   .checker-remarks {
+       min-height: 130px;
+       resize: vertical;
+
+       padding: 14px 16px;
+
+       border: 1px solid #ced4da;
+       border-radius: 8px;
+
+       font-size: 14px;
+       line-height: 1.6;
+
+       color: #263238;
+       background-color: #ffffff;
+
+       transition:
+               border-color 0.2s ease,
+               box-shadow 0.2s ease;
+   }
+
+.checker-remarks::placeholder {
+    color: #9aa3a8;
+}
+
+.checker-remarks:focus {
+    border-color: #174c4c;
+
+    box-shadow:
+            0 0 0 0.2rem rgba(23, 76, 76, 0.12);
+
+    outline: none;
+}
+
+
+/* Return validation error */
+.return-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    margin-top: 10px;
+
+    padding: 10px 12px;
+
+    border-radius: 6px;
+
+    background-color: #fff5f5;
+    border: 1px solid #f1c2c2;
+
+    color: #b42318;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.return-error-icon {
+    font-size: 15px;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+
+
+/* =========================================================
+   Checker Decision - Remarks
+   ========================================================= */
+
+.checker-remarks-section {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 24px;
+}
+
+.checker-remarks-label {
+    display: block !important;
+    width: 100% !important;
+
+    margin-bottom: 8px !important;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #174c4c;
+}
+
+textarea.checker-remarks-input {
+    display: block !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    min-width: 100% !important;
+
+    height: 130px !important;
+    min-height: 130px !important;
+
+    padding: 14px 16px !important;
+
+    box-sizing: border-box !important;
+
+    resize: vertical;
+
+    border: 1px solid #ced4da !important;
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #263238;
+}
+
+textarea.checker-remarks-input::placeholder {
+    color: #9aa3a8;
+}
+
+textarea.checker-remarks-input:focus {
+    border-color: #174c4c !important;
+
+    outline: none !important;
+
+    box-shadow: 0 0 0 3px rgba(23, 76, 76, 0.12) !important;
+}
+
+
+/* Error message */
+
+.return-error {
+    display: flex !important;
+    align-items: flex-start;
+
+    width: 100% !important;
+
+    box-sizing: border-box;
+
+    margin-top: 10px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #f1c2c2;
+    border-radius: 6px;
+
+    background: #fff5f5;
+
+    color: #b42318;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.return-error-icon {
+    margin-right: 8px;
+    flex-shrink: 0;
+
+    font-size: 15px;
+}
+

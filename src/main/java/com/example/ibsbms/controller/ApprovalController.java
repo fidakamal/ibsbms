@@ -221,6 +221,13 @@ public class ApprovalController {
 
         try {
 
+            if (remarks == null || remarks.trim().isEmpty()) {
+
+                return "redirect:/approvals/"
+                        + requestId
+                        + "?error=Remarks are required. Please provide a reason before returning this request for modification.";
+            }
+
             String checkerId = principal.getName();
             String checkerIp = "127.0.0.1";
 
@@ -249,6 +256,13 @@ public class ApprovalController {
             Principal principal) {
 
         try {
+
+            if (remarks == null || remarks.trim().isEmpty()) {
+
+                return "redirect:/approvals/"
+                        + requestId
+                        + "?error=Remarks are required. Please provide a reason before rejecting this request.";
+            }
 
             String checkerId = principal.getName();
             String checkerIp = "127.0.0.1";
