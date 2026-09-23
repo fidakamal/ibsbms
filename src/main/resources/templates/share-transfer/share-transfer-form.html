@@ -428,17 +428,24 @@
         return kind === 'BO' ? 'e.g. 1201234567890123' : 'e.g. F123456';
     }
 
-    function clearSide(side) {
+    function clearSide(side, options) {
+        var resetInput = !options || options.resetInput !== false;
+
         // Cancel any request still in flight for this side before
         // clearing it - an old response must never land after a clear.
         if (searchControllers[side]) {
             searchControllers[side].abort();
             searchControllers[side] = null;
         }
+
         document.getElementById(side + 'Details').classList.add('d-none');
         document.getElementById(side + 'Details').innerHTML = '';
         document.getElementById(side + 'Error').classList.add('d-none');
         document.getElementById(side + 'Error').textContent = '';
+
+        if (resetInput) {
+            document.getElementById(side + 'Reference').value = '';
+        }
     }
 
     function updateSettlementNote(type) {
@@ -532,10 +539,12 @@
             searchControllers[side].abort();
         }
 
-        errorBox.classList.add('d-none');
-        errorBox.textContent = '';
-        detailsBox.classList.add('d-none');
-        detailsBox.innerHTML = '';
+        // errorBox.classList.add('d-none');
+        // errorBox.textContent = '';
+        // detailsBox.classList.add('d-none');
+        // detailsBox.innerHTML = '';
+
+        clearSide(side, { resetInput: false });
 
         if (!reference) {
             errorBox.textContent = 'Enter a ' + fieldLabelFor(kind) + ' first.';
