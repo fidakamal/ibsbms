@@ -129,7 +129,7 @@
                                 <option th:each="t : ${transferTypes}"
                                         th:value="${t}"
                                         th:text="${t.label}"
-                                        th:attr="data-debit=${t.debitSide},data-credit=${t.creditSide}">
+                                        th:attr="data-debit=${t.debitSide},data-credit=${t.creditSide},data-settlement=${t.settlementRequired}">
                                 </option>
                             </select>
                         </div>
@@ -201,13 +201,14 @@
                             </div>
 
                             <label class="form-label mt-2">
-                                Folio / BO No <span class="required">*</span>
+                                <span id="debitReferenceLabel">Folio No</span> <span class="required">*</span>
                             </label>
 
                             <div class="input-group">
                                 <input type="text"
                                        id="debitReference"
                                        class="form-control"
+                                       maxlength="16"
                                        th:field="*{debitReference}">
                                 <button type="button" id="debitSearchBtn" class="btn btn-outline-secondary">
                                     Search
@@ -236,13 +237,14 @@
                             </div>
 
                             <label class="form-label mt-2">
-                                Folio / BO No <span class="required">*</span>
+                                <span id="creditReferenceLabel">Folio No</span> <span class="required">*</span>
                             </label>
 
                             <div class="input-group">
                                 <input type="text"
                                        id="creditReference"
                                        class="form-control"
+                                       maxlength="16"
                                        th:field="*{creditReference}">
                                 <button type="button" id="creditSearchBtn" class="btn btn-outline-secondary">
                                     Search
@@ -256,6 +258,13 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- Dynamic settlement note - only shown for Folio-to-BO / BO-to-Folio -->
+            <div class="row g-3 mt-1" id="settlementNoteRow" style="display:none;">
+                <div class="col-12">
+                    <div class="alert alert-info mb-0" id="settlementNoteText"></div>
+                </div>
             </div>
 
 
@@ -396,12 +405,21 @@
         var option = select.options[select.selectedIndex];
         return {
             debit: option.getAttribute('data-debit'),
-            credit: option.getAttribute('data-credit')
+            credit: option.getAttribute('data-credit'),
+            settlementRequired: option.getAttribute('data-settlement') === 'true'
         };
     }
 
     function labelFor(kind) {
         return kind === 'BO' ? 'BO (CDBL)' : 'Folio (Shareholder)';
+    }
+
+    function fieldLabelFor(kind) {
+        return kind === 'BO' ? 'BO No' : 'Folio No';
+    }
+
+    function placeholderFor(kind) {
+        return kind === 'BO' ? 'e.g. 1201234567890123' : 'e.g. F123456';
     }
 
     function clearSide(side) {
@@ -411,12 +429,50 @@
         document.getElementById(side + 'Error').textContent = '';
     }
 
+    /*
+     * PDF section 5 "Dynamic UI Rules" - Settlement Handling column:
+     *   F2F  -> No settlement Folio
+     *   F2B  -> System uses Folio 1 as credit ledger account
+     *   B2F  -> System uses Folio 1 as debit ledger account
+     * The BO number the user enters is still what gets stored as the
+     * business reference (PDF section 11.2/11.3) - only the *effective
+     * SBMS ledger posting* is redirected through Folio 1. This note
+     * exists purely to make that non-obvious behavior visible to the
+     * Maker before they save.
+     */
+    function updateSettlementNote(type) {
+        var row = document.getElementById('settlementNoteRow');
+        var text = document.getElementById('settlementNoteText');
+
+        if (!type.settlementRequired) {
+            row.style.display = 'none';
+            text.textContent = '';
+            return;
+        }
+
+        var message = type.debit === 'BO'
+            ? 'Remat (BO to Folio): the system will post the debit leg against the settlement account (Folio No: 1). The BO number entered above is kept as the business reference only.'
+            : 'Demat (Folio to BO): the system will post the credit leg against the settlement account (Folio No: 1). The BO number entered above is kept as the business reference only.';
+
+        text.textContent = message;
+        row.style.display = '';
+    }
+
     function applyTransferType() {
         var type = currentType();
+
         document.getElementById('debitAccountType').textContent = labelFor(type.debit);
         document.getElementById('creditAccountType').textContent = labelFor(type.credit);
+
+        document.getElementById('debitReferenceLabel').textContent = fieldLabelFor(type.debit);
+        document.getElementById('creditReferenceLabel').textContent = fieldLabelFor(type.credit);
+
+        document.getElementById('debitReference').setAttribute('placeholder', placeholderFor(type.debit));
+        document.getElementById('creditReference').setAttribute('placeholder', placeholderFor(type.credit));
+
         clearSide('debit');
         clearSide('credit');
+        updateSettlementNote(type);
     }
 
     function escapeHtml(value) {
@@ -470,7 +526,7 @@
         clearSide(side);
 
         if (!reference) {
-            errorBox.textContent = 'Enter a Folio/BO number first.';
+            errorBox.textContent = 'Enter a ' + fieldLabelFor(kind) + ' first.';
             errorBox.classList.remove('d-none');
             return;
         }
