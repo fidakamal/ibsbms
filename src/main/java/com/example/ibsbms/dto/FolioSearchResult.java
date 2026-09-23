@@ -7,15 +7,10 @@ public class FolioSearchResult {
     private String name;
     private String fatherName;
     private Integer customerType;
-
     private String phone;
-
-
     private boolean active;
     private Integer statusCode;
-
     private boolean lien;
-
     private Long currentBalance;
     private Long transferableBalance;
 

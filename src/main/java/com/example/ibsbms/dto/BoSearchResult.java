@@ -6,25 +6,13 @@ public class BoSearchResult {
 
     private String boNo;
     private String boName;
-
     private String boStatus;
     private String suspensionStatus;
-
     private BigDecimal freeBalance;
     private BigDecimal pledgeBalance;
     private BigDecimal lockinBalance;
     private BigDecimal currentBalance;
     private BigDecimal frozenBalance;
-
-    /*
-     * ASSUMPTION, NOT CONFIRMED: uses FREE_BALANCE as a
-     * conventional stand-in for "transferable balance" (i.e.
-     * unencumbered by pledge/lockin/frozen). PDF section 6.2/25
-     * explicitly lists "which BO balance/status combination
-     * should block transfer" as BUSINESS CONFIRMATION REQUIRED.
-     * Do not use this field to allow/block a transfer until that
-     * is confirmed - this DTO is for display only.
-     */
     private BigDecimal transferableBalance;
 
     public static BoSearchResult from(AccountCdbl account) {
