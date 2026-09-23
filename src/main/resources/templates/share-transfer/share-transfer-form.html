@@ -209,6 +209,7 @@
                                        id="debitReference"
                                        class="form-control"
                                        maxlength="16"
+                                       autocomplete="off"
                                        th:field="*{debitReference}">
                                 <button type="button" id="debitSearchBtn" class="btn btn-outline-secondary">
                                     Search
@@ -245,6 +246,7 @@
                                        id="creditReference"
                                        class="form-control"
                                        maxlength="16"
+                                       autocomplete="off"
                                        th:field="*{creditReference}">
                                 <button type="button" id="creditSearchBtn" class="btn btn-outline-secondary">
                                     Search
@@ -400,6 +402,10 @@
 
 <script th:inline="javascript">
 
+    // In-flight request tracking, keyed by side - lets a new search
+    // cancel a slower older one instead of racing it (see searchAccount).
+    var searchControllers = { debit: null, credit: null };
+
     function currentType() {
         var select = document.getElementById('transferType');
         var option = select.options[select.selectedIndex];
@@ -423,23 +429,18 @@
     }
 
     function clearSide(side) {
+        // Cancel any request still in flight for this side before
+        // clearing it - an old response must never land after a clear.
+        if (searchControllers[side]) {
+            searchControllers[side].abort();
+            searchControllers[side] = null;
+        }
         document.getElementById(side + 'Details').classList.add('d-none');
         document.getElementById(side + 'Details').innerHTML = '';
         document.getElementById(side + 'Error').classList.add('d-none');
         document.getElementById(side + 'Error').textContent = '';
     }
 
-    /*
-     * PDF section 5 "Dynamic UI Rules" - Settlement Handling column:
-     *   F2F  -> No settlement Folio
-     *   F2B  -> System uses Folio 1 as credit ledger account
-     *   B2F  -> System uses Folio 1 as debit ledger account
-     * The BO number the user enters is still what gets stored as the
-     * business reference (PDF section 11.2/11.3) - only the *effective
-     * SBMS ledger posting* is redirected through Folio 1. This note
-     * exists purely to make that non-obvious behavior visible to the
-     * Maker before they save.
-     */
     function updateSettlementNote(type) {
         var row = document.getElementById('settlementNoteRow');
         var text = document.getElementById('settlementNoteText');
@@ -522,8 +523,19 @@
 
         var errorBox = document.getElementById(side + 'Error');
         var detailsBox = document.getElementById(side + 'Details');
+        var button = document.getElementById(side + 'SearchBtn');
 
-        clearSide(side);
+        // Cancel a previous still-running search for this same side
+        // before starting a new one - prevents an older, slower
+        // response from overwriting the result of a newer search.
+        if (searchControllers[side]) {
+            searchControllers[side].abort();
+        }
+
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+        detailsBox.classList.add('d-none');
+        detailsBox.innerHTML = '';
 
         if (!reference) {
             errorBox.textContent = 'Enter a ' + fieldLabelFor(kind) + ' first.';
@@ -535,8 +547,15 @@
             ? '/share-transfer/search/bo/' + encodeURIComponent(reference)
             : '/share-transfer/search/folio/' + encodeURIComponent(reference);
 
+        var controller = new AbortController();
+        searchControllers[side] = controller;
+
+        var originalButtonText = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Searching...';
+
         try {
-            var response = await fetch(url);
+            var response = await fetch(url, { signal: controller.signal });
 
             if (!response.ok) {
                 var errorBody = await response.json().catch(function () { return {}; });
@@ -550,19 +569,44 @@
             detailsBox.classList.remove('d-none');
 
         } catch (e) {
-            errorBox.textContent = 'Search failed. Please try again.';
-            errorBox.classList.remove('d-none');
+            // A deliberate abort (superseded by a newer search) is not
+            // a real failure - only show an error for genuine problems.
+            if (e.name !== 'AbortError') {
+                errorBox.textContent = 'Search failed. Please try again.';
+                errorBox.classList.remove('d-none');
+            }
+        } finally {
+            if (searchControllers[side] === controller) {
+                searchControllers[side] = null;
+            }
+            button.disabled = false;
+            button.textContent = originalButtonText;
         }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         applyTransferType();
+
         document.getElementById('transferType').addEventListener('change', applyTransferType);
+
         document.getElementById('debitSearchBtn').addEventListener('click', function () { searchAccount('debit'); });
         document.getElementById('creditSearchBtn').addEventListener('click', function () { searchAccount('credit'); });
+
+        // Enter inside the reference field triggers the AJAX search
+        // instead of submitting the whole form (which would defeat
+        // the point of this task - a full page reload).
+        ['debit', 'credit'].forEach(function (side) {
+            document.getElementById(side + 'Reference').addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchAccount(side);
+                }
+            });
+        });
     });
 
 </script>
+
 
 </body>
 </html>
