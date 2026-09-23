@@ -108,7 +108,7 @@
         </div>
 
 
-        <form method="post" th:action="@{/share-transfer}" th:object="${shareTransferForm}">
+        <form id="shareTransferFormEl" method="post" th:action="@{/share-transfer}" th:object="${shareTransferForm}" novalidate>
 
             <!-- =========================
                  TOP FIELDS
@@ -125,13 +125,18 @@
                             </label>
                             <select id="transferType"
                                     class="form-select"
+                                    required
                                     th:field="*{transferType}">
+                                <option value="" disabled selected>Select transfer type</option>
                                 <option th:each="t : ${transferTypes}"
                                         th:value="${t}"
                                         th:text="${t.label}"
                                         th:attr="data-debit=${t.debitSide},data-credit=${t.creditSide},data-settlement=${t.settlementRequired}">
                                 </option>
                             </select>
+                            <div class="invalid-feedback">
+                                Please select a transfer type.
+                            </div>
                         </div>
 
                         <div class="col-md-2">
@@ -170,9 +175,15 @@
                                 Particulars / Remarks <span class="required">*</span>
                             </label>
                             <input type="text"
+                                   id="particulars"
                                    class="form-control"
+                                   required
+                                   maxlength="800"
                                    th:field="*{particulars}"
                                    placeholder="Share transfer as per request">
+                            <div class="invalid-feedback">
+                                Particulars/Remarks is required.
+                            </div>
                         </div>
                     </div>
 
@@ -210,6 +221,7 @@
                                        class="form-control"
                                        maxlength="16"
                                        autocomplete="off"
+                                       required
                                        th:field="*{debitReference}">
                                 <button type="button" id="debitSearchBtn" class="btn btn-outline-secondary">
                                     Search
@@ -247,6 +259,7 @@
                                        class="form-control"
                                        maxlength="16"
                                        autocomplete="off"
+                                       required
                                        th:field="*{creditReference}">
                                 <button type="button" id="creditSearchBtn" class="btn btn-outline-secondary">
                                     Search
@@ -289,10 +302,15 @@
                                 No. of Shares <span class="required">*</span>
                             </label>
                             <input type="number"
+                                   id="shareQuantity"
                                    step="0.01"
-                                   min="0"
+                                   min="0.01"
+                                   required
                                    class="form-control"
                                    th:field="*{shareQuantity}">
+                            <div class="invalid-feedback">
+                                Enter a quantity greater than zero.
+                            </div>
                         </div>
 
                         <div class="col-md-3">
@@ -302,15 +320,15 @@
 
                         <div class="col-md-3">
                             <label class="form-label">Certificate No (optional)</label>
-                            <input type="text" class="form-control" th:field="*{certificateNo}">
+                            <input type="text" class="form-control" maxlength="120" th:field="*{certificateNo}">
                         </div>
 
                         <div class="col-md-3">
                             <label class="form-label">Distinctive From / To (optional)</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" th:field="*{distinctiveFrom}">
+                                <input type="text" class="form-control" maxlength="10" th:field="*{distinctiveFrom}">
                                 <span class="input-group-text">to</span>
-                                <input type="text" class="form-control" th:field="*{distinctiveTo}">
+                                <input type="text" class="form-control" maxlength="10" th:field="*{distinctiveTo}">
                             </div>
                         </div>
 
@@ -442,6 +460,7 @@
         document.getElementById(side + 'Details').innerHTML = '';
         document.getElementById(side + 'Error').classList.add('d-none');
         document.getElementById(side + 'Error').textContent = '';
+        document.getElementById(side + 'Reference').classList.remove('is-invalid');
 
         if (resetInput) {
             document.getElementById(side + 'Reference').value = '';
@@ -481,6 +500,7 @@
         clearSide('debit');
         clearSide('credit');
         updateSettlementNote(type);
+        document.getElementById('shareTransferFormEl').classList.remove('was-validated');
     }
 
     function escapeHtml(value) {
@@ -593,6 +613,59 @@
         }
     }
 
+
+    /*
+ * Task-15: UX-only validation. This only decides whether the
+ * browser submits the form - it duplicates, but never replaces,
+ * ShareTransferForm's Bean Validation and
+ * ShareTransferValidationService's rules, which remain the sole
+ * authority server-side (PDF section 5: "final authority is
+ * always server-side service validation").
+ */
+    function validateShareTransferForm(event) {
+        var form = event.currentTarget;
+
+        var debitInput = document.getElementById('debitReference');
+        var creditInput = document.getElementById('creditReference');
+        var debitError = document.getElementById('debitError');
+        var creditError = document.getElementById('creditError');
+
+        var nativeValid = form.checkValidity();
+
+        var debitVal = debitInput.value.trim();
+        var creditVal = creditInput.value.trim();
+
+        var debitMissing = !debitVal;
+        var creditMissing = !creditVal;
+        var sameAccount = !debitMissing && !creditMissing
+            && debitVal.toLowerCase() === creditVal.toLowerCase();
+
+        debitInput.classList.toggle('is-invalid', debitMissing);
+        creditInput.classList.toggle('is-invalid', creditMissing || sameAccount);
+
+        if (debitMissing) {
+            debitError.textContent = 'Debit Folio/BO No is required.';
+            debitError.classList.remove('d-none');
+        }
+
+        if (sameAccount) {
+            creditError.textContent = 'Debit and credit account cannot be the same.';
+            creditError.classList.remove('d-none');
+        } else if (creditMissing) {
+            creditError.textContent = 'Credit Folio/BO No is required.';
+            creditError.classList.remove('d-none');
+        }
+
+        var blocked = !nativeValid || debitMissing || creditMissing || sameAccount;
+
+        if (blocked) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         applyTransferType();
 
@@ -611,7 +684,15 @@
                     searchAccount(side);
                 }
             });
+
+            // Clear a validation error as soon as the user starts fixing it.
+            document.getElementById(side + 'Reference').addEventListener('input', function () {
+                this.classList.remove('is-invalid');
+                document.getElementById(side + 'Error').classList.add('d-none');
+            });
         });
+
+        document.getElementById('shareTransferFormEl').addEventListener('submit', validateShareTransferForm, false);
     });
 
 </script>
