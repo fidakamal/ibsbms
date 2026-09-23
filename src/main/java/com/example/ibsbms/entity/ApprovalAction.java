@@ -26,19 +26,19 @@ public class ApprovalAction {
     @Column(name = "REQUEST_ID", nullable = false)
     private Long requestId;
 
-    @Column(name = "STAGE", length = 20, nullable = false)
+    @Column(name = "STAGE", length = 80, nullable = false)
     private String stage;
 
     @Column(name = "ACTION", length = 30, nullable = false)
     private String action;
 
-    @Column(name = "ACTOR_ID", length = 60, nullable = false)
+    @Column(name = "ACTOR_ID", length = 240, nullable = false)
     private String actorId;
 
-    @Column(name = "ACTOR_IP", length = 50)
+    @Column(name = "ACTOR_IP", length = 200)
     private String actorIp;
 
-    @Column(name = "REMARKS", length = 500)
+    @Column(name = "REMARKS", length = 2000)
     private String remarks;
 
     @Column(name = "ACTION_AT")

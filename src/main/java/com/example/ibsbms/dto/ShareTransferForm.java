@@ -4,9 +4,9 @@ import com.example.ibsbms.enums.TransferType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ShareTransferForm {
@@ -23,26 +23,42 @@ public class ShareTransferForm {
     @Size(max = 16)
     private String creditReference;
 
+    /*
+     * Feeds T_TRANS_SHARE.DR_SHARE / CR_SHARE, confirmed as
+     * NUMBER(16,2) in the real Oracle schema (not a plain
+     * integer count) - must be BigDecimal, not Long.
+     */
     @NotNull
     @Positive
-    private Long shareQuantity;
+    private BigDecimal shareQuantity;
 
     @Size(max = 50)
     private String instrumentNo;
 
     private LocalDate instrumentDate;
+
+    /*
+     * Feeds T_TRANS_SHARE.PARTICULARS, confirmed VARCHAR2(800).
+     */
     @NotBlank
-    @Size(max = 200)
+    @Size(max = 800)
     private String particulars;
 
-    @Size(max = 30)
+    /*
+     * Feeds T_CERTIFICATE.CERTI_NO, confirmed VARCHAR2(120).
+     */
+    @Size(max = 120)
     private String certificateNo;
 
-    @PositiveOrZero
-    private Long distinctiveFrom;
+    /*
+     * Feed T_CERTIFICATE.DIST_FROM / DIST_TO, confirmed
+     * VARCHAR2(10) in the real schema - not numeric.
+     */
+    @Size(max = 10)
+    private String distinctiveFrom;
 
-    @PositiveOrZero
-    private Long distinctiveTo;
+    @Size(max = 10)
+    private String distinctiveTo;
 
     public ShareTransferForm() {
     }
@@ -71,11 +87,11 @@ public class ShareTransferForm {
         this.creditReference = creditReference;
     }
 
-    public Long getShareQuantity() {
+    public BigDecimal getShareQuantity() {
         return shareQuantity;
     }
 
-    public void setShareQuantity(Long shareQuantity) {
+    public void setShareQuantity(BigDecimal shareQuantity) {
         this.shareQuantity = shareQuantity;
     }
 
@@ -111,19 +127,19 @@ public class ShareTransferForm {
         this.certificateNo = certificateNo;
     }
 
-    public Long getDistinctiveFrom() {
+    public String getDistinctiveFrom() {
         return distinctiveFrom;
     }
 
-    public void setDistinctiveFrom(Long distinctiveFrom) {
+    public void setDistinctiveFrom(String distinctiveFrom) {
         this.distinctiveFrom = distinctiveFrom;
     }
 
-    public Long getDistinctiveTo() {
+    public String getDistinctiveTo() {
         return distinctiveTo;
     }
 
-    public void setDistinctiveTo(Long distinctiveTo) {
+    public void setDistinctiveTo(String distinctiveTo) {
         this.distinctiveTo = distinctiveTo;
     }
 }

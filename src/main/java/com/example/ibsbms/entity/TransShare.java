@@ -3,6 +3,7 @@ package com.example.ibsbms.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -15,64 +16,43 @@ import java.time.LocalDateTime;
 public class TransShare {
 
     @Id
-    @Column(name = "OID", length = 20, nullable = false)
-    private String oid;
+    @Column(name = "OID", precision = 20, scale = 0, nullable = false)
+    private Long oid;
 
-    @Column(name = "FOLIO_BO", length = 16)
+    @Column(name = "FOLIO_BO", length = 16, nullable = false)
     private String folioBo;
 
-    /*
-     * Human-facing transaction reference, e.g. "TR202600123"
-     * (see Previous Transactions panel in the reference screenshot).
-     */
-    @Column(name = "TR_ID", length = 20)
+    @Column(name = "TR_ID", length = 80, nullable = false)
     private String trId;
 
-    /*
-     * Links the debit leg and the credit leg of one transfer together.
-     * PDF section 11: "Both rows use the same GRP_TR_ID."
-     */
-    @Column(name = "GRP_TR_ID", length = 20)
+    @Column(name = "GRP_TR_ID", length = 80)
     private String grpTrId;
 
-    @Column(name = "TR_DATE")
+    @Column(name = "TR_DATE", nullable = false)
     private LocalDate trDate;
 
-    /*
-     * Always "TRANSFER" for this module per the confirmed
-     * Transaction Type Mapping (see TransferType enum).
-     */
-    @Column(name = "TR_TYPE", length = 20)
+    @Column(name = "TR_TYPE", length = 80, nullable = false)
     private String trType;
 
-    /*
-     * F2F / F2BO / BO2F - see TransferType enum.
-     */
-    @Column(name = "TR_CODE", length = 10)
+    @Column(name = "TR_CODE", length = 40, nullable = false)
     private String trCode;
 
-    @Column(name = "DR_SHARE", precision = 16)
-    private Long drShare;
+    @Column(name = "DR_SHARE", precision = 16, scale = 2)
+    private BigDecimal drShare;
 
-    @Column(name = "CR_SHARE", precision = 16)
-    private Long crShare;
+    @Column(name = "CR_SHARE", precision = 16, scale = 2)
+    private BigDecimal crShare;
 
-
-    @Column(name = "CONTRA_ACC", length = 16)
+    @Column(name = "CONTRA_ACC", length = 64)
     private String contraAcc;
 
-    @Column(name = "INSTRUMENT", length = 50)
+    @Column(name = "INSTRUMENT", length = 200)
     private String instrument;
 
-    @Column(name = "PARTICULARS", length = 200)
+    @Column(name = "PARTICULARS", length = 800, nullable = false)
     private String particulars;
 
-    /*
-     * Acting user at posting time - resolved server-side from the
-     * authenticated principal, never trusted from the client
-     * (PDF section 15, "Non-Negotiable Rule" list item 6).
-     */
-    @Column(name = "USER_ID", length = 60)
+    @Column(name = "USER_ID", length = 60, nullable = false)
     private String userId;
 
     @Column(name = "IS_VALID", precision = 1)

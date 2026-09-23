@@ -24,46 +24,46 @@ public class ApprovalRequest {
     @Column(name = "REQUEST_ID", nullable = false)
     private Long requestId;
 
-    @Column(name = "OPERATION_CODE", length = 50, nullable = false)
+    @Column(name = "OPERATION_CODE", length = 200, nullable = false)
     private String operationCode;
 
-    @Column(name = "ENTITY_TYPE", length = 40, nullable = false)
+    @Column(name = "ENTITY_TYPE", length = 160, nullable = false)
     private String entityType;
 
-    @Column(name = "ENTITY_ID", length = 50)
+    @Column(name = "ENTITY_ID", length = 200)
     private String entityId;
 
-    @Column(name = "SOURCE_TYPE", length = 40, nullable = false)
+    @Column(name = "SOURCE_TYPE", length = 160, nullable = false)
     private String sourceType;
 
-    @Column(name = "SOURCE_ID", length = 50, nullable = false)
+    @Column(name = "SOURCE_ID", length = 200, nullable = false)
     private String sourceId;
 
-    @Column(name = "BUSINESS_REF", length = 50)
+    @Column(name = "BUSINESS_REF", length = 200)
     private String businessRef;
 
-    @Column(name = "STATUS", length = 30, nullable = false)
+    @Column(name = "STATUS", length = 120, nullable = false)
     private String status;
 
-    @Column(name = "CURRENT_STAGE", length = 20, nullable = false)
+    @Column(name = "CURRENT_STAGE", length = 80, nullable = false)
     private String currentStage;
 
-    @Column(name = "MAKER_ID", length = 60, nullable = false)
+    @Column(name = "MAKER_ID", length = 240, nullable = false)
     private String makerId;
 
-    @Column(name = "MAKER_IP", length = 50)
+    @Column(name = "MAKER_IP", length = 200)
     private String makerIp;
 
-    @Column(name = "CHECKER_ID", length = 60)
+    @Column(name = "CHECKER_ID", length = 240)
     private String checkerId;
 
-    @Column(name = "CHECKER_IP", length = 50)
+    @Column(name = "CHECKER_IP", length = 200)
     private String checkerIp;
 
-    @Column(name = "APPROVER_ID", length = 60)
+    @Column(name = "APPROVER_ID", length = 240)
     private String approverId;
 
-    @Column(name = "APPROVER_IP", length = 50)
+    @Column(name = "APPROVER_IP", length = 200)
     private String approverIp;
 
     @Column(name = "CREATED_AT")

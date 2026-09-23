@@ -3,6 +3,8 @@ package com.example.ibsbms.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,37 +14,30 @@ import lombok.*;
 public class AccountCdbl {
 
     @Id
-    @Column(name = "BO_NO", length = 16, nullable = false)
+    @Column(name = "BO_NO", length = 16)
     private String boNo;
 
     @Column(name = "BO_NAME", length = 100)
     private String boName;
 
-    @Column(name = "FREE_BALANCE", precision = 16)
-    private Long freeBalance;
+    @Column(name = "FREE_BALANCE", precision = 20, scale = 2)
+    private BigDecimal freeBalance;
 
-    @Column(name = "PLEDGE_BALANCE", precision = 16)
-    private Long pledgeBalance;
+    @Column(name = "PLEDGE_BALANCE", precision = 20, scale = 2)
+    private BigDecimal pledgeBalance;
 
-    @Column(name = "LOCKIN_BALANCE", precision = 16)
-    private Long lockinBalance;
+    @Column(name = "LOCKIN_BALANCE", precision = 20, scale = 2)
+    private BigDecimal lockinBalance;
 
-    @Column(name = "CURRENT_BALANCE", precision = 16)
-    private Long currentBalance;
+    @Column(name = "CURRENT_BALANCE", precision = 20, scale = 2)
+    private BigDecimal currentBalance;
 
-    @Column(name = "FROZEN_BALANCE", precision = 16)
-    private Long frozenBalance;
+    @Column(name = "FROZEN_BALANCE", precision = 20, scale = 2)
+    private BigDecimal frozenBalance;
 
-    /*
-     * Type unconfirmed against real DDL - PDF only names the column,
-     * never its type. Verify before relying on this as String.
-     */
-    @Column(name = "BO_STATUS", length = 20)
+    @Column(name = "BO_STATUS", length = 21)
     private String boStatus;
 
-    /*
-     * Type unconfirmed against real DDL - same caveat as BO_STATUS.
-     */
     @Column(name = "SUSPENSION_STATUS", length = 20)
     private String suspensionStatus;
 }

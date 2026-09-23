@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface TransShareRepository extends JpaRepository<TransShare, String> {
+public interface TransShareRepository extends JpaRepository<TransShare, Long> {
 
     List<TransShare> findByFolioBoOrderByTrDateDesc(String folioBo);
 

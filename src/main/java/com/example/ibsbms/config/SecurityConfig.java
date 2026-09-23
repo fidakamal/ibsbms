@@ -56,6 +56,7 @@ public class SecurityConfig {
                         /*
                          * Maker + Checker
                          */.requestMatchers("/shareholders", "/shareholders/**").hasAnyRole("MAKER", "CHECKER")
+                        .requestMatchers("/share-transfer", "/share-transfer/**").hasAnyRole("MAKER", "CHECKER")
 
                         .requestMatchers("/").hasAnyRole("MAKER", "CHECKER")
 
