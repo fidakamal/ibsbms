@@ -75,6 +75,31 @@
 
         </a>
 
+        <!-- Share Transfer (Maker) -->
+        <a th:href="@{/share-transfer}"
+           class="sidebar-link"
+           data-tooltip="Share Transfer"
+           sec:authorize="hasRole('MAKER')"
+           th:classappend="${currentUri == '/share-transfer'}
+                        ? ' active'">
+
+            <span class="sidebar-icon">⇅</span>
+            <span>Share Transfer</span>
+
+        </a>
+
+        <!-- My Transfer Requests (Share Transfer Maker) -->
+        <a th:href="@{/share-transfer/my-requests}"
+           class="sidebar-link"
+           data-tooltip="My Transfer Requests"
+           sec:authorize="hasRole('MAKER')"
+           th:classappend="${currentUri.startsWith('/share-transfer/my-requests')}
+                        ? ' active'">
+
+            <span class="sidebar-icon">⇄</span>
+            <span>My Transfer Requests</span>
+
+        </a>
 
         <!-- Rejected Requests -->
         <a href="/approvals/rejected"

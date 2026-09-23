@@ -1,7 +1,9 @@
 package com.example.ibsbms.service;
 
 import com.example.ibsbms.dto.ShareTransferForm;
+import com.example.ibsbms.dto.ShareTransferRequestSummary;
 import com.example.ibsbms.entity.TransAuth;
+import com.example.ibsbms.enums.TransferAuthStatus;
 import com.example.ibsbms.exception.ShareTransferValidationException;
 import com.example.ibsbms.repository.TransAuthRepository;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ShareTransferWorkflowService {
@@ -95,6 +99,55 @@ public class ShareTransferWorkflowService {
         transAuthRepository.save(creditLeg);
 
         return trId;
+    }
+
+    /**
+     * Task 17 - "My Pending / Returned" list for Maker.
+     * <p>
+     * Returns one summary row per transfer request submitted by this
+     * maker (debit leg only - see ShareTransferRequestSummary), newest
+     * first, optionally filtered by TransferAuthStatus.
+     * <p>
+     * Returns the full (unpaginated) list, same as
+     * ApprovalWorkflowService.searchMakerRequests() - the controller
+     * paginates in memory. See the note on TransAuthRepository for why
+     * DB-level pagination (Pageable) is avoided here.
+     *
+     * @param makerId      the authenticated maker's user id
+     * @param statusFilter null/blank/"ALL" for everything, otherwise a
+     *                     TransferAuthStatus name such as
+     *                     "PENDING_CHECKER" or "RETURNED_FOR_MODIFICATION"
+     */
+    public List<ShareTransferRequestSummary> getMyRequests(
+            String makerId,
+            String statusFilter) {
+
+        List<TransAuth> debitLegs;
+
+        if (statusFilter == null
+                || statusFilter.isBlank()
+                || "ALL".equalsIgnoreCase(statusFilter)) {
+
+            debitLegs = transAuthRepository.findMakerDebitLegs(makerId);
+
+        } else {
+
+            TransferAuthStatus status;
+
+            try {
+                status = TransferAuthStatus.valueOf(statusFilter.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new ShareTransferValidationException(
+                        "Unknown status filter: " + statusFilter);
+            }
+
+            debitLegs = transAuthRepository.findMakerDebitLegsByState(
+                    makerId, status.getCode());
+        }
+
+        return debitLegs.stream()
+                .map(ShareTransferRequestSummary::fromDebitLeg)
+                .collect(Collectors.toList());
     }
 
 }

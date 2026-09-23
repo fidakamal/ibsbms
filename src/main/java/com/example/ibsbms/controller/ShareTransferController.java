@@ -1,6 +1,7 @@
 package com.example.ibsbms.controller;
 
 import com.example.ibsbms.dto.ShareTransferForm;
+import com.example.ibsbms.dto.ShareTransferRequestSummary;
 import com.example.ibsbms.enums.TransferType;
 import com.example.ibsbms.exception.AccountNotFoundException;
 import com.example.ibsbms.exception.ShareTransferValidationException;
@@ -13,8 +14,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class ShareTransferController {
@@ -76,5 +79,66 @@ public class ShareTransferController {
 
             return "share-transfer/share-transfer-form";
         }
+    }
+
+    /**
+     * Task 17 - Maker's "My Pending / Returned" list.
+     * <p>
+     * Shows the transfer requests this maker has submitted, filterable
+     * by status (ALL / PENDING_CHECKER / RETURNED_FOR_MODIFICATION /
+     * APPROVED / REJECTED). Returned/Approved/Rejected will stay empty
+     * until the checker Approve/Return/Reject endpoints are built
+     * (see TransferAuthStatus), but the page and filter already work.
+     */
+    @GetMapping("/share-transfer/my-requests")
+    public String myRequests(
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Principal principal,
+            Model model) {
+
+        if (size != 10 && size != 25 && size != 50 && size != 100) {
+            size = 10;
+        }
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        String makerId = principal.getName();
+        String statusFilter = (status == null || status.isBlank()) ? "ALL" : status.toUpperCase();
+
+        List<ShareTransferRequestSummary> allRequests =
+                shareTransferWorkflowService.getMyRequests(makerId, statusFilter);
+
+        int totalItems = allRequests.size();
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+
+        if (totalPages > 0 && page > totalPages) {
+            page = totalPages;
+        }
+
+        int startIndex = (page - 1) * size;
+        int endIndex = Math.min(startIndex + size, totalItems);
+
+        List<ShareTransferRequestSummary> requests =
+                totalItems == 0
+                        ? new java.util.ArrayList<>()
+                        : allRequests.subList(startIndex, endIndex);
+
+        long startEntry = totalItems == 0 ? 0 : startIndex + 1;
+        long endEntry = endIndex;
+
+        model.addAttribute("requests", requests);
+        model.addAttribute("statusFilter", statusFilter);
+        model.addAttribute("page", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalItems", totalItems);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startEntry", startEntry);
+        model.addAttribute("endEntry", endEntry);
+
+        return "share-transfer/my-requests";
     }
 }
