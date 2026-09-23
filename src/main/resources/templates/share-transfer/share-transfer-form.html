@@ -102,9 +102,19 @@
         </div>
 
 
+        <!-- Success banner (redirected here after a successful Maker submit) -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <span th:text="${param.success}">Submitted.</span>
+        </div>
+
         <!-- Error banner (e.g. validation failure returned from submit) -->
         <div th:if="${param.error}" class="alert alert-danger">
             <span th:text="${param.error}">Error.</span>
+        </div>
+
+        <!-- Error banner for a rejected submit that re-renders this same form -->
+        <div th:if="${submitError}" class="alert alert-danger">
+            <span th:text="${submitError}">Error.</span>
         </div>
 
 

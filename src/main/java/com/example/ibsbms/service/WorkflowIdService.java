@@ -191,6 +191,46 @@ public class WorkflowIdService {
 
         return value.toString();
     }
+
+    public String generateNextTransAuthOid() {
+
+        Number value = (Number) entityManager
+                .createNativeQuery("""
+                SELECT NVL(
+                    MAX(
+                        CASE
+                            WHEN REGEXP_LIKE(TRIM(OID), '^[0-9]+$')
+                            THEN TO_NUMBER(TRIM(OID))
+                        END
+                    ),
+                    0
+                ) + 1
+                FROM T_TRANS_AUTH
+                """)
+                .getSingleResult();
+
+        return value.toString();
+    }
+
+    public String generateNextTransAuthTrId() {
+
+        Number value = (Number) entityManager
+                .createNativeQuery("""
+                SELECT NVL(
+                    MAX(
+                        CASE
+                            WHEN REGEXP_LIKE(TRIM(TR_ID), '^[0-9]+$')
+                            THEN TO_NUMBER(TRIM(TR_ID))
+                        END
+                    ),
+                    0
+                ) + 1
+                FROM T_TRANS_AUTH
+                """)
+                .getSingleResult();
+
+        return value.toString();
+    }
 }
 
 
