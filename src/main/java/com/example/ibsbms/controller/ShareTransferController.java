@@ -1,6 +1,7 @@
 package com.example.ibsbms.controller;
 
 import com.example.ibsbms.dto.ReturnedTransferEditView;
+import com.example.ibsbms.dto.ShareTransferCheckerSummary;
 import com.example.ibsbms.dto.ShareTransferForm;
 import com.example.ibsbms.dto.ShareTransferRequestSummary;
 import com.example.ibsbms.enums.TransferType;
@@ -193,5 +194,18 @@ public class ShareTransferController {
 
             return "share-transfer/share-transfer-form";
         }
+    }
+
+
+    @GetMapping("/share-transfer/checker")
+    public String checkerQueue(
+            Model model) {
+
+        List<ShareTransferCheckerSummary> requests =
+                shareTransferWorkflowService.getPendingCheckerRequests();
+
+        model.addAttribute("requests", requests);
+
+        return "share-transfer/checker-queue";
     }
 }

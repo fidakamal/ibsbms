@@ -1,6 +1,7 @@
 package com.example.ibsbms.service;
 
 import com.example.ibsbms.dto.ReturnedTransferEditView;
+import com.example.ibsbms.dto.ShareTransferCheckerSummary;
 import com.example.ibsbms.dto.ShareTransferForm;
 import com.example.ibsbms.dto.ShareTransferRequestSummary;
 import com.example.ibsbms.entity.TransAuth;
@@ -291,5 +292,14 @@ public class ShareTransferWorkflowService {
             default -> throw new ShareTransferValidationException(
                     "Unknown TR_CODE on T_TRANS_AUTH: " + code);
         };
+    }
+
+
+    public List<ShareTransferCheckerSummary> getPendingCheckerRequests() {
+
+        return transAuthRepository.findPendingCheckerDebitLegs()
+                .stream()
+                .map(ShareTransferCheckerSummary::fromDebitLeg)
+                .collect(Collectors.toList());
     }
 }
