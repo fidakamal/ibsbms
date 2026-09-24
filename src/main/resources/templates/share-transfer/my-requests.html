@@ -202,6 +202,7 @@
                             <th>SUBMITTED</th>
                             <th>STATUS</th>
                             <th>PARTICULARS</th>
+                            <th>ACTION</th>
                         </tr>
 
                         </thead>
@@ -269,6 +270,14 @@
 
                             <td th:text="${request.particulars}">
                                 Share transfer as per request
+                            </td>
+
+                            <td>
+                                <a th:if="${request.status.name() == 'RETURNED_FOR_MODIFICATION'}"
+                                   th:href="@{/share-transfer/returned/{trId}/edit(trId=${request.trId})}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Edit &amp; Resubmit
+                                </a>
                             </td>
 
                         </tr>

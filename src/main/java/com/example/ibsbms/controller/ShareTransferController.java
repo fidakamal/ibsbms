@@ -1,5 +1,6 @@
 package com.example.ibsbms.controller;
 
+import com.example.ibsbms.dto.ReturnedTransferEditView;
 import com.example.ibsbms.dto.ShareTransferForm;
 import com.example.ibsbms.dto.ShareTransferRequestSummary;
 import com.example.ibsbms.enums.TransferType;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -81,15 +83,6 @@ public class ShareTransferController {
         }
     }
 
-    /**
-     * Task 17 - Maker's "My Pending / Returned" list.
-     * <p>
-     * Shows the transfer requests this maker has submitted, filterable
-     * by status (ALL / PENDING_CHECKER / RETURNED_FOR_MODIFICATION /
-     * APPROVED / REJECTED). Returned/Approved/Rejected will stay empty
-     * until the checker Approve/Return/Reject endpoints are built
-     * (see TransferAuthStatus), but the page and filter already work.
-     */
     @GetMapping("/share-transfer/my-requests")
     public String myRequests(
             @RequestParam(required = false) String status,
@@ -140,5 +133,65 @@ public class ShareTransferController {
         model.addAttribute("endEntry", endEntry);
 
         return "share-transfer/my-requests";
+    }
+
+    @GetMapping("/share-transfer/returned/{trId}/edit")
+    public String editReturned(
+            @PathVariable String trId,
+            Model model,
+            Principal principal) {
+
+        String makerId = principal.getName();
+
+        ReturnedTransferEditView view =
+                shareTransferWorkflowService.getReturnedRequestForEdit(trId, makerId);
+
+        model.addAttribute("shareTransferForm", view.getForm());
+        model.addAttribute("transferTypes", TransferType.values());
+        model.addAttribute("businessDate", businessDateService.currentBusinessDate());
+        model.addAttribute("editMode", true);
+        model.addAttribute("trId", view.getTrId());
+        model.addAttribute("returnRemarks", view.getReturnRemarks());
+
+        return "share-transfer/share-transfer-form";
+    }
+
+    @PostMapping("/share-transfer/returned/{trId}/resubmit")
+    public String resubmitReturned(
+            @PathVariable String trId,
+            @Valid @ModelAttribute("shareTransferForm") ShareTransferForm form,
+            BindingResult bindingResult,
+            Model model,
+            Principal principal) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("transferTypes", TransferType.values());
+            model.addAttribute("businessDate", businessDateService.currentBusinessDate());
+            model.addAttribute("editMode", true);
+            model.addAttribute("trId", trId);
+            return "share-transfer/share-transfer-form";
+        }
+
+        String makerId = principal.getName();
+        String makerIp = "127.0.0.1";
+
+        try {
+
+            shareTransferWorkflowService.resubmitReturned(trId, form, makerId, makerIp);
+
+            return "redirect:/share-transfer/my-requests?success=Transfer request "
+                    + trId + " resubmitted for checker approval.";
+
+        } catch (ShareTransferValidationException | AccountNotFoundException e) {
+
+            model.addAttribute("shareTransferForm", form);
+            model.addAttribute("transferTypes", TransferType.values());
+            model.addAttribute("businessDate", businessDateService.currentBusinessDate());
+            model.addAttribute("editMode", true);
+            model.addAttribute("trId", trId);
+            model.addAttribute("submitError", e.getMessage());
+
+            return "share-transfer/share-transfer-form";
+        }
     }
 }

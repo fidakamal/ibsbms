@@ -9,23 +9,6 @@ import java.util.List;
 
 public interface TransAuthRepository extends JpaRepository<TransAuth, String> {
 
-    /*
-     * ShareTransferWorkflowService.submitForApproval() always inserts
-     * TWO T_TRANS_AUTH rows per transfer request sharing the same
-     * TR_ID: a debit leg (DR_AMT = quantity, CR_AMT = 0) and a credit
-     * leg (DR_AMT = 0, CR_AMT = quantity).
-     *
-     * For a "My Pending / Returned" list we want ONE row per transfer
-     * request, so we only read the debit leg (DR_AMT > 0); the credit
-     * side is read back from CONTRA_ACC_NO.
-     *
-     * NOTE: deliberately returns a List, not a Spring Data Page/
-     * Pageable. The target Oracle instance does not support the
-     * "FETCH FIRST ? ROWS ONLY" pagination syntax Hibernate generates
-     * for Pageable queries (ORA-00933) - the same reason
-     * ApprovalWorkflowService.searchMakerRequests() fetches everything
-     * and paginates in Java. Do the same here.
-     */
     @Query("""
         SELECT t
         FROM TransAuth t
@@ -51,4 +34,6 @@ public interface TransAuthRepository extends JpaRepository<TransAuth, String> {
             @Param("makerId") String makerId,
             @Param("trState") Integer trState
     );
+
+    List<TransAuth> findByTrId(String trId);
 }
