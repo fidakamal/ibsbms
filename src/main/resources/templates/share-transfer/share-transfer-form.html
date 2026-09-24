@@ -90,13 +90,13 @@
 
         <div class="page-header">
             <div>
-                <h1 th:text="${editMode} ? 'Edit Returned Transfer' : 'Share Transfer'">Share Transfer</h1>
+                <h1>Share Transfer</h1>
                 <p class="page-subtitle">
                     Transfer shares between Folio and/or BO (Demat/Remat)
                 </p>
             </div>
 
-            <a th:href="${editMode} ? @{/share-transfer/my-requests} : @{/}" class="btn btn-secondary">
+            <a href="/" class="btn btn-secondary">
                 Back
             </a>
         </div>
@@ -117,16 +117,8 @@
             <span th:text="${submitError}">Error.</span>
         </div>
 
-        <div th:if="${editMode} and ${returnRemarks}" class="alert alert-warning">
-            <strong>Returned by Checker:</strong> <span th:text="${returnRemarks}"></span>
-        </div>
 
-
-        <form id="shareTransferFormEl" method="post"
-              th:action="${editMode}
-                  ? @{/share-transfer/returned/{trId}/resubmit(trId=${trId})}
-                  : @{/share-transfer}"
-              th:object="${shareTransferForm}" novalidate>
+        <form id="shareTransferFormEl" method="post" th:action="@{/share-transfer}" th:object="${shareTransferForm}" novalidate>
 
             <!-- =========================
                  TOP FIELDS
@@ -167,9 +159,7 @@
 
                         <div class="col-md-2">
                             <label class="form-label">Transfer Ref No</label>
-                            <input type="text" class="form-control"
-                                   th:value="${editMode} ? ${trId} : ''"
-                                   placeholder="Auto Generated" disabled>
+                            <input type="text" class="form-control" placeholder="Auto Generated" disabled>
                         </div>
 
                         <div class="col-md-2">
@@ -376,9 +366,9 @@
                     </div>
                 </div>
 
-                <div class="col-md-4 d-flex align-items-start justify-content-end gap-2">
+                <div class="col-md-4 d-flex flex-wrap align-items-start justify-content-start justify-content-md-end gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <span th:text="${editMode} ? 'Resubmit' : 'Save (Maker)'">Save (Maker)</span>
+                        Save (Maker)
                     </button>
                     <a th:href="@{/share-transfer}" class="btn btn-secondary">
                         Reset
@@ -578,11 +568,6 @@
         if (searchControllers[side]) {
             searchControllers[side].abort();
         }
-
-        // errorBox.classList.add('d-none');
-        // errorBox.textContent = '';
-        // detailsBox.classList.add('d-none');
-        // detailsBox.innerHTML = '';
 
         clearSide(side, { resetInput: false });
 

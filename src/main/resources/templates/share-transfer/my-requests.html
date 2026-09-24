@@ -74,22 +74,16 @@
 
     <div class="page-content">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header">
 
             <div>
-
-                <h4 class="mb-1">
-                    My Transfer Requests
-                </h4>
-
-                <p class="text-muted mb-0">
+                <h1>My Transfer Requests</h1>
+                <p class="page-subtitle">
                     Share transfer requests you have submitted (Pending Checker / Returned / Approved / Rejected)
                 </p>
-
             </div>
 
-            <a href="/share-transfer"
-               class="btn btn-primary">
+            <a href="/share-transfer" class="btn btn-primary">
                 + New Share Transfer
             </a>
 
@@ -202,7 +196,6 @@
                             <th>SUBMITTED</th>
                             <th>STATUS</th>
                             <th>PARTICULARS</th>
-                            <th>ACTION</th>
                         </tr>
 
                         </thead>
@@ -270,14 +263,6 @@
 
                             <td th:text="${request.particulars}">
                                 Share transfer as per request
-                            </td>
-
-                            <td>
-                                <a th:if="${request.status.name() == 'RETURNED_FOR_MODIFICATION'}"
-                                   th:href="@{/share-transfer/returned/{trId}/edit(trId=${request.trId})}"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Edit &amp; Resubmit
-                                </a>
                             </td>
 
                         </tr>

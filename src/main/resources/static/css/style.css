@@ -456,26 +456,26 @@ a {
 
 
 
-       /* Checker Decision - Remarks */
-   .checker-remarks {
-       min-height: 130px;
-       resize: vertical;
+/* Checker Decision - Remarks */
+.checker-remarks {
+    min-height: 130px;
+    resize: vertical;
 
-       padding: 14px 16px;
+    padding: 14px 16px;
 
-       border: 1px solid #ced4da;
-       border-radius: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
 
-       font-size: 14px;
-       line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.6;
 
-       color: #263238;
-       background-color: #ffffff;
+    color: #263238;
+    background-color: #ffffff;
 
-       transition:
-               border-color 0.2s ease,
-               box-shadow 0.2s ease;
-   }
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
 
 .checker-remarks::placeholder {
     color: #9aa3a8;
@@ -621,18 +621,18 @@ textarea.checker-remarks-input:focus {
 
 
 
-       /* =========================================================
-          Sidebar Collapse
-          ========================================================= */
+/* =========================================================
+   Sidebar Collapse
+   ========================================================= */
 
-   .sidebar,
-   .top-header,
-   .main-content {
-       transition:
-               width 0.25s ease,
-               left 0.25s ease,
-               margin-left 0.25s ease;
-   }
+.sidebar,
+.top-header,
+.main-content {
+    transition:
+            width 0.25s ease,
+            left 0.25s ease,
+            margin-left 0.25s ease;
+}
 
 
 /* =========================================================
@@ -722,3 +722,109 @@ body.sidebar-collapsed .sidebar-link:hover::after {
     z-index: 2000;
 }
 
+
+
+/* ================================
+   Page Header (used by shareholder-create.html, share-transfer pages)
+   ================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #174c4c;
+}
+
+.page-subtitle {
+    margin: 0;
+    color: #6c757d;
+    font-size: 13px;
+}
+
+/* ================================
+   Form Section Header (used by shareholder-create.html, share-transfer-form.html)
+   ================================ */
+
+.form-section-header {
+    background-color: #285a78;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 5px 5px 0 0;
+}
+
+.form-section-header h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.form-section .form-section-body {
+    border: 1px solid #e2e2e2;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    background-color: #ffffff;
+}
+
+.form-section:has(.form-section-body):not(:has(.form-section-header)) .form-section-body {
+    border-top: 1px solid #e2e2e2;
+    border-radius: 5px;
+}
+
+/* ================================
+   Responsive - the app has no other breakpoint yet, so this is the
+   baseline for the sidebar/main-content layout on small screens.
+   Additive only: nothing here changes desktop rendering.
+   ================================ */
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        left: -220px;
+    }
+
+    body.sidebar-collapsed .sidebar {
+        left: 0;
+        width: 220px;
+    }
+
+    body.sidebar-collapsed .sidebar-link > span:not(.sidebar-icon) {
+        display: inline;
+    }
+
+    body.sidebar-collapsed .sidebar-link {
+        justify-content: flex-start;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .top-header {
+        left: 0 !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 90px 16px 24px;
+    }
+
+    body.sidebar-collapsed .main-content {
+        margin-left: 0 !important;
+    }
+
+    .page-header {
+        align-items: stretch;
+    }
+
+    .page-header > a,
+    .page-header > .btn {
+        align-self: flex-start;
+    }
+}
