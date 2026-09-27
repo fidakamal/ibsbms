@@ -7,6 +7,10 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ShareholderRepository
         extends JpaRepository<Shareholder, String> {
@@ -75,6 +79,19 @@ public interface ShareholderRepository
             nativeQuery = true)
     long countShareholders(
             @Param("folioBo") String folioBo
+    );
+
+
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    SELECT s
+    FROM Shareholder s
+    WHERE s.folioBo IN :folioBos
+    ORDER BY s.oid
+""")
+    List<Shareholder> findAllByFolioBoInForUpdate(
+            @Param("folioBos") List<String> folioBos
     );
 }
 

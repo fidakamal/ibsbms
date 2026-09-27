@@ -43,6 +43,11 @@ public class ShareTransferValidationService {
                     "No. of shares must be greater than zero.");
         }
 
+        if (quantity.stripTrailingZeros().scale() > 0) {
+            throw new ShareTransferValidationException(
+                    "Share quantity must be a whole number.");
+        }
+
         if (type.getDebitSide() == TransferType.AccountKind.FOLIO) {
             FolioSearchResult debit = accountSearchService.searchFolio(debitRef);
             validateFolioDebit(debit, quantity);

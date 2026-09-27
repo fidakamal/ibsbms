@@ -217,11 +217,17 @@
 
             <div class="d-flex gap-2">
 
-                <button type="button"
-                        class="btn btn-success"
-                        disabled>
-                    Approve
-                </button>
+                <form th:action="@{/share-transfer/checker/{trId}/approve(trId=${detail.trId})}"
+                      method="post"
+                      class="d-inline">
+
+                    <button type="submit"
+                            class="btn btn-success"
+                            onclick="return confirm('Approve and post this share transfer?');">
+                        Approve
+                    </button>
+
+                </form>
 
                 <form th:action="@{/share-transfer/checker/{trId}/return(trId=${detail.trId})}"
                       method="post"

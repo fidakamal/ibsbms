@@ -231,6 +231,17 @@ public class WorkflowIdService {
 
         return value.toString();
     }
+
+
+
+    public Long nextTransShareOid() {
+        Number value = (Number) entityManager
+                .createNativeQuery(
+                        "SELECT SEQ_TRANS_SHARE_OID.NEXTVAL FROM DUAL")
+                .getSingleResult();
+
+        return value.longValue();
+    }
 }
 
 
