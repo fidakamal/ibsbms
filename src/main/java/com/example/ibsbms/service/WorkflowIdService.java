@@ -242,6 +242,33 @@ public class WorkflowIdService {
 
         return value.longValue();
     }
+
+    public Long nextShareMovementId() {
+        Number value = (Number) entityManager
+                .createNativeQuery(
+                        "SELECT SEQ_SHARE_MOVEMENT.NEXTVAL FROM DUAL")
+                .getSingleResult();
+
+        return value.longValue();
+    }
+
+    public Long nextCdblOutBatchId() {
+        Number value = (Number) entityManager
+                .createNativeQuery(
+                        "SELECT SEQ_CDBL_OUT_BATCH.NEXTVAL FROM DUAL")
+                .getSingleResult();
+
+        return value.longValue();
+    }
+
+    public Long nextCdblOutItemId() {
+        Number value = (Number) entityManager
+                .createNativeQuery(
+                        "SELECT SEQ_CDBL_OUT_ITEM.NEXTVAL FROM DUAL")
+                .getSingleResult();
+
+        return value.longValue();
+    }
 }
 
 

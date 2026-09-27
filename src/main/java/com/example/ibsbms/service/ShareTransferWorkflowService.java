@@ -1,14 +1,11 @@
 package com.example.ibsbms.service;
 
 import com.example.ibsbms.dto.*;
-import com.example.ibsbms.entity.TransAuth;
+import com.example.ibsbms.entity.*;
 import com.example.ibsbms.enums.TransferAuthStatus;
 import com.example.ibsbms.enums.TransferType;
 import com.example.ibsbms.exception.ShareTransferValidationException;
-import com.example.ibsbms.repository.BusinessAuditRepository;
-import com.example.ibsbms.repository.ShareholderRepository;
-import com.example.ibsbms.repository.TransAuthRepository;
-import com.example.ibsbms.repository.TransShareRepository;
+import com.example.ibsbms.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,16 +14,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.example.ibsbms.entity.BusinessAudit;
-import com.example.ibsbms.entity.Shareholder;
-import com.example.ibsbms.entity.TransShare;
-import com.example.ibsbms.repository.BusinessAuditRepository;
-import com.example.ibsbms.repository.ShareholderRepository;
-import com.example.ibsbms.repository.TransShareRepository;
+
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
+
+
+
 
 @Service
 public class ShareTransferWorkflowService {
@@ -42,6 +36,10 @@ public class ShareTransferWorkflowService {
     private final TransShareRepository transShareRepository;
     private final BusinessAuditRepository businessAuditRepository;
 
+    private final ShareMovementRepository shareMovementRepository;
+    private final CdblOutBatchRepository cdblOutBatchRepository;
+    private final CdblOutItemRepository cdblOutItemRepository;
+
     public ShareTransferWorkflowService(
             ShareTransferValidationService validationService,
             TransAuthRepository transAuthRepository,
@@ -49,7 +47,10 @@ public class ShareTransferWorkflowService {
             BusinessDateService businessDateService,
             ShareholderRepository shareholderRepository,
             TransShareRepository transShareRepository,
-            BusinessAuditRepository businessAuditRepository) {
+            BusinessAuditRepository businessAuditRepository,
+            ShareMovementRepository shareMovementRepository,
+            CdblOutBatchRepository cdblOutBatchRepository,
+            CdblOutItemRepository cdblOutItemRepository) {
 
         this.validationService = validationService;
         this.transAuthRepository = transAuthRepository;
@@ -58,6 +59,9 @@ public class ShareTransferWorkflowService {
         this.shareholderRepository = shareholderRepository;
         this.transShareRepository = transShareRepository;
         this.businessAuditRepository = businessAuditRepository;
+        this.shareMovementRepository = shareMovementRepository;
+        this.cdblOutBatchRepository = cdblOutBatchRepository;
+        this.cdblOutItemRepository = cdblOutItemRepository;
     }
 
     @Transactional
@@ -605,6 +609,109 @@ public class ShareTransferWorkflowService {
                     "Transfer source and destination are required.");
         }
 
+
+        // ---------------------------------------------------------
+// FOLIO -> BO prototype path
+// ---------------------------------------------------------
+
+        if (transferType == TransferType.FOLIO_TO_BO) {
+
+            List<Shareholder> sourceAccounts =
+                    shareholderRepository.findAllByFolioBoInForUpdate(
+                            List.of(sourceRef));
+
+            if (sourceAccounts.size() != 1) {
+                throw new ShareTransferValidationException(
+                        "Source Folio account could not be found: "
+                                + sourceRef);
+            }
+
+            Shareholder sourceAccount = sourceAccounts.get(0);
+
+            validateAccountForApproval(sourceAccount, "Debit");
+
+            long sourceBalance = accountBalance(sourceAccount);
+
+            if (quantity.compareTo(
+                    BigDecimal.valueOf(sourceBalance)) > 0) {
+
+                throw new ShareTransferValidationException(
+                        "Requested quantity (" + quantity
+                                + ") exceeds available shares ("
+                                + sourceBalance
+                                + ") for Folio "
+                                + sourceRef
+                                + ".");
+            }
+
+            postFolioToBoPrototype(
+                    trId,
+                    debitLeg,
+                    creditLeg,
+                    checkerId,
+                    checkerIp,
+                    businessDate,
+                    quantity,
+                    sourceAccount
+            );
+
+            LocalDateTime now = LocalDateTime.now();
+
+            debitLeg.setTrState(
+                    TransferAuthStatus.APPROVED.getCode());
+            debitLeg.setCheckerId(checkerId);
+            debitLeg.setCheckerIp(checkerIp);
+            debitLeg.setModifyDate(now);
+
+            creditLeg.setTrState(
+                    TransferAuthStatus.APPROVED.getCode());
+            creditLeg.setCheckerId(checkerId);
+            creditLeg.setCheckerIp(checkerIp);
+            creditLeg.setModifyDate(now);
+
+            transAuthRepository.save(debitLeg);
+            transAuthRepository.save(creditLeg);
+
+            BusinessAudit audit = new BusinessAudit();
+
+            audit.setAuditId(
+                    workflowIdService.nextBusinessAuditId());
+
+            audit.setEventTime(now);
+            audit.setModuleCode("SHARE_TRANSFER");
+            audit.setActionType("APPROVE");
+            audit.setEntityType("SHARE_TRANSFER");
+            audit.setEntityId(trId);
+            audit.setBusinessRef(trId);
+            audit.setActorId(checkerId);
+            audit.setClientIp(checkerIp);
+
+            audit.setChangedFields(
+                    "TR_STATE,BALANCE,"
+                            + "T_SHARE_MOVEMENT,"
+                            + "T_CDBL_OUT_BATCH,"
+                            + "T_CDBL_OUT_ITEM");
+
+            audit.setOldValue(
+                    "{\"status\":\"PENDING_CHECKER\","
+                            + "\"folioBalance\":"
+                            + sourceBalance
+                            + "}");
+
+            audit.setNewValue(
+                    "{\"status\":\"APPROVED\","
+                            + "\"folioBalance\":"
+                            + sourceAccount.getBalance()
+                            + "}");
+
+            audit.setCorrelationId("G-" + trId);
+            audit.setRemarks(debitLeg.getRemarks());
+
+            businessAuditRepository.save(audit);
+
+            return;
+        }
+
         // ---------------------------------------------------------
         // 8. Resolve effective ledger Folios
         // ---------------------------------------------------------
@@ -697,6 +804,9 @@ public class ShareTransferWorkflowService {
                             + debitLedgerFolio
                             + ".");
         }
+
+
+
 
         // ---------------------------------------------------------
         // 12. Create ledger IDs
@@ -882,37 +992,156 @@ public class ShareTransferWorkflowService {
     }
 
 
-    private long physicalShares(Shareholder account) {
-
-        return account.getShares() == null
-                ? 0L
-                : account.getShares();
-    }
-
-
-    private String debitCode(TransferType type) {
-
-        return switch (type) {
-            case FOLIO_TO_FOLIO -> "F2F-DR";
-            case FOLIO_TO_BO -> "F2B-DR";
-            case BO_TO_FOLIO -> "B2F-DR";
-        };
-    }
-
-
-    private String creditCode(TransferType type) {
-
-        return switch (type) {
-            case FOLIO_TO_FOLIO -> "F2F-CR";
-            case FOLIO_TO_BO -> "F2B-CR";
-            case BO_TO_FOLIO -> "B2F-CR";
-        };
-    }
-
 
     private long accountBalance(Shareholder account) {
         return account.getBalance() == null
                 ? 0L
                 : account.getBalance();
+    }
+
+
+    private void postFolioToBoPrototype(
+            String trId,
+            TransAuth debitLeg,
+            TransAuth creditLeg,
+            String checkerId,
+            String checkerIp,
+            LocalDate businessDate,
+            BigDecimal quantity,
+            Shareholder sourceAccount) {
+
+        long quantityLong;
+
+        try {
+            quantityLong = quantity.longValueExact();
+        } catch (ArithmeticException e) {
+            throw new ShareTransferValidationException(
+                    "Share quantity must be a whole number.");
+        }
+
+        long sourceBalance = accountBalance(sourceAccount);
+
+        if (quantityLong <= 0) {
+            throw new ShareTransferValidationException(
+                    "Transfer quantity must be greater than zero.");
+        }
+
+        if (quantityLong > sourceBalance) {
+            throw new ShareTransferValidationException(
+                    "Requested quantity (" + quantityLong
+                            + ") exceeds available shares ("
+                            + sourceBalance
+                            + ") for Folio "
+                            + sourceAccount.getFolioBo()
+                            + ".");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        /*
+         * 1. Create movement
+         */
+        Long movementId = workflowIdService.nextShareMovementId();
+
+        String movementRef =
+                "MV-" + businessDate.toString().replace("-", "")
+                        + "-" + String.format("%06d", movementId);
+
+        String groupTrId = "G-" + trId;
+
+        ShareMovement movement = new ShareMovement();
+
+        movement.setMovementId(movementId);
+        movement.setMovementRef(movementRef);
+        movement.setMovementType("DEMAT");
+        movement.setSourceType("FOLIO");
+        movement.setSourceRef(sourceAccount.getFolioBo());
+        movement.setTargetType("BO");
+        movement.setTargetRef(creditLeg.getFolioBo());
+        movement.setQuantity(quantity);
+        movement.setParticulars(
+                debitLeg.getParticular() == null
+                        ? "Folio to BO transfer " + trId
+                        : debitLeg.getParticular());
+        movement.setInstrument(debitLeg.getInstrNo());
+        movement.setOriginalTrId(trId);
+        movement.setGroupTrId(groupTrId);
+        movement.setLocalStatus("POSTED");
+        movement.setCdblStatus("NOT_SENT");
+        movement.setRequestedBy(debitLeg.getMakerId());
+        movement.setRequestedIp(debitLeg.getMakerIp());
+        movement.setRequestedAt(debitLeg.getModifyDate());
+        movement.setPostedBy(checkerId);
+        movement.setPostedAt(now);
+        movement.setBusinessDate(businessDate);
+
+
+        System.out.println("=== F2B SHARE MOVEMENT DEBUG ===");
+        System.out.println("LOCAL_STATUS = [" + movement.getLocalStatus() + "]");
+        System.out.println("CDBL_STATUS  = [" + movement.getCdblStatus() + "]");
+        System.out.println("MOVEMENT_TYPE = [" + movement.getMovementType() + "]");
+        System.out.println("SOURCE_TYPE = [" + movement.getSourceType() + "]");
+        System.out.println("TARGET_TYPE = [" + movement.getTargetType() + "]");
+        System.out.println("===============================");
+
+
+        shareMovementRepository.save(movement);
+
+        /*
+         * 2. Create CDBL outgoing batch
+         */
+        Long batchId = workflowIdService.nextCdblOutBatchId();
+
+        CdblOutBatch batch = new CdblOutBatch();
+
+        batch.setOutBatchId(batchId);
+        batch.setBatchRef("OUT-" + movementRef);
+        batch.setStatus("APPROVED");
+        batch.setApprovalRequestId(null);
+        batch.setMovementCount(1L);
+        batch.setTotalQuantity(quantityLong);
+        batch.setCreatedBy(checkerId);
+        batch.setCreatedIp(checkerIp);
+        batch.setCreatedAt(now);
+        batch.setVersionNo(1);
+
+        cdblOutBatchRepository.save(batch);
+
+        /*
+         * 3. Create CDBL outgoing item
+         */
+        Long itemId = workflowIdService.nextCdblOutItemId();
+
+        CdblOutItem item = new CdblOutItem();
+
+        item.setOutItemId(itemId);
+        item.setOutBatchId(batchId);
+        item.setMovementId(movementId);
+        item.setMovementRef(movementRef);
+        item.setMovementType("DEMAT");
+        item.setFolioNo(sourceAccount.getFolioBo());
+        item.setBoNo(creditLeg.getFolioBo());
+        item.setQuantity(quantityLong);
+        item.setCreatedAt(now);
+
+        cdblOutItemRepository.save(item);
+
+        /*
+         * 4. Deduct source Folio balance
+         */
+        long newBalance;
+
+        try {
+            newBalance = Math.subtractExact(
+                    sourceBalance,
+                    quantityLong);
+        } catch (ArithmeticException e) {
+            throw new ShareTransferValidationException(
+                    "Folio balance calculation overflowed.");
+        }
+
+        sourceAccount.setBalance(newBalance);
+
+        shareholderRepository.saveAndFlush(sourceAccount);
     }
 }

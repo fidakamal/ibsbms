@@ -105,6 +105,26 @@ public class ShareTransferValidationService {
     }
 
     private void validateBoSide(BoSearchResult bo) {
+
+        if (bo == null) {
+            throw new ShareTransferValidationException(
+                    "BO account could not be found.");
+        }
+
+        if (bo.getBoStatus() == null
+                || !bo.getBoStatus().equalsIgnoreCase("Active")) {
+
+            throw new ShareTransferValidationException(
+                    "BO " + bo.getBoNo() + " is not active.");
+        }
+
+        if (bo.getSuspensionStatus() != null
+                && !bo.getSuspensionStatus().equalsIgnoreCase("NO")) {
+
+            throw new ShareTransferValidationException(
+                    "BO " + bo.getBoNo()
+                            + " is suspended; transfer is not allowed.");
+        }
     }
 
     private String trimOrNull(String value) {
