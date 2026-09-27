@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 @Controller
 public class ShareTransferController {
@@ -218,5 +221,48 @@ public class ShareTransferController {
         model.addAttribute("detail", detail);
 
         return "share-transfer/checker-detail";
+    }
+
+
+
+    @PostMapping("/share-transfer/checker/{trId}/return")
+    public String returnForModification(
+            @PathVariable String trId,
+            @RequestParam String remarks,
+            Principal principal,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+
+        String checkerId = principal.getName();
+
+        // Temporary until we use the real client-IP extraction consistently.
+        String checkerIp = request.getRemoteAddr();
+
+        try {
+
+            shareTransferWorkflowService.returnForModification(
+                    trId,
+                    checkerId,
+                    checkerIp,
+                    remarks
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Transfer request " + trId
+                            + " returned to the maker for modification."
+            );
+
+            return "redirect:/share-transfer/checker";
+
+        } catch (ShareTransferValidationException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    e.getMessage()
+            );
+
+            return "redirect:/share-transfer/checker/" + trId;
+        }
     }
 }

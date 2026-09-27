@@ -223,11 +223,31 @@
                     Approve
                 </button>
 
-                <button type="button"
-                        class="btn btn-warning"
-                        disabled>
-                    Return for Modification
-                </button>
+                <form th:action="@{/share-transfer/checker/{trId}/return(trId=${detail.trId})}"
+                      method="post"
+                      class="d-inline">
+
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label">
+                            Return Remarks <span class="text-danger">*</span>
+                        </label>
+
+                        <textarea
+                                id="remarks"
+                                name="remarks"
+                                class="form-control"
+                                rows="3"
+                                maxlength="255"
+                                required
+                                placeholder="Enter the reason for returning this transfer..."></textarea>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-warning">
+                        Return for Modification
+                    </button>
+
+                </form>
 
                 <button type="button"
                         class="btn btn-danger"
