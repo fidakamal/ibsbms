@@ -249,11 +249,31 @@
 
                 </form>
 
-                <button type="button"
-                        class="btn btn-danger"
-                        disabled>
-                    Reject
-                </button>
+                <form th:action="@{/share-transfer/checker/{trId}/reject(trId=${detail.trId})}"
+                      method="post"
+                      class="d-inline">
+
+                    <div class="mb-3">
+                        <label for="rejectRemarks" class="form-label">
+                            Rejection Remarks <span class="text-danger">*</span>
+                        </label>
+
+                        <textarea
+                                id="rejectRemarks"
+                                name="remarks"
+                                class="form-control"
+                                rows="3"
+                                maxlength="255"
+                                required
+                                placeholder="Enter the reason for rejecting this transfer..."></textarea>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Reject
+                    </button>
+
+                </form>
 
             </div>
 

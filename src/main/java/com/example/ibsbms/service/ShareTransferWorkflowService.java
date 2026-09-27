@@ -407,4 +407,80 @@ public class ShareTransferWorkflowService {
         transAuthRepository.save(debitLeg);
         transAuthRepository.save(creditLeg);
     }
+
+
+
+    @Transactional
+    public void rejectTransfer(
+            String trId,
+            String checkerId,
+            String checkerIp,
+            String remarks) {
+
+        if (checkerId == null || checkerId.isBlank()) {
+            throw new ShareTransferValidationException(
+                    "Checker identity is required.");
+        }
+
+        if (remarks == null || remarks.trim().isEmpty()) {
+            throw new ShareTransferValidationException(
+                    "Remarks are required when rejecting a transfer.");
+        }
+
+        String cleanRemarks = remarks.trim();
+
+        if (cleanRemarks.length() > 255) {
+            throw new ShareTransferValidationException(
+                    "Remarks must be 255 characters or fewer.");
+        }
+
+        TransAuth debitLeg =
+                transAuthRepository.findPendingDebitForUpdate(trId)
+                        .orElseThrow(() ->
+                                new ShareTransferValidationException(
+                                        "Pending transfer not found: " + trId));
+
+        TransAuth creditLeg =
+                transAuthRepository.findCreditForUpdate(trId)
+                        .orElseThrow(() ->
+                                new ShareTransferValidationException(
+                                        "Credit leg not found: " + trId));
+
+        if (debitLeg.getTrState() == null
+                || debitLeg.getTrState()
+                != TransferAuthStatus.PENDING_CHECKER.getCode()) {
+
+            throw new ShareTransferValidationException(
+                    "This transfer is no longer pending checker approval.");
+        }
+
+        if (debitLeg.getMakerId() != null
+                && debitLeg.getMakerId().equals(checkerId)) {
+
+            throw new ShareTransferValidationException(
+                    "Maker cannot reject their own transfer.");
+        }
+
+        if (!trId.equals(creditLeg.getTrId())) {
+            throw new ShareTransferValidationException(
+                    "Transfer debit and credit legs do not match.");
+        }
+
+        debitLeg.setTrState(
+                TransferAuthStatus.REJECTED.getCode());
+        debitLeg.setCheckerId(checkerId);
+        debitLeg.setCheckerIp(checkerIp);
+        debitLeg.setRemarks(cleanRemarks);
+        debitLeg.setModifyDate(LocalDateTime.now());
+
+        creditLeg.setTrState(
+                TransferAuthStatus.REJECTED.getCode());
+        creditLeg.setCheckerId(checkerId);
+        creditLeg.setCheckerIp(checkerIp);
+        creditLeg.setRemarks(cleanRemarks);
+        creditLeg.setModifyDate(LocalDateTime.now());
+
+        transAuthRepository.save(debitLeg);
+        transAuthRepository.save(creditLeg);
+    }
 }

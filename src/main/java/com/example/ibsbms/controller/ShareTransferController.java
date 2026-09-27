@@ -265,4 +265,45 @@ public class ShareTransferController {
             return "redirect:/share-transfer/checker/" + trId;
         }
     }
+
+
+
+
+    @PostMapping("/share-transfer/checker/{trId}/reject")
+    public String rejectTransfer(
+            @PathVariable String trId,
+            @RequestParam String remarks,
+            Principal principal,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+
+        String checkerId = principal.getName();
+        String checkerIp = request.getRemoteAddr();
+
+        try {
+
+            shareTransferWorkflowService.rejectTransfer(
+                    trId,
+                    checkerId,
+                    checkerIp,
+                    remarks
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Transfer request " + trId + " rejected."
+            );
+
+            return "redirect:/share-transfer/checker";
+
+        } catch (ShareTransferValidationException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    e.getMessage()
+            );
+
+            return "redirect:/share-transfer/checker/" + trId;
+        }
+    }
 }
