@@ -1,9 +1,6 @@
 package com.example.ibsbms.controller;
 
-import com.example.ibsbms.dto.ReturnedTransferEditView;
-import com.example.ibsbms.dto.ShareTransferCheckerSummary;
-import com.example.ibsbms.dto.ShareTransferForm;
-import com.example.ibsbms.dto.ShareTransferRequestSummary;
+import com.example.ibsbms.dto.*;
 import com.example.ibsbms.enums.TransferType;
 import com.example.ibsbms.exception.AccountNotFoundException;
 import com.example.ibsbms.exception.ShareTransferValidationException;
@@ -207,5 +204,19 @@ public class ShareTransferController {
         model.addAttribute("requests", requests);
 
         return "share-transfer/checker-queue";
+    }
+
+
+    @GetMapping("/share-transfer/checker/{trId}")
+    public String checkerDetail(
+            @PathVariable String trId,
+            Model model) {
+
+        ShareTransferCheckerDetail detail =
+                shareTransferWorkflowService.getCheckerDetail(trId);
+
+        model.addAttribute("detail", detail);
+
+        return "share-transfer/checker-detail";
     }
 }

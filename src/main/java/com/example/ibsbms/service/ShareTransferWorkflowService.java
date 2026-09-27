@@ -1,9 +1,6 @@
 package com.example.ibsbms.service;
 
-import com.example.ibsbms.dto.ReturnedTransferEditView;
-import com.example.ibsbms.dto.ShareTransferCheckerSummary;
-import com.example.ibsbms.dto.ShareTransferForm;
-import com.example.ibsbms.dto.ShareTransferRequestSummary;
+import com.example.ibsbms.dto.*;
 import com.example.ibsbms.entity.TransAuth;
 import com.example.ibsbms.enums.TransferAuthStatus;
 import com.example.ibsbms.enums.TransferType;
@@ -301,5 +298,37 @@ public class ShareTransferWorkflowService {
                 .stream()
                 .map(ShareTransferCheckerSummary::fromDebitLeg)
                 .collect(Collectors.toList());
+    }
+
+
+    public ShareTransferCheckerDetail getCheckerDetail(String trId) {
+
+        TransAuth debitLeg = findDebitLeg(trId);
+        TransAuth creditLeg = findCreditLeg(trId);
+
+        if (debitLeg.getTrState() == null
+                || debitLeg.getTrState()
+                != TransferAuthStatus.PENDING_CHECKER.getCode()) {
+
+            throw new ShareTransferValidationException(
+                    "This transfer is no longer pending checker approval.");
+        }
+
+        return new ShareTransferCheckerDetail(
+                debitLeg.getTrId(),
+                debitLeg.getTrCode(),
+                debitLeg.getTrDate(),
+                debitLeg.getFolioBo(),
+                trimOrNull(creditLeg.getFolioBo()),
+                debitLeg.getDrAmt(),
+                debitLeg.getInstrNo(),
+                debitLeg.getInstrDate(),
+                debitLeg.getParticular(),
+                debitLeg.getRemarks(),
+                debitLeg.getMakerId(),
+                debitLeg.getMakerIp(),
+                debitLeg.getModifyDate(),
+                TransferAuthStatus.fromCode(debitLeg.getTrState())
+        );
     }
 }
