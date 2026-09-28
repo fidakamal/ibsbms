@@ -57,7 +57,7 @@
                  ? ' active'">
 
             <span class="sidebar-icon">✓</span>
-            <span>Approvals</span>
+            <span>New Shareholder Approvals</span>
 
         </a>
 
@@ -75,6 +75,7 @@
 
         </a>
 
+
         <!-- Share Transfer (Maker) -->
         <a th:href="@{/share-transfer}"
            class="sidebar-link"
@@ -87,6 +88,7 @@
             <span>Share Transfer</span>
 
         </a>
+
 
         <!-- My Transfer Requests (Share Transfer Maker) -->
         <a th:href="@{/share-transfer/my-requests}"
@@ -101,17 +103,32 @@
 
         </a>
 
+
+        <!-- Share Transfer Approvals (Checker) -->
+        <a th:href="@{/share-transfer/checker}"
+           class="sidebar-link"
+           data-tooltip="Share Transfer Approvals"
+           sec:authorize="hasRole('CHECKER')"
+           th:classappend="${currentUri.startsWith('/share-transfer/checker')}
+                        ? ' active'">
+
+            <span class="sidebar-icon">✓</span>
+            <span>Share Transfer Approvals</span>
+
+        </a>
+
+
         <!-- Rejected Requests -->
         <a href="/approvals/rejected"
            class="sidebar-link"
-           data-tooltip="Rejected Requests"
+           data-tooltip="Rejected New Shareholder Requests"
            th:if="${isChecker}"
            th:classappend="${currentUri.startsWith('/approvals/rejected')
                  or from == 'rejected'}
                  ? ' active'">
 
             <span class="sidebar-icon">✕</span>
-            <span>Rejected Requests</span>
+            <span>Rejected New Shareholder Requests</span>
 
         </a>
 
@@ -119,14 +136,14 @@
         <!-- Checker Returned Requests -->
         <a href="/approvals/returned"
            class="sidebar-link"
-           data-tooltip="Returned Requests"
+           data-tooltip="Returned  New Shareholder Requests"
            th:if="${isChecker}"
            th:classappend="${currentUri.startsWith('/approvals/returned')
                  or from == 'returned'}
                  ? ' active'">
 
             <span class="sidebar-icon">↩</span>
-            <span>Returned Requests</span>
+            <span>Returned New Shareholder Requests</span>
 
         </a>
 
@@ -151,3 +168,4 @@
 
 </body>
 </html>
+
