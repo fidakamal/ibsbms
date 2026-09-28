@@ -40,6 +40,8 @@ public class ShareTransferWorkflowService {
     private final CdblOutBatchRepository cdblOutBatchRepository;
     private final CdblOutItemRepository cdblOutItemRepository;
 
+    private final AccountCdblRepository accountCdblRepository;
+
     public ShareTransferWorkflowService(
             ShareTransferValidationService validationService,
             TransAuthRepository transAuthRepository,
@@ -50,7 +52,8 @@ public class ShareTransferWorkflowService {
             BusinessAuditRepository businessAuditRepository,
             ShareMovementRepository shareMovementRepository,
             CdblOutBatchRepository cdblOutBatchRepository,
-            CdblOutItemRepository cdblOutItemRepository) {
+            CdblOutItemRepository cdblOutItemRepository,
+            AccountCdblRepository accountCdblRepository) {
 
         this.validationService = validationService;
         this.transAuthRepository = transAuthRepository;
@@ -62,6 +65,7 @@ public class ShareTransferWorkflowService {
         this.shareMovementRepository = shareMovementRepository;
         this.cdblOutBatchRepository = cdblOutBatchRepository;
         this.cdblOutItemRepository = cdblOutItemRepository;
+        this.accountCdblRepository = accountCdblRepository;
     }
 
     @Transactional
@@ -654,6 +658,37 @@ public class ShareTransferWorkflowService {
                     quantity,
                     sourceAccount
             );
+
+
+
+
+            AccountCdbl boAccount = accountCdblRepository
+                    .findByBoNo(creditLeg.getFolioBo())
+                    .orElseThrow(() ->
+                            new ShareTransferValidationException(
+                                    "Destination BO account could not be found: "
+                                            + creditLeg.getFolioBo()
+                            ));
+
+            BigDecimal currentBalance = boAccount.getCurrentBalance() == null
+                    ? BigDecimal.ZERO
+                    : boAccount.getCurrentBalance();
+
+            BigDecimal freeBalance = boAccount.getFreeBalance() == null
+                    ? BigDecimal.ZERO
+                    : boAccount.getFreeBalance();
+
+            boAccount.setCurrentBalance(
+                    currentBalance.add(quantity)
+            );
+
+            boAccount.setFreeBalance(
+                    freeBalance.add(quantity)
+            );
+
+            accountCdblRepository.saveAndFlush(boAccount);
+
+
 
             LocalDateTime now = LocalDateTime.now();
 
