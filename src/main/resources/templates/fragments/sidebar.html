@@ -42,7 +42,7 @@
         </a>
 
 
-        <!-- Approvals -->
+        <!-- New Shareholder Approvals -->
         <a href="/approvals"
            class="sidebar-link"
            data-tooltip="Approvals"
@@ -62,18 +62,21 @@
         </a>
 
 
-        <!-- My Requests -->
+        
+        <!-- My Requests / Shareholder Change Requests -->
         <a th:href="@{/my-requests}"
            class="sidebar-link"
-           data-tooltip="My Requests"
+           data-tooltip="Shareholder Change Requests"
            sec:authorize="hasRole('MAKER')"
            th:classappend="${currentUri.startsWith('/my-requests')}
-                        ? ' active'">
+                ? ' active'">
 
             <span class="sidebar-icon">▤</span>
-            <span>My Requests</span>
+            <span>Shareholder Change Requests</span>
 
         </a>
+
+
 
 
         <!-- Share Transfer (Maker) -->
@@ -112,7 +115,7 @@
            th:classappend="${currentUri.startsWith('/share-transfer/checker')}
                         ? ' active'">
 
-            <span class="sidebar-icon">✓</span>
+            <span class="sidebar-icon">⇄</span>
             <span>Share Transfer Approvals</span>
 
         </a>
