@@ -25,60 +25,78 @@ public interface ShareholderRepository
     );
 
     @Query(value = """
-        SELECT *
-        FROM (
-            SELECT
-                s.FOLIO_BO AS "folioBo",
-                s.CUST_NAME AS "custName",
-                s.EMAIL AS "email",
-                s.PHONE AS "phone",
-                s.SHARES AS "shares",
-                s.BALANCE AS "balance",
-                s.IS_VALID AS "isValid",
+    SELECT *
+    FROM (
+        SELECT
+            s.FOLIO_BO AS "folioBo",
+            s.CUST_NAME AS "custName",
+            s.EMAIL AS "email",
+            s.PHONE AS "phone",
+            s.SHARES AS "shares",
+            s.BALANCE AS "balance",
+            s.IS_VALID AS "isValid",
 
-                a.ADD1 AS "add1",
-                a.ADD2 AS "add2",
-                a.ADD3 AS "add3",
-                a.ADD4 AS "add4",
-                a.COUNTRY_NAME AS "countryName",
+            a.ADD1 AS "add1",
+            a.ADD2 AS "add2",
+            a.ADD3 AS "add3",
+            a.ADD4 AS "add4",
+            a.COUNTRY_NAME AS "countryName",
 
-                ROW_NUMBER() OVER (
-                    ORDER BY s.REGISTRATION_DATE DESC NULLS LAST,
-                             s.FOLIO_BO DESC
-                ) AS rn
+            ROW_NUMBER() OVER (
+                ORDER BY s.REGISTRATION_DATE DESC NULLS LAST,
+                         s.FOLIO_BO DESC
+            ) AS rn
 
-            FROM T_ACCOUNT_SHARE s
+        FROM T_ACCOUNT_SHARE s
 
-            LEFT JOIN T_ADDRESS_SHARE a
-                ON s.FOLIO_BO = a.FOLIO_BO
+        LEFT JOIN T_ADDRESS_SHARE a
+            ON s.FOLIO_BO = a.FOLIO_BO
 
-            WHERE (
-                :folioBo IS NULL
-                OR TRIM(:folioBo) = ''
-                OR s.FOLIO_BO = :folioBo
+        WHERE (
+            :search IS NULL
+            OR TRIM(:search) = ''
+            OR s.FOLIO_BO = :search
+            OR EXISTS (
+                SELECT 1
+                FROM T_SHARE_MOVEMENT m
+                WHERE m.SOURCE_REF = s.FOLIO_BO
+                  AND m.MOVEMENT_TYPE = 'DEMAT'
+                  AND m.SOURCE_TYPE = 'FOLIO'
+                  AND m.TARGET_TYPE = 'BO'
+                  AND m.TARGET_REF = :search
             )
         )
-        WHERE rn BETWEEN :startRow AND :endRow
-        """,
+    )
+    WHERE rn BETWEEN :startRow AND :endRow
+    """,
             nativeQuery = true)
     List<ShareholderListProjection> findShareholderList(
-            @Param("folioBo") String folioBo,
+            @Param("search") String search,
             @Param("startRow") int startRow,
             @Param("endRow") int endRow
     );
 
     @Query(value = """
-        SELECT COUNT(DISTINCT s.FOLIO_BO)
-        FROM T_ACCOUNT_SHARE s
-        WHERE (
-            :folioBo IS NULL
-            OR TRIM(:folioBo) = ''
-            OR s.FOLIO_BO = :folioBo
+    SELECT COUNT(DISTINCT s.FOLIO_BO)
+    FROM T_ACCOUNT_SHARE s
+    WHERE (
+        :search IS NULL
+        OR TRIM(:search) = ''
+        OR s.FOLIO_BO = :search
+        OR EXISTS (
+            SELECT 1
+            FROM T_SHARE_MOVEMENT m
+            WHERE m.SOURCE_REF = s.FOLIO_BO
+              AND m.MOVEMENT_TYPE = 'DEMAT'
+              AND m.SOURCE_TYPE = 'FOLIO'
+              AND m.TARGET_TYPE = 'BO'
+              AND m.TARGET_REF = :search
         )
-        """,
+    )
+    """,
             nativeQuery = true)
     long countShareholders(
-            @Param("folioBo") String folioBo
+            @Param("search") String search
     );
 
 
@@ -92,6 +110,23 @@ public interface ShareholderRepository
 """)
     List<Shareholder> findAllByFolioBoInForUpdate(
             @Param("folioBos") List<String> folioBos
+    );
+
+
+
+    @Query(value = """
+    SELECT DISTINCT s.FOLIO_BO AS "folioBo"
+    FROM T_ACCOUNT_SHARE s
+    JOIN T_SHARE_MOVEMENT m
+        ON m.SOURCE_REF = s.FOLIO_BO
+    WHERE m.MOVEMENT_TYPE = 'DEMAT'
+      AND m.SOURCE_TYPE = 'FOLIO'
+      AND m.TARGET_TYPE = 'BO'
+      AND m.TARGET_REF = :boNo
+    """,
+            nativeQuery = true)
+    List<String> findFoliosByBo(
+            @Param("boNo") String boNo
     );
 }
 

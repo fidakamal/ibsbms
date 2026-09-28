@@ -6,6 +6,7 @@
 
 <head>
 
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -88,6 +89,7 @@
         }
 
     </style>
+    ```
 
 </head>
 
@@ -102,6 +104,7 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="main-content">
+
 
     <div class="page-content">
 
@@ -135,13 +138,14 @@
 
 
         <!-- Success Message -->
+
         <div th:if="${param.success}"
              class="alert alert-success alert-dismissible fade show"
              role="alert">
 
-    <span th:text="${param.success}">
-        Request approved successfully.
-    </span>
+        <span th:text="${param.success}">
+            Request approved successfully.
+        </span>
 
             <button type="button"
                     class="btn-close"
@@ -154,22 +158,12 @@
 
         <!-- Flash messages -->
 
-<!--        <div th:if="${param.success}"-->
-<!--             class="alert alert-success">-->
-
-<!--            <span th:text="${param.success}">-->
-<!--                Done.-->
-<!--            </span>-->
-
-<!--        </div>-->
-
-
         <div th:if="${param.error}"
              class="alert alert-danger">
 
-            <span th:text="${param.error}">
-                Error.
-            </span>
+        <span th:text="${param.error}">
+            Error.
+        </span>
 
         </div>
 
@@ -187,15 +181,20 @@
 
 
                     <!-- Pending Approval: Checker only -->
+
                     <div class="col-md-3" th:if="${isChecker}">
+
                         <a href="/approvals"
                            class="btn btn-outline-secondary w-100">
+
                             Pending Approval
+
                         </a>
+
                     </div>
 
 
-                    <!-- Folio Search -->
+                    <!-- Search -->
 
                     <div class="col-md-9">
 
@@ -207,13 +206,12 @@
 
                                 <input
                                         type="text"
-                                        name="folioBo"
+                                        name="search"
                                         class="form-control"
-                                        placeholder="Enter Folio No"
-                                        th:value="${folioBo}">
+                                        placeholder="Enter Folio No or BO No"
+                                        th:value="${search}">
 
                             </div>
-
 
                             <div class="col-md-4">
 
@@ -231,6 +229,82 @@
 
                     </div>
 
+
+                </div>
+
+
+
+                <!-- BO Record -->
+
+                <div th:if="${boRecord != null}"
+                     class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-body">
+
+                        <div class="row align-items-center">
+
+                            <!-- BO No -->
+
+                            <div class="col-md-3">
+
+                                <small class="text-muted d-block">
+                                    BO NO
+                                </small>
+
+                                <strong th:text="${boRecord.boNo}">
+                                    1201470000008842
+                                </strong>
+
+                            </div>
+
+
+                            <!-- BO Name -->
+
+                            <div class="col-md-3">
+
+                                <small class="text-muted d-block">
+                                    BO NAME
+                                </small>
+
+                                <span th:text="${boRecord.boName}">
+                    BO Name
+                </span>
+
+                            </div>
+
+
+                            <!-- Shares -->
+
+                            <div class="col-md-3">
+
+                                <small class="text-muted d-block">
+                                    SHARES
+                                </small>
+
+                                <strong th:text="${boRecord.currentBalance}">
+                                    1000
+                                </strong>
+
+                            </div>
+
+
+                            <!-- Status -->
+
+                            <div class="col-md-3">
+
+                                <small class="text-muted d-block">
+                                    STATUS
+                                </small>
+
+                                <span th:text="${boRecord.boStatus}">
+                    ACTIVE
+                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -323,51 +397,51 @@
 
                             <td class="address-column">
 
-                                <span
-                                        th:if="${shareholder.add1 != null}"
-                                        th:text="${shareholder.add1}">
-                                    Dhaka
-                                </span>
+                            <span
+                                    th:if="${shareholder.add1 != null}"
+                                    th:text="${shareholder.add1}">
+                                Dhaka
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.add2 != null
-                                           and !#strings.isEmpty(shareholder.add2)}"
+                                       and !#strings.isEmpty(shareholder.add2)}"
                                         th:text="', ' + ${shareholder.add2}">
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.add3 != null
-                                           and !#strings.isEmpty(shareholder.add3)}"
+                                       and !#strings.isEmpty(shareholder.add3)}"
                                         th:text="', ' + ${shareholder.add3}">
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.add4 != null
-                                           and !#strings.isEmpty(shareholder.add4)}"
+                                       and !#strings.isEmpty(shareholder.add4)}"
                                         th:text="', ' + ${shareholder.add4}">
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:if="${shareholder.countryName != null
-                                           and !#strings.isEmpty(shareholder.countryName)}"
+                                       and !#strings.isEmpty(shareholder.countryName)}"
                                         th:text="', ' + ${shareholder.countryName}">
-                                </span>
+                            </span>
 
 
                                 <!-- No address -->
 
                                 <span
                                         th:if="${shareholder.add1 == null
-                                           and (shareholder.countryName == null
-                                           or #strings.isEmpty(shareholder.countryName))}">
+                                       and (shareholder.countryName == null
+                                       or #strings.isEmpty(shareholder.countryName))}">
 
-                                    -
+                                -
 
-                                </span>
+                            </span>
 
                             </td>
 
@@ -416,22 +490,22 @@
 
                             <td class="status-column">
 
-                                <span
-                                        th:if="${shareholder.isValid == 1}"
-                                        class="badge bg-success">
+                            <span
+                                    th:if="${shareholder.isValid == 1}"
+                                    class="badge bg-success">
 
-                                    Valid
+                                Valid
 
-                                </span>
+                            </span>
 
 
                                 <span
                                         th:unless="${shareholder.isValid == 1}"
                                         class="badge bg-secondary">
 
-                                    Invalid
+                                Invalid
 
-                                </span>
+                            </span>
 
                             </td>
 
@@ -496,36 +570,36 @@
 
                     <small class="text-muted">
 
-                        <span th:if="${totalItems > 0}">
+                    <span th:if="${totalItems > 0}">
 
-                            Showing
+                        Showing
 
-                            <strong th:text="${startEntry}">
-                                1
-                            </strong>
+                        <strong th:text="${startEntry}">
+                            1
+                        </strong>
 
-                            -
+                        -
 
-                            <strong th:text="${endEntry}">
-                                10
-                            </strong>
+                        <strong th:text="${endEntry}">
+                            10
+                        </strong>
 
-                            of
+                        of
 
-                            <strong th:text="${totalItems}">
-                                1470
-                            </strong>
+                        <strong th:text="${totalItems}">
+                            1470
+                        </strong>
 
-                            entries
+                        entries
 
-                        </span>
+                    </span>
 
 
                         <span th:if="${totalItems == 0}">
 
-                            Showing 0 entries
+                        Showing 0 entries
 
-                        </span>
+                    </span>
 
                     </small>
 
@@ -546,10 +620,10 @@
                                 <a class="page-link"
                                    th:if="${page > 1}"
                                    th:href="@{/shareholders(
-                                       page=${page - 1},
-                                       size=${pageSize},
-                                       folioBo=${folioBo}
-                                   )}">
+                                   page=${page - 1},
+                                   size=${pageSize},
+                                   search=${search}
+                               )}">
 
                                     Previous
 
@@ -558,9 +632,9 @@
                                 <span class="page-link"
                                       th:if="${page == 1}">
 
-                                    Previous
+                                Previous
 
-                                </span>
+                            </span>
 
                             </li>
 
@@ -572,10 +646,10 @@
 
                                 <a class="page-link"
                                    th:href="@{/shareholders(
-                                       page=1,
-                                       size=${pageSize},
-                                       folioBo=${folioBo}
-                                   )}">
+                                   page=1,
+                                   size=${pageSize},
+                                   search=${search}
+                               )}">
 
                                     1
 
@@ -589,9 +663,9 @@
                             <li class="page-item disabled"
                                 th:if="${page > 4}">
 
-                                <span class="page-link">
-                                    ...
-                                </span>
+                            <span class="page-link">
+                                ...
+                            </span>
 
                             </li>
 
@@ -606,10 +680,10 @@
 
                                     <a class="page-link"
                                        th:href="@{/shareholders(
-                                           page=${pageNumber},
-                                           size=${pageSize},
-                                           folioBo=${folioBo}
-                                       )}"
+                                       page=${pageNumber},
+                                       size=${pageSize},
+                                       search=${search}
+                                   )}"
                                        th:text="${pageNumber}">
 
                                         2
@@ -626,9 +700,9 @@
                             <li class="page-item disabled"
                                 th:if="${page < totalPages - 3}">
 
-                                <span class="page-link">
-                                    ...
-                                </span>
+                            <span class="page-link">
+                                ...
+                            </span>
 
                             </li>
 
@@ -641,10 +715,10 @@
 
                                 <a class="page-link"
                                    th:href="@{/shareholders(
-                                       page=${totalPages},
-                                       size=${pageSize},
-                                       folioBo=${folioBo}
-                                   )}"
+                                   page=${totalPages},
+                                   size=${pageSize},
+                                   search=${search}
+                               )}"
                                    th:text="${totalPages}">
 
                                     567
@@ -662,10 +736,10 @@
                                 <a class="page-link"
                                    th:if="${page < totalPages}"
                                    th:href="@{/shareholders(
-                                       page=${page + 1},
-                                       size=${pageSize},
-                                       folioBo=${folioBo}
-                                   )}">
+                                   page=${page + 1},
+                                   size=${pageSize},
+                                   search=${search}
+                               )}">
 
                                     Next
 
@@ -674,9 +748,9 @@
                                 <span class="page-link"
                                       th:if="${page == totalPages}">
 
-                                    Next
+                                Next
 
-                                </span>
+                            </span>
 
                             </li>
 
@@ -695,9 +769,9 @@
 
     </div>
 
+
 </main>
 
 </body>
 
 </html>
-

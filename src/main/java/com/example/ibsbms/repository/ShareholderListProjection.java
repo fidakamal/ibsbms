@@ -25,4 +25,5 @@ public interface ShareholderListProjection {
     Long getBalance();
 
     Integer getIsValid();
+
 }

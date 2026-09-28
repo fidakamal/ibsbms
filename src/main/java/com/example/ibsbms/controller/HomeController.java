@@ -8,14 +8,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import com.example.ibsbms.entity.AccountCdbl;
+import com.example.ibsbms.repository.AccountCdblRepository;
 
 @Controller
 public class HomeController {
 
     private final ShareholderRepository shareholderRepository;
+    private final AccountCdblRepository accountCdblRepository;
 
-    public HomeController(ShareholderRepository shareholderRepository) {
+    public HomeController(
+            ShareholderRepository shareholderRepository,
+            AccountCdblRepository accountCdblRepository) {
+
         this.shareholderRepository = shareholderRepository;
+        this.accountCdblRepository = accountCdblRepository;
     }
 
     @GetMapping("/")
@@ -25,77 +32,57 @@ public class HomeController {
 
     @GetMapping("/shareholders")
     public String shareholders(
-            @RequestParam(required = false) String folioBo,
+            @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        /*
-         * Only allow the page sizes shown in the UI.
-         */
         if (size != 10 && size != 25 && size != 50 && size != 100) {
             size = 10;
         }
 
-        /*
-         * Clean the Folio search value.
-         */
-        String searchFolio = folioBo;
+        String searchValue = search;
 
-        if (searchFolio != null) {
-            searchFolio = searchFolio.trim();
+        if (searchValue != null) {
+            searchValue = searchValue.trim();
 
-            if (searchFolio.isEmpty()) {
-                searchFolio = null;
+            if (searchValue.isEmpty()) {
+                searchValue = null;
             }
         }
 
-        /*
-         * Prevent invalid page numbers.
-         */
         if (page < 1) {
             page = 1;
         }
 
-        /*
-         * Find total number of matching shareholders.
-         */
-        long totalItems =
-                shareholderRepository.countShareholders(searchFolio);
+        AccountCdbl boRecord = null;
 
-        /*
-         * Calculate total pages.
-         */
+        if (searchValue != null) {
+            boRecord = accountCdblRepository
+                    .findByBoNo(searchValue)
+                    .orElse(null);
+        }
+
+        long totalItems =
+                shareholderRepository.countShareholders(searchValue);
+
         int totalPages =
                 (int) Math.ceil((double) totalItems / size);
 
-        /*
-         * If the requested page is beyond the last page,
-         * move to the last available page.
-         */
         if (totalPages > 0 && page > totalPages) {
             page = totalPages;
         }
 
-        /*
-         * Oracle ROW_NUMBER() uses 1-based row numbers.
-         */
         int startRow = ((page - 1) * size) + 1;
         int endRow = page * size;
 
-        /*
-         * Get only the records for the current page.
-         */
         List<ShareholderListProjection> shareholders =
                 shareholderRepository.findShareholderList(
-                        searchFolio,
+                        searchValue,
                         startRow,
                         endRow
                 );
 
-        /*
-         * Calculate the displayed result range.
-         */
         long startEntry = 0;
         long endEntry = 0;
 
@@ -108,14 +95,15 @@ public class HomeController {
         }
 
         model.addAttribute("shareholders", shareholders);
-        model.addAttribute("folioBo", folioBo);
-
+        model.addAttribute("search", search);
         model.addAttribute("page", page);
         model.addAttribute("pageSize", size);
         model.addAttribute("totalItems", totalItems);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("startEntry", startEntry);
         model.addAttribute("endEntry", endEntry);
+
+        model.addAttribute("boRecord", boRecord);
 
         return "shareholder/shareholder-list";
     }
