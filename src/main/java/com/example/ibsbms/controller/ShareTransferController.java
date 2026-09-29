@@ -239,6 +239,8 @@ public class ShareTransferController {
 
 
 
+
+
     @PostMapping("/share-transfer/checker/{trId}/return")
     public String returnForModification(
             @PathVariable String trId,
@@ -266,6 +268,7 @@ public class ShareTransferController {
                     "Transfer request " + trId
                             + " returned to the maker for modification."
             );
+            redirectAttributes.addFlashAttribute("successType", "return");
 
             return "redirect:/share-transfer/checker";
 
@@ -307,6 +310,7 @@ public class ShareTransferController {
                     "success",
                     "Transfer request " + trId + " rejected."
             );
+            redirectAttributes.addFlashAttribute("successType", "reject");
 
             return "redirect:/share-transfer/checker";
 
@@ -346,6 +350,7 @@ public class ShareTransferController {
                     "Transfer request " + trId
                             + " approved and posted successfully."
             );
+            redirectAttributes.addFlashAttribute("successType", "approve");
 
             return "redirect:/share-transfer/checker";
 
