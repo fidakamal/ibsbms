@@ -164,6 +164,19 @@ public class ShareTransferWorkflowService {
                 .collect(Collectors.toList());
     }
 
+    public List<ShareTransferRequestSummary> getReturnedTransferRequests(String makerId) {
+
+        List<TransAuth> debitLegs =
+                transAuthRepository.findMakerDebitLegsByState(
+                        makerId,
+                        TransferAuthStatus.RETURNED_FOR_MODIFICATION.getCode()
+                );
+
+        return debitLegs.stream()
+                .map(ShareTransferRequestSummary::fromDebitLeg)
+                .collect(Collectors.toList());
+    }
+
     public ReturnedTransferEditView getReturnedRequestForEdit(String trId, String makerId) {
 
         TransAuth debitLeg = findDebitLeg(trId);
@@ -241,7 +254,7 @@ public class ShareTransferWorkflowService {
         debitLeg.setTrDate(businessDate);
         debitLeg.setDrAmt(quantity);
         debitLeg.setCrAmt(BigDecimal.ZERO);
-        debitLeg.setTrState(TransferAuthStatus.PENDING_CHECKER.getCode());
+        debitLeg.setTrState(TransferAuthStatus.RESUBMITTED.getCode());
         debitLeg.setMakerId(makerId);
         debitLeg.setMakerIp(makerIp);
         debitLeg.setCheckerId(null);
@@ -259,7 +272,7 @@ public class ShareTransferWorkflowService {
         creditLeg.setTrDate(businessDate);
         creditLeg.setDrAmt(BigDecimal.ZERO);
         creditLeg.setCrAmt(quantity);
-        creditLeg.setTrState(TransferAuthStatus.PENDING_CHECKER.getCode());
+        creditLeg.setTrState(TransferAuthStatus.RESUBMITTED.getCode());
         creditLeg.setMakerId(makerId);
         creditLeg.setMakerIp(makerIp);
         creditLeg.setCheckerId(null);
@@ -296,6 +309,12 @@ public class ShareTransferWorkflowService {
 
     private String trimOrNull(String value) {
         return value == null ? null : value.trim();
+    }
+
+    private boolean isAwaitingChecker(Integer trState) {
+        return trState != null
+                && (trState == TransferAuthStatus.PENDING_CHECKER.getCode()
+                || trState == TransferAuthStatus.RESUBMITTED.getCode());
     }
 
     private String shortTrCode(TransferType type) {
@@ -337,9 +356,7 @@ public class ShareTransferWorkflowService {
         TransAuth debitLeg = findDebitLeg(trId);
         TransAuth creditLeg = findCreditLeg(trId);
 
-        if (debitLeg.getTrState() == null
-                || debitLeg.getTrState()
-                != TransferAuthStatus.PENDING_CHECKER.getCode()) {
+        if (!isAwaitingChecker(debitLeg.getTrState())) {
 
             throw new ShareTransferValidationException(
                     "This transfer is no longer pending checker approval.");

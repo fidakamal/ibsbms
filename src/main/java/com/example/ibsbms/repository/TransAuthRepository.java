@@ -40,31 +40,16 @@ public interface TransAuthRepository extends JpaRepository<TransAuth, String> {
 
     List<TransAuth> findByTrId(String trId);
 
-    /**
-     * Returns all authorization legs that are currently pending.
-     *
-     * Each transfer has two rows in T_TRANS_AUTH:
-     *   - debit leg
-     *   - credit leg
-     *
-     * We only need the debit leg for the checker queue because it
-     * contains the source account and the contra account.
-     */
     @Query("""
         SELECT t
         FROM TransAuth t
-        WHERE t.trState = 0
+        WHERE t.trState IN (0, -1)
           AND t.drAmt IS NOT NULL
           AND t.drAmt > 0
         ORDER BY t.modifyDate DESC, t.trId DESC
     """)
     List<TransAuth> findPendingCheckerDebitLegs();
 
-    /**
-     * Locks the debit leg while checker approval is being processed.
-     *
-     * This is the first layer of double-approval protection.
-     */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         SELECT t
@@ -77,9 +62,6 @@ public interface TransAuthRepository extends JpaRepository<TransAuth, String> {
             @Param("trId") String trId
     );
 
-    /**
-     * Locks the credit leg belonging to the same transfer.
-     */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         SELECT t

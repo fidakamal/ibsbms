@@ -1,5 +1,7 @@
 package com.example.ibsbms.config;
 
+import com.example.ibsbms.enums.TransferAuthStatus;
+import com.example.ibsbms.repository.TransAuthRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,6 +13,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @ControllerAdvice
 public class GlobalModelAttributes {
 
+    private final TransAuthRepository transAuthRepository;
+
+    public GlobalModelAttributes(TransAuthRepository transAuthRepository) {
+        this.transAuthRepository = transAuthRepository;
+    }
 
     @ModelAttribute("currentUri")
     public String currentUri(HttpServletRequest request) { return request.getRequestURI(); }
@@ -36,5 +43,16 @@ public class GlobalModelAttributes {
         model.addAttribute("currentUsername", authentication.getName());
         model.addAttribute("isMaker", isMaker);
         model.addAttribute("isChecker", isChecker);
+
+        if (isMaker) {
+
+            int returnedTransferCount =
+                    transAuthRepository.findMakerDebitLegsByState(
+                            authentication.getName(),
+                            TransferAuthStatus.RETURNED_FOR_MODIFICATION.getCode()
+                    ).size();
+
+            model.addAttribute("returnedTransferCount", returnedTransferCount);
+        }
     }
 }

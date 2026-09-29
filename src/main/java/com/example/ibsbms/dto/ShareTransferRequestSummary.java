@@ -20,6 +20,7 @@ public class ShareTransferRequestSummary {
     private LocalDateTime submittedAt;
     private String particulars;
     private TransferAuthStatus status;
+    private String remarks;
 
     public static ShareTransferRequestSummary fromDebitLeg(TransAuth debitLeg) {
         ShareTransferRequestSummary summary = new ShareTransferRequestSummary();
@@ -41,7 +42,20 @@ public class ShareTransferRequestSummary {
         summary.trDate = debitLeg.getTrDate();
         summary.submittedAt = debitLeg.getModifyDate();
         summary.particulars = debitLeg.getParticular();
-        summary.status = TransferAuthStatus.fromCode(debitLeg.getTrState());
+        Integer trState = debitLeg.getTrState();
+        boolean everReturned = debitLeg.getRemarks() != null && !debitLeg.getRemarks().isBlank();
+
+        if (trState != null
+                && trState == TransferAuthStatus.PENDING_CHECKER.getCode()
+                && everReturned) {
+
+            summary.status = TransferAuthStatus.RESUBMITTED;
+
+        } else {
+
+            summary.status = TransferAuthStatus.fromCode(trState);
+        }
+        summary.remarks = debitLeg.getRemarks();
 
         return summary;
     }
@@ -56,4 +70,5 @@ public class ShareTransferRequestSummary {
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public String getParticulars() { return particulars; }
     public TransferAuthStatus getStatus() { return status; }
+    public String getRemarks() { return remarks; }
 }

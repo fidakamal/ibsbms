@@ -1,3 +1,4 @@
+// src/main/java/com/example/ibsbms/enums/TransferAuthStatus.java
 package com.example.ibsbms.enums;
 
 public enum TransferAuthStatus {
@@ -5,7 +6,9 @@ public enum TransferAuthStatus {
     PENDING_CHECKER(0),
     APPROVED(1),
     RETURNED_FOR_MODIFICATION(2),
-    REJECTED(3);
+    REJECTED(3),
+
+    RESUBMITTED(-1);
 
     private final int code;
 

@@ -118,7 +118,19 @@
         </div>
 
 
-        <form id="shareTransferFormEl" method="post" th:action="@{/share-transfer}" th:object="${shareTransferForm}" novalidate>
+        <!-- Returned-for-modification banner (edit/resubmit mode) -->
+        <div th:if="${editMode != null and editMode}" class="alert alert-warning">
+            <strong>This request was returned by the checker for modification.</strong>
+            <div th:if="${returnRemarks != null and !returnRemarks.isEmpty()}">
+                Checker remarks: <span th:text="${returnRemarks}"></span>
+            </div>
+        </div>
+
+        <form id="shareTransferFormEl" method="post"
+              th:action="${editMode != null and editMode}
+          ? @{/share-transfer/returned/{trId}/resubmit(trId=${trId})}
+          : @{/share-transfer}"
+              th:object="${shareTransferForm}" novalidate>
 
             <!-- =========================
                  TOP FIELDS
@@ -368,7 +380,7 @@
 
                 <div class="col-md-4 d-flex flex-wrap align-items-start justify-content-start justify-content-md-end gap-2">
                     <button type="submit" class="btn btn-primary">
-                        Save (Maker)
+                        <span th:text="${editMode != null and editMode} ? 'Resubmit' : 'Save (Maker)'">Save (Maker)</span>
                     </button>
                     <a th:href="@{/share-transfer}" class="btn btn-secondary">
                         Reset
@@ -495,7 +507,7 @@
         row.style.display = '';
     }
 
-    function applyTransferType() {
+    function syncTransferTypeUI(clearValues) {
         var type = currentType();
 
         document.getElementById('debitAccountType').textContent = labelFor(type.debit);
@@ -507,8 +519,14 @@
         document.getElementById('debitReference').setAttribute('placeholder', placeholderFor(type.debit));
         document.getElementById('creditReference').setAttribute('placeholder', placeholderFor(type.credit));
 
-        clearSide('debit');
-        clearSide('credit');
+        if (clearValues) {
+            clearSide('debit');
+            clearSide('credit');
+        } else {
+            clearSide('debit', { resetInput: false });
+            clearSide('credit', { resetInput: false });
+        }
+
         updateSettlementNote(type);
         document.getElementById('shareTransferFormEl').classList.remove('was-validated');
     }
@@ -672,9 +690,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        applyTransferType();
+        syncTransferTypeUI(false);
 
-        document.getElementById('transferType').addEventListener('change', applyTransferType);
+        document.getElementById('transferType').addEventListener('change', function () {
+            syncTransferTypeUI(true);
+        });
 
         document.getElementById('debitSearchBtn').addEventListener('click', function () { searchAccount('debit'); });
         document.getElementById('creditSearchBtn').addEventListener('click', function () { searchAccount('credit'); });

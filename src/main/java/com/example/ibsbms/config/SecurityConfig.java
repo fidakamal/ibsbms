@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .hasRole("CHECKER")
                         .requestMatchers("/shareholders", "/shareholders/**").hasAnyRole("MAKER", "CHECKER")
                         .requestMatchers("/share-transfer").hasRole("MAKER")
+                        .requestMatchers("/share-transfer/my-requests").hasRole("MAKER")
+                        .requestMatchers("/share-transfer/returned", "/share-transfer/returned/**").hasRole("MAKER")
                         .requestMatchers("/share-transfer/search/**").hasAnyRole("MAKER", "CHECKER")
 
                         .requestMatchers("/").hasAnyRole("MAKER", "CHECKER")

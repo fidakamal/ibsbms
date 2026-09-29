@@ -56,6 +56,11 @@
             color: #984c0c;
         }
 
+        .resubmitted {
+            background-color: #cfe2ff;
+            color: #0a4a9c;
+        }
+
         .filter-tabs .btn {
             margin-right: 6px;
         }
@@ -242,6 +247,11 @@
                                 <span th:if="${request.status.name() == 'PENDING_CHECKER'}"
                                       class="status-badge pending">
                                     Pending Checker
+                                </span>
+
+                                <span th:if="${request.status.name() == 'RESUBMITTED'}"
+                                      class="status-badge resubmitted">
+                                    Resubmitted
                                 </span>
 
                                 <span th:if="${request.status.name() == 'APPROVED'}"

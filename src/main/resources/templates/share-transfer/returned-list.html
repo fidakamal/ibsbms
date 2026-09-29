@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+
+    <title>Returned Transfer Requests</title>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<div class="main-wrapper">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="main-content">
+
+        <div class="page-content">
+
+            <!-- Page heading -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+                    <h2 class="mb-1">
+                        Returned Transfer Requests
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Review Share Transfer requests returned by the checker and resubmit them after modification
+                    </p>
+                </div>
+
+                <div>
+                <span class="badge bg-danger fs-6">
+                    Returned:
+                    <span th:text="${returnedCount}">
+                        0
+                    </span>
+                </span>
+                </div>
+
+            </div>
+
+
+            <!-- Success message -->
+            <div th:if="${param.success}"
+                 class="alert alert-success">
+
+            <span th:text="${param.success}">
+                Request resubmitted successfully.
+            </span>
+
+            </div>
+
+
+            <!-- Error message -->
+            <div th:if="${param.error}"
+                 class="alert alert-danger">
+
+            <span th:text="${param.error}">
+                Error.
+            </span>
+
+            </div>
+
+
+            <!-- Notice when there is nothing waiting -->
+            <div th:if="${returnedCount == 0}"
+                 class="alert alert-secondary">
+                You have no transfer requests waiting for modification right now.
+            </div>
+
+
+            <!-- Returned requests table -->
+            <div class="form-section">
+
+                <div class="form-section-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-striped table-hover align-middle">
+
+                            <thead>
+
+                            <tr>
+
+                                <th>
+                                    Transfer Ref
+                                </th>
+
+                                <th>
+                                    Type
+                                </th>
+
+                                <th>
+                                    From (Debit)
+                                </th>
+
+                                <th>
+                                    To (Credit)
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th>
+                                    Returned Date
+                                </th>
+
+                                <th>
+                                    Checker Remarks
+                                </th>
+
+                                <th class="text-end">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                            <!-- Returned requests -->
+                            <tr th:each="request : ${returnedRequests}">
+
+                                <!-- Transfer Ref -->
+                                <td>
+                                    <strong
+                                            th:text="${request.trId}">
+                                        TR000123
+                                    </strong>
+                                </td>
+
+
+                                <!-- Type -->
+                                <td>
+
+                                <span
+                                        class="badge bg-info text-dark"
+                                        th:text="${request.transferTypeLabel}">
+
+                                    Folio to Folio
+
+                                </span>
+
+                                </td>
+
+
+                                <!-- From -->
+                                <td
+                                        th:text="${request.debitReference}">
+                                    F123456
+                                </td>
+
+
+                                <!-- To -->
+                                <td
+                                        th:text="${request.creditReference}">
+                                    F654321
+                                </td>
+
+
+                                <!-- Quantity -->
+                                <td
+                                        th:text="${request.shareQuantity}">
+                                    100
+                                </td>
+
+
+                                <!-- Returned date -->
+                                <td>
+
+                                <span
+                                        th:if="${request.submittedAt != null}"
+                                        th:text="${#temporals.format(request.submittedAt, 'dd-MMM-yyyy HH:mm')}">
+
+                                    06-Sep-2026 15:30
+
+                                </span>
+
+                                    <span
+                                            th:unless="${request.submittedAt != null}">
+                                    -
+                                </span>
+
+                                </td>
+
+
+                                <!-- Checker remarks -->
+                                <td style="max-width: 300px;">
+
+                                <span
+                                        th:if="${request.remarks != null
+                                               and !#strings.isEmpty(request.remarks)}"
+                                        th:text="${request.remarks}">
+
+                                    Please verify the destination Folio balance.
+
+                                </span>
+
+                                    <span
+                                            th:unless="${request.remarks != null
+                                                   and !#strings.isEmpty(request.remarks)}"
+                                            class="text-muted">
+
+                                    No remarks provided
+
+                                </span>
+
+                                </td>
+
+
+                                <!-- Action -->
+                                <td class="text-end">
+
+                                    <a
+                                            th:href="@{/share-transfer/returned/{trId}/edit(
+                                            trId=${request.trId}
+                                        )}"
+                                            class="btn btn-sm btn-primary">
+
+                                        Edit &amp; Resubmit
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- No returned requests -->
+                            <tr th:if="${#lists.isEmpty(returnedRequests)}">
+
+                                <td
+                                        colspan="8"
+                                        class="text-center text-muted py-4">
+
+                                    No returned transfer requests found.
+
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+</div>
+
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+
+</html>

@@ -136,6 +136,20 @@ public class ShareTransferController {
         return "share-transfer/my-requests";
     }
 
+    @GetMapping("/share-transfer/returned")
+    public String returnedRequests(Principal principal, Model model) {
+
+        String makerId = principal.getName();
+
+        List<ShareTransferRequestSummary> returnedRequests =
+                shareTransferWorkflowService.getReturnedTransferRequests(makerId);
+
+        model.addAttribute("returnedRequests", returnedRequests);
+        model.addAttribute("returnedCount", returnedRequests.size());
+
+        return "share-transfer/returned-list";
+    }
+
     @GetMapping("/share-transfer/returned/{trId}/edit")
     public String editReturned(
             @PathVariable String trId,

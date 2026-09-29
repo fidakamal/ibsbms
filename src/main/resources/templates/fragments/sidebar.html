@@ -107,6 +107,27 @@
         </a>
 
 
+        <!-- Returned Transfer Requests (Share Transfer Maker) -->
+        <a th:href="@{/share-transfer/returned}"
+           class="sidebar-link"
+           data-tooltip="Returned Transfer Requests"
+           sec:authorize="hasRole('MAKER')"
+           th:classappend="${currentUri.startsWith('/share-transfer/returned')}
+                        ? ' active'">
+
+            <span class="sidebar-icon">↩</span>
+            <span>Returned Transfer Requests</span>
+
+            <span class="badge bg-danger ms-1"
+                  th:if="${returnedTransferCount != null and returnedTransferCount > 0}"
+                  th:text="${returnedTransferCount}">
+                2
+            </span>
+
+        </a>
+
+
+
         <!-- Share Transfer Approvals (Checker) -->
         <a th:href="@{/share-transfer/checker}"
            class="sidebar-link"
