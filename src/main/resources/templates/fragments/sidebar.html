@@ -93,30 +93,30 @@
         </a>
 
 
-        <!-- My Transfer Requests (Share Transfer Maker) -->
+        <!-- Share Transfer Requests (Share Transfer Maker) -->
         <a th:href="@{/share-transfer/my-requests}"
            class="sidebar-link"
-           data-tooltip="My Transfer Requests"
+           data-tooltip="Share Transfer Requests"
            sec:authorize="hasRole('MAKER')"
            th:classappend="${currentUri.startsWith('/share-transfer/my-requests')}
                         ? ' active'">
 
             <span class="sidebar-icon">⇄</span>
-            <span>My Transfer Requests</span>
+            <span>Share Transfer Requests</span>
 
         </a>
 
 
-        <!-- Returned Transfer Requests (Share Transfer Maker) -->
+        <!-- Returned Share Transfer Requests (Share Transfer Maker) -->
         <a th:href="@{/share-transfer/returned}"
            class="sidebar-link"
-           data-tooltip="Returned Transfer Requests"
+           data-tooltip="Returned Share Transfer Requests"
            sec:authorize="hasRole('MAKER')"
            th:classappend="${currentUri.startsWith('/share-transfer/returned')}
                         ? ' active'">
 
             <span class="sidebar-icon">↩</span>
-            <span>Returned Transfer Requests</span>
+            <span>Returned Share Transfer Requests</span>
 
             <span class="badge bg-danger ms-1"
                   th:if="${returnedTransferCount != null and returnedTransferCount > 0}"
@@ -175,13 +175,13 @@
         <!-- Maker Returned Requests -->
         <a href="/shareholders/returned"
            class="sidebar-link"
-           data-tooltip="Returned for Modification"
+           data-tooltip="Returned Shareholder Request For Modification"
            th:if="${isMaker}"
            th:classappend="${currentUri.startsWith('/shareholders/returned')}
                         ? ' active'">
 
             <span class="sidebar-icon">↩</span>
-            <span>Returned for Modification</span>
+            <span>Returned Shareholder Request For Modification</span>
 
         </a>
 
