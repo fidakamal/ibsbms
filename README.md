@@ -65,6 +65,33 @@ The system manages shareholder account information, shareholder changes, and sha
 * Responsive Bootstrap-based interface
 * Shared header and sidebar components
 
+
+## Screenshots
+
+### Dashboard
+
+The dashboard provides an overview of shareholder accounts, active accounts, and pending approvals.
+
+![IBSBMS Dashboard](screenshots/img.png)
+
+### Shareholder Management
+
+The shareholder module provides account listing, search, and account management.
+
+![IBSBMS Shareholder Management](screenshots/img_1.png)
+
+### Maker–Checker Approval
+
+Checker users can review and process submitted shareholder requests.
+
+![IBSBMS Approval](screenshots/img_2.png)
+
+### Share Transfer
+
+The Share Transfer module supports controlled share transfer operations through the Maker–Checker workflow.
+
+![IBSBMS Share Transfer](screenshots/img_3.png)
+
 ---
 
 ## Technology Stack
