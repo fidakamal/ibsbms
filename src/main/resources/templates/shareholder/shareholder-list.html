@@ -34,6 +34,7 @@
         .shareholder-table th,
         .shareholder-table td {
             vertical-align: middle;
+            box-sizing: border-box;
         }
 
         /* Column widths - total = 100% */
@@ -54,15 +55,26 @@
             word-wrap: break-word;
         }
 
+
         .email-column {
-            width: 13%;
+            width: 16%;
+            padding-left: 12px;
+            padding-right: 16px;
+            overflow: hidden;
+        }
+
+        .email-text {
+            display: block;
+            width: 100%;
             white-space: normal;
             overflow-wrap: anywhere;
-            word-wrap: break-word;
+            word-break: break-word;
         }
 
         .phone-column {
             width: 9%;
+            padding-left: 16px;
+            padding-right: 12px;
             white-space: nowrap;
         }
 
@@ -448,11 +460,11 @@
 
                             <!-- Email -->
 
-                            <td class="email-column"
-                                th:text="${shareholder.email}">
-
-                                abdul@example.com
-
+                            <td class="email-column">
+    <span class="email-text"
+          th:text="${shareholder.email}">
+        abdullah15-4178@diu.edu.bd
+    </span>
                             </td>
 
 
