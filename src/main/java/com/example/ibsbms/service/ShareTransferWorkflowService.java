@@ -418,9 +418,7 @@ public class ShareTransferWorkflowService {
                                 new ShareTransferValidationException(
                                         "Credit leg not found: " + trId));
 
-        if (debitLeg.getTrState() == null
-                || debitLeg.getTrState()
-                != TransferAuthStatus.PENDING_CHECKER.getCode()) {
+        if (!isAwaitingChecker(debitLeg.getTrState())) {
 
             throw new ShareTransferValidationException(
                     "This transfer is no longer pending checker approval.");
@@ -494,9 +492,7 @@ public class ShareTransferWorkflowService {
                                 new ShareTransferValidationException(
                                         "Credit leg not found: " + trId));
 
-        if (debitLeg.getTrState() == null
-                || debitLeg.getTrState()
-                != TransferAuthStatus.PENDING_CHECKER.getCode()) {
+        if (!isAwaitingChecker(debitLeg.getTrState())) {
 
             throw new ShareTransferValidationException(
                     "This transfer is no longer pending checker approval.");
@@ -569,9 +565,7 @@ public class ShareTransferWorkflowService {
         // 3. Verify workflow state
         // ---------------------------------------------------------
 
-        if (debitLeg.getTrState() == null
-                || debitLeg.getTrState()
-                != TransferAuthStatus.PENDING_CHECKER.getCode()) {
+        if (!isAwaitingChecker(debitLeg.getTrState())) {
 
             throw new ShareTransferValidationException(
                     "This transfer is no longer pending checker approval.");
