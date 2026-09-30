@@ -590,15 +590,10 @@ public class ShareTransferWorkflowService {
         }
 
         // ---------------------------------------------------------
-        // 6. Verify business date
+        // 6. Posting date
         // ---------------------------------------------------------
 
-        LocalDate businessDate = debitLeg.getTrDate();
-
-        if (!businessDateService.isCurrentBusinessDate(businessDate)) {
-            throw new ShareTransferValidationException(
-                    "Transfer business date is not the current business date.");
-        }
+        LocalDate businessDate = businessDateService.currentBusinessDate();
 
         // ---------------------------------------------------------
         // 7. Determine transfer type
