@@ -88,7 +88,7 @@ The Share Transfer module supports controlled share transfer operations through 
 
 ### Share Transfer Requests
 
-The module shows lists of share transfer requests from checker side.
+The module shows lists of share transfer requests from maker side.
 
 ![IBSBMS Share Transfer](screenshots/img_3.png)
 
