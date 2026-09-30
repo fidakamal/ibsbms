@@ -74,21 +74,21 @@ The dashboard provides an overview of shareholder accounts, active accounts, and
 
 ![IBSBMS Dashboard](screenshots/img.png)
 
-### Shareholder Management
+### Shareholder Change Requests
 
-The shareholder module provides account listing, search, and account management.
+The module provides shareholder maker change requests.
 
 ![IBSBMS Shareholder Management](screenshots/img_1.png)
-
-### Maker–Checker Approval
-
-Checker users can review and process submitted shareholder requests.
-
-![IBSBMS Approval](screenshots/img_2.png)
 
 ### Share Transfer
 
 The Share Transfer module supports controlled share transfer operations through the Maker–Checker workflow.
+
+![IBSBMS Approval](screenshots/img_2.png)
+
+### Share Transfer Requests
+
+The module shows lists of share transfer requests from checker side.
 
 ![IBSBMS Share Transfer](screenshots/img_3.png)
 
